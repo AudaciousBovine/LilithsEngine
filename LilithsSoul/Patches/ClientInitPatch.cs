@@ -2,6 +2,7 @@ using HarmonyLib;
 using ProjectM;
 using LilithsSoul.Foundation;
 using LilithsSoul.Network;
+using LilithsSoul.Services; // [CHANGED] for LocalizationPatcher (TEMPORARY test call — remove at payload cutover)
 
 // ============================================================
 //  ClientInitPatch — LilithsSoul
@@ -16,6 +17,15 @@ using LilithsSoul.Network;
 //            and pre-apply the cached sync.json BEFORE CharacterHUD
 //            builds — eliminating the UI timing race condition where
 //            the server payload arrives after the UI is already built.
+//
+//  [CHANGED] Fires LocalizationPatcher.ApplyTest() once after world-ready
+//            as a TEMPORARY first-cut test of the name/tooltip repoint.
+//            It mutates a single item (Bone Sword) so the rename can be
+//            verified in-game. Reads vanilla managed data only — no
+//            dependency on server sync — so it runs on world-ready alone.
+//            REMOVE this call once the repoint is driven by the sync
+//            payload at cutover. (Replaces the earlier RepointDiagnostic
+//            probe call, which has served its purpose.)
 //
 //  [PERFORMANCE] Guard check is a single bool read per frame
 //                until initialization — negligible cost.
@@ -78,6 +88,20 @@ internal static class ClientInitPatch
             }
 
             SyncReceiver.NotifyWorldReady(connectionString);
+
+            // [CHANGED] TEMPORARY first-cut repoint test — fully isolated in its
+            //           own try/catch so a failure here can never affect init
+            //           (NotifyWorldReady has already completed above). Remove
+            //           this block once the repoint is driven by the sync payload.
+            try
+            {
+                RepointDiagnostic.Run();
+            }
+            catch (Exception ex)
+            {
+                SoulLogger.Warning(LOG_SOURCE,
+                    $"RepointDiagnostic probe threw (non-fatal): {ex.Message}");
+            }
         }
         catch (Exception ex)
         {

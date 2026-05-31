@@ -1,30 +1,6 @@
 using BepInEx.Configuration;
 using LilithsHeart.Foundation;
 
-// ============================================================
-//  HeartConfig — LilithsHeart
-//  LilithsHeart/Config/HeartConfig.cs
-//
-//  BepInEx config bindings for LilithsHeart core settings.
-//
-//  [CHANGED] Removed Lazy<T> wrappers — ConfigEntry<T>.Value
-//            already caches after first read. Lazy<T> introduced
-//            a hot-reload bug where re-reads never fired.
-//
-//  [CHANGED] Removed StartingInventorySize and
-//            GlobalPlayerMovementSpeedMultiplier — gameplay
-//            settings belong in the module that owns the feature.
-//
-//  [CHANGED] GenerateLocalizationExample renamed to
-//            GenerateExampleConfigs. Now triggers example
-//            generation for all installed features via
-//            HeartConfigBuilder, not just localization.
-//            DisableGenerateLocalizationExample() renamed to
-//            DisableGenerateExampleConfigs() to match.
-//
-//  [ADDED] ChunksPerFrame — controls the tiered sync send rate.
-// ============================================================
-
 namespace LilithsHeart.Config;
 
 public static class HeartConfig
@@ -40,11 +16,6 @@ public static class HeartConfig
     public static bool IsDebug        => _debugLogging.Value;
     public static int  ChunksPerFrame => _chunksPerFrame.Value;
 
-    /// <summary>
-    /// When true, HeartConfigBuilder generates example config files
-    /// for all installed features on next boot. Resets to false
-    /// automatically after generation completes.
-    /// </summary>
     public static bool GenerateExampleConfigs => _generateExampleConfigs.Value;
 
     public static void Initialize(ConfigFile config)
