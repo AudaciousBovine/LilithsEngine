@@ -49,14 +49,6 @@ public static class HeartConfig
 
     public static void Initialize(ConfigFile config)
     {
-        _debugLogging = config.Bind(
-            section:      "Core",
-            key:          "DebugLogging",
-            defaultValue: false,
-            description:  "Enable verbose debug logging for LilithsHeart. " +
-                          "Useful during development, disable on live servers."
-        );
-
         ServerName = config.Bind(
             section:      "General",
             key:          "ServerName",
@@ -67,7 +59,7 @@ public static class HeartConfig
         );
 
         _generateExampleConfigs = config.Bind(
-            section:      "Generation",
+            section:      "Config Generation",
             key:          "GenerateExampleConfigs",
             defaultValue: false,
             description:  "When set to true, generates example config files for all " +
@@ -76,18 +68,22 @@ public static class HeartConfig
                           "This setting resets to false automatically after generation."
         );
 
-        // [PERFORMANCE] Reduce ChunksPerFrame if frame drops occur when many
-        //               players connect simultaneously (e.g. server restart).
-        //               At 10 chunks/frame and 60fps:
-        //               ~290 total chunks → ~0.5 seconds per client sync.
         _chunksPerFrame = config.Bind(
-            section:      "Sync",
+            section:      "Client Sync",
             key:          "ChunksPerFrame",
             defaultValue: 10,
             description:  "Maximum number of sync payload chunks sent per server frame. " +
                           "Higher values sync clients faster but increase CPU load on connect. " +
                           "Reduce if you see frame drops when many players connect simultaneously. " +
                           "Default: 10. Range: 1-50."
+        );
+
+            _debugLogging = config.Bind(
+            section:      "Debug",
+            key:          "DebugLogging",
+            defaultValue: false,
+            description:  "Enable verbose debug logging for LilithsHeart. " +
+                          "Useful during development, disable on live servers."
         );
 
         HeartLogger.Info(LOG_SOURCE,
