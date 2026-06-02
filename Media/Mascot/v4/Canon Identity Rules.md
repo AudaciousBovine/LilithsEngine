@@ -153,14 +153,21 @@ Lilith’s face is one of her most important identity anchors.
 
 Lilith’s eyes should be:
 
-- Gold
+- Bright gold
 - Sharp
 - Narrow
 - Heavy-lidded
 - Confident
+- Focused and intense
 - Slightly sleepy or unimpressed in shape, but still alert
 
-Her eyes should not become huge, round, innocent, or overly sparkly.
+Approved Draft Canon direction:
+- Use the much smaller iris size from Much Smaller Iris Test Variant D.
+- The smaller irises should make her gaze feel sharper, more focused, and more villainess-like.
+- Preserve bright gold readability even at the smaller size.
+- Keep her expression mischievous and amused, not blank, lifeless, or purely angry.
+
+Her eyes should not become huge, round, innocent, overly sparkly, dull, or unreadable.
 
 ## Mouth Rules
 
@@ -176,9 +183,15 @@ Even in subtle expressions, at least small fangs should remain visible when poss
 
 ## Nose Rules
 
-Her nose should stay simple but sharp.
+Lilith’s nose should stay simple but sharp.
 
-Avoid making it too round, too tiny, or too soft.
+Approved Draft Canon direction:
+- Use the moderately sharper nose from Nose Sharpness Test Variant C.
+- The nose should have a clearer bridge and tip definition.
+- The silhouette should feel sharper and more mature than the original soft nose.
+- Do not push the nose as far as the strongest Variant D version.
+
+Avoid making it too round, too tiny, too soft, or overly sharp.
 
 ---
 

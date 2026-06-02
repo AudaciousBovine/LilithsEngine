@@ -124,6 +124,8 @@ ClientInitPatch.Postfix()               — hooks GameDataManager.OnUpdate
   └── SyncReceiver.NotifyWorldReady(connectionString)
         ├── LocalizationPatcher.BuildNameMap()
         │     └── LilithsMind reflection → _nameToPrefabGuid (display-name repoint)
+        ├── DescriptionPatcher.BuildMap()
+        │     └── LilithsMind reflection → name/prefab → PrefabGUID (description repoint)
         ├── RecipePatcher.BuildNameMap()
         │     └── PrefabCollectionSystem + LilithsMind → name→GUID
         ├── IconPatcher.BuildSpriteMaps()
@@ -146,22 +148,37 @@ ClientInitPatch.Postfix()               — hooks GameDataManager.OnUpdate
 ApplyPayload(ServerSyncPayload):
   1. LocalizationPatcher.ClearPrevious()     — restore prior repointed names
   2. LocalizationPatcher.Apply(payload)      — repoint display names (mint + inject + point Name)
-  3. IconPatcher.ClearPrevious()             — restore original icons
-  4. IconPatcher.Apply(payload)              — sprites into ManagedItemData.Icon
-  5. RecipePatcher.Apply(...)                — recipe ECS data
-  6. RecipePatcher.ApplyStationRecipes(...)  — station buffers
-  7. RecipePatcher.ApplyPlayerRecipes(...)   — player buffer last
+  3. DescriptionPatcher.Clear()              — restore prior repointed descriptions
+  4. DescriptionPatcher.Build(payload)       — repoint descriptions (mint + inject + struct write-back)
+  5. IconPatcher.ClearPrevious()             — restore original icons
+  6. IconPatcher.Apply(payload)              — sprites into ManagedItemData.Icon
+  7. RecipePatcher.Apply(...)                — recipe ECS data
+  8. RecipePatcher.ApplyStationRecipes(...)  — station buffers
+  9. RecipePatcher.ApplyPlayerRecipes(...)   — player buffer last
 ```
 
-> **Display names repointed, not injected.** LocalizationInjector is retired.
-> It overwrote shared localization keys and reloaded the table via
-> LoadDefaultLanguage() on clear, wiping its own writes on the second apply.
-> LocalizationPatcher mints a fresh AssetGuid per item and points the
-> value-type ManagedItemData.Name at it — persists, no contamination, no reload.
+> **Names AND descriptions are repointed at the data layer — no UI patch.**
+> Both `ManagedItemData.Name` (a `LocalizationKey`) and the `Key` field of
+> `ManagedItemData.Description` (a `LocalizedStringBuilderBase`) are
+> value-type localization keys. The patchers mint a fresh `AssetGuid` per
+> item, write the string into `Localization._LocalizedStrings`, and point the
+> key at it. The game's own tooltip pipeline resolves the minted key natively.
 >
-> **Tooltips not yet handled.** ManagedItemData.Description is a reference
-> property whose getter returns a copy; a repoint cannot persist through it.
-> Tooltip overrides are no-ops pending a Harmony patch (separate task).
+> **Description repoint requires a struct write-back.** `ManagedItemData.Description`
+> is a value-type struct whose getter returns a *copy*. Setting `.Key` on the
+> copy alone is discarded; the whole struct must be assigned back through the
+> setter (`var d = item.Description; d.Key = mintedKey; item.Description = d;`).
+> This is the same value-semantics rule that makes the `Name` repoint work.
+>
+> **The client tooltip UI is NOT patched.** Earlier attempts to override the
+> description by Harmony-patching the tooltip-build path all failed in this
+> IL2CPP build (see DATA_FLOW "Why the description override is data-layer").
+> The data-layer repoint replaced that approach entirely.
+>
+> **LocalizationInjector is retired.** It overwrote shared localization keys and
+> reloaded the table via LoadDefaultLanguage() on clear, wiping its own writes
+> on the second apply. Both LocalizationPatcher and DescriptionPatcher mint
+> fresh keys and never reload the table.
 
 ---
 

@@ -12,9 +12,9 @@ ServerSyncPayload
 ├── PayloadHash: string                                 — First 8 hex chars of SHA256 (change detection)
 ├── ItemAppearanceOverrides: Dictionary<string, ItemAppearanceData>
 │     Key: prefab Name or Prefab string
-│     Value: { DisplayName?, Tooltip?, Icon? }
-│            DisplayName → repointed client-side (LocalizationPatcher)
-│            Tooltip     → currently a NO-OP client-side (pending Harmony patch)
+│     Value: { DisplayName?, DescriptionText?, Icon? }
+│            DisplayName     → repointed client-side (LocalizationPatcher)
+│            DescriptionText → repointed client-side (DescriptionPatcher)
 │            Icon is self-describing:
 │              "vitae.png"              → local PNG in Icons/ folder
 │              "Icon_BloodOrb"         → in-game sprite name
@@ -39,7 +39,7 @@ All fields optional — omit any you don't want to change.
   "_readme": "Keys are prefab Name or Prefab string. All fields optional.",
   "Item_BloodEssence_T01": {
     "DisplayName": "Vitae",
-    "Tooltip": "Concentrated life force.",
+    "DescriptionText": "Concentrated life force, harvested from the living.",
     "Icon": "vitae.png"
   },
   "Item_Weapon_Sword_T01_Bone": {
@@ -49,6 +49,11 @@ All fields optional — omit any you don't want to change.
 ```
 
 Files load in full-path alphabetical order. Later files win per-field (not per-entry) — one file can set `DisplayName`, another can set `Icon` for the same item.
+
+> **Field rename:** the appearance field formerly called `Tooltip` is now
+> `DescriptionText` (in the `ItemAppearanceData` DTO and the JSON key). There is
+> no back-compat shim for the old `Tooltip` key — no live servers existed at the
+> time of the rename.
 
 ---
 
@@ -71,7 +76,7 @@ Heart.OnInitialize():
 
 SyncPayloadCache.Rebuild():
   Per tier: JSON → GZip compress → base64 encode → split into 440-char chunks
-  
+
   Critical  → { ServerIdentity, PayloadHash, ItemAppearanceOverrides }
   High      → { ServerIdentity, PayloadHash, RecipeOverrides, StationRecipeOverrides }
                (only built if non-empty)
@@ -79,8 +84,8 @@ SyncPayloadCache.Rebuild():
                (only built if non-empty)
   Low       → reserved for future modules (Machinations, Grimoire)
   Background → reserved for large data sets (Menagerie, Bounty)
-  
-  Each tier: Checksum = SHA256(base64)[..8]
+
+  Each tier: Checksum = SHA256(base64 TEXT)[..8], uppercase hex
   Cached as TierBlobData[] — immutable until next Rebuild()
 ```
 
@@ -95,7 +100,7 @@ Connect event:
   ClientConnectPatch → SyncSender.EnqueueSyncTiers(userEntity, characterEntity, userIndex)
     └── For each TierBlobData (ordered Critical→Background):
           SyncQueue.Enqueue(messages) where messages =
-            [[LG:begin:T:N:CKSUM]]        — begin sentinel
+            [[LG:begin:T:N:CKSUM]]        — begin sentinel (T=tier, N=chunk count)
             [[LG:T:0000]]<base64chunk>    — chunk (zero-padded index)
             [[LG:T:0001]]<base64chunk>
             ...
@@ -111,6 +116,13 @@ Benefit: connect-frame spike eliminated — cost spread across frames
 Typical: 5KB appearance payload → ~12 chunks after GZip+base64 → 2 frames at 10/frame
 ```
 
+> **Encoder note (must match on the receiver):** the WHOLE blob is
+> `JSON → GZip → Convert.ToBase64String` (base64'd ONCE), and only THEN sliced
+> into 440-char chunks. The checksum is `SHA256` over the **base64 text**
+> (uppercase, first 8 hex), not over the gzip bytes. The receiver therefore
+> concatenates the chunk strings FIRST, verifies the checksum on that base64
+> text, then does a single base64-decode followed by gunzip.
+
 ---
 
 ## Receive Pipeline (Client Side)
@@ -120,22 +132,34 @@ ClientChatSystemPatch.Prefix (per-frame, prefix so entities destroyed before UI)
   └── For each ChatMessageServerEvent where MessageType == System:
         SyncReceiver.TryHandleMessage(text)
           ├── [[LG:begin:T:N:CKSUM]] → init tier accumulator, store expected count + checksum
-          ├── [[LG:T:NNNN]]<data>   → append chunk to tier accumulator
+          ├── [[LG:T:NNNN]]<data>   → append chunk string to tier accumulator
           ├── [[LG:end:T:CKSUM]]    → ProcessTier()
-          │     ├── Verify chunk count + checksum
-          │     ├── Concat chunks → base64 decode → GZip decompress → JSON string
+          │     ├── Concat chunk strings → SHA256-verify the base64 text
+          │     ├── Convert.FromBase64String → GZip decompress → JSON string
           │     ├── Deserialize tier-specific payload
+          │     ├── Merge into disk-cache accumulator keyed by PayloadHash
           │     ├── WriteToDiskIfChanged() — SHA256 hash comparison
-          │     └── ApplyTier() — applies immediately, no waiting for other tiers
+          │     └── ApplyTier() — applies that tier IMMEDIATELY (no waiting for others)
           └── If consumed → DestroyEntity (never shown in chat UI)
 ```
+
+Per-tier application (each tier carries only its slice of the payload):
+
+```
+Tier Critical (0) → ItemAppearanceOverrides → name, description, icon repoint
+Tier High     (1) → Recipe + StationRecipe overrides
+Tier Normal   (2) → player recipe add/remove
+```
+
+If the client world is not ready when a tier arrives, the deserialized payload
+is held in `_pendingTierPayloads` and applied in `NotifyWorldReady()`.
 
 ---
 
 ## Payload Application Order (FIXED — DO NOT REORDER)
 
 ```
-ApplyPayload(ServerSyncPayload):
+ApplyPayload(ServerSyncPayload):   // also the per-tier apply path
   1. LocalizationPatcher.ClearPrevious()
        └── Restore each previously repointed item's original Name (LocalizationKey)
 
@@ -147,12 +171,27 @@ ApplyPayload(ServerSyncPayload):
              d. Localization._LocalizedStrings[mintedGuid] = DisplayName
              e. ManagedItemData.Name = new LocalizationKey(mintedGuid)
            NO LoadDefaultLanguage — minted keys are never wiped.
-           Tooltip field is NOT applied here (pending Harmony patch — no-op).
 
-  3. IconPatcher.ClearPrevious()
+  3. DescriptionPatcher.Clear()
+       └── Restore each previously repointed item's original Description struct
+           (item.Description = capturedOriginalStruct)
+
+  4. DescriptionPatcher.Build(payload)
+       └── For each ItemAppearanceOverrides entry with non-null DescriptionText:
+             a. Resolve prefab name → PrefabGUID (LilithsMind reflection)
+             b. Capture current ManagedItemData.Description struct for restore
+             c. Mint fresh AssetGuid = AssetGuid.FromString(Guid.NewGuid())
+             d. Localization._LocalizedStrings[mintedGuid] = DescriptionText
+             e. var d = item.Description;          // STRUCT COPY (value type)
+                d.Key = new LocalizationKey(mintedGuid);
+                item.Description = d;              // WRITE THE WHOLE STRUCT BACK
+           The write-back in (e) is mandatory — see "Why the description
+           override is data-layer" below.
+
+  5. IconPatcher.ClearPrevious()
        └── Restore original ManagedItemData.Icon for all previously patched items
 
-  4. IconPatcher.Apply(payload)
+  6. IconPatcher.Apply(payload)
        └── For each ItemAppearanceOverrides entry with non-null Icon:
              Resolution order:
                a. Local PNG → Icons/ recursive scan, filename match
@@ -160,26 +199,53 @@ ApplyPayload(ServerSyncPayload):
                c. https:// URL → IconDownloader (async, callback on complete)
              → ManagedItemData.Icon = resolvedSprite
 
-  5. RecipePatcher.Apply(payload.RecipeOverrides)
-  6. RecipePatcher.ApplyStationRecipes(payload.StationRecipeOverrides)
-  7. RecipePatcher.ApplyPlayerRecipes(payload.PlayerRecipesToAdd, ...)
+  7. RecipePatcher.Apply(payload.RecipeOverrides)
+  8. RecipePatcher.ApplyStationRecipes(payload.StationRecipeOverrides)
+  9. RecipePatcher.ApplyPlayerRecipes(payload.PlayerRecipesToAdd, ...)
 ```
 
-### Why repoint instead of overwrite (display names)
+### Why repoint instead of overwrite (names AND descriptions)
 
 Many vanilla items share one localization key by value (e.g. every sword shares
 one tooltip key). Overwriting the string at that key changes every item sharing
 it. Worse, the retired LocalizationInjector cleared via
 `Localization.LoadDefaultLanguage()`, which reloads `_LocalizedStrings` from
 disk — so when it ran a second time (cached pre-apply + server payload), it
-wiped the keys it had just written and renames reverted to raw GUIDs.
-LocalizationPatcher mints a brand-new `AssetGuid` per item (unique, so no
-sharing) and points the **value-type** `ManagedItemData.Name` at it, which
-persists. It never reloads the table.
+wiped the keys it had just written and renames reverted to raw GUIDs on screen.
 
-`ManagedItemData.Description` is a **reference-type** property whose getter
-returns a copy, so assigning it does not persist — tooltips cannot be repointed
-through managed data and await a Harmony patch on the tooltip-build path.
+Both `LocalizationPatcher` (names) and `DescriptionPatcher` (descriptions) mint
+a brand-new `AssetGuid` per item (unique, so no sharing), write the new string
+there, and point the item's value-type localization key at it. Neither reloads
+the table. No shared-key contamination.
+
+### Why the description override is data-layer (and not a UI patch)
+
+`ManagedItemData.Description` is a `ProjectM.UI.LocalizedStringBuilderBase`,
+which is a **value-type struct** (`[StructLayout(LayoutKind.Explicit)]`) whose
+first field is `[FieldOffset(0)] public LocalizationKey Key;`. The tooltip body
+resolves from that `Key` via the struct's `Build(EntityManager, Entity)`. So a
+description is just a `LocalizationKey` — the same kind of value as `Name`.
+
+The repoint requires writing the WHOLE struct back. The getter returns a *copy*
+(value semantics), so mutating `item.Description.Key` in place is discarded.
+The fix: read the struct into a local, set `.Key`, assign the local back to
+`item.Description`. (An earlier "Description doesn't persist" conclusion was a
+false negative caused by mutating the discarded copy.)
+
+A long investigation first tried to override the description by Harmony-patching
+the client tooltip-build pipeline. Every attempt failed in this IL2CPP build,
+and the conclusion is recorded here so it is not repeated:
+
+| Target | Result |
+|--------|--------|
+| `SomeReusableSubMenuThings.RefreshGeneralItemTooltip` (Entity, PrefabGUID) | attached, never fired on inventory/hotbar hover |
+| `RefreshGeneralItemTooltip` (ItemGridSelectionEntry) | attached, never fired on hover |
+| `FakeTooltip.SetData` | crashed client on invocation (inlined/unpatchable) |
+| `FakeTooltip.SetTooltip` (public 20-param, has descriptionOverride) | attached, crashed client on hover for ANY item, prefix and postfix alike |
+
+Pattern: the tooltip-build methods that fire on hover crash when patched; the
+ones that do not crash never fire. The data-layer repoint sidesteps the UI
+entirely — the game resolves the minted key on its own.
 
 ---
 
@@ -189,6 +255,7 @@ through managed data and await a Harmony patch on the tooltip-build path.
 ClientInitPatch detects world ready
   → SyncReceiver.NotifyWorldReady(connectionString)
     → LocalizationPatcher.BuildNameMap()         — LilithsMind reflection (name→PrefabGUID)
+    → DescriptionPatcher.BuildMap()              — LilithsMind reflection (name/prefab→PrefabGUID)
     → RecipePatcher.BuildNameMap()               — PrefabCollectionSystem
     → IconPatcher.BuildSpriteMaps()              — Resources + Icons/ scan
     → ServerRegistry.Load()                      — reads servers.json

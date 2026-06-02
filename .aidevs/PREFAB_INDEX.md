@@ -14,27 +14,30 @@ public readonly record struct PrefabDef
     string?  Name;     // Human-readable admin name (e.g. "BoneSword")
     int      GuidHash; // Raw int from PrefabGUID._Value
     string   Prefab;   // Game asset name (e.g. "Item_Weapon_Sword_T01_Bone")
-    string?  NameKey;  // Vanilla localization AssetGuid for display name (reference/legacy — see note)
-    string?  DescKey;  // Vanilla localization AssetGuid for tooltip (reference; for pending tooltip work)
+    string?  NameKey;  // Vanilla localization AssetGuid for display name (reference only — see note)
+    string?  DescKey;  // Vanilla localization AssetGuid for tooltip (reference only — see note)
 }
 ```
 
-> **`NameKey` is no longer required for display-name overrides.** As of the
-> LocalizationPatcher fold-in, the client **repoints** names: it resolves an
-> item by `PrefabGUID`, reads its live `ManagedItemData.Name`, and points it at
-> a freshly minted `AssetGuid` — it never consults the recorded `NameKey`. An
-> item is renamable with only a **Stub** definition (GuidHash + Prefab). The
-> `NameKey`/`DescKey` fields are retained as a record of each item's vanilla
-> localization GUIDs and for the pending tooltip Harmony patch, which may yet
-> need `DescKey`. Do not bulk-delete them — see "Important Constraints".
+> **`NameKey` and `DescKey` are no longer required for ANY appearance override.**
+> Both the display-name path (`LocalizationPatcher`) and the description path
+> (`DescriptionPatcher`) **repoint**: they resolve an item by `PrefabGUID`, mint
+> a fresh `AssetGuid`, write the new string to `Localization._LocalizedStrings`,
+> and point the item's live value-type localization key at it
+> (`ManagedItemData.Name`, or the `Key` field of the `Description` struct).
+> Neither path consults the recorded `NameKey`/`DescKey`. An item is fully
+> renamable AND re-describable with only a **Stub** definition
+> (GuidHash + Prefab). The `NameKey`/`DescKey` fields are retained solely as a
+> record of each item's vanilla localization GUIDs. Do not bulk-delete them —
+> see "Important Constraints".
 
 ## Population States
 
 | State | Fields Filled | Use Case |
 |-------|---------------|----------|
-| **Stub** | GuidHash + Prefab | Minimum viable — can be looked up by asset name. **Sufficient for display-name overrides** (LocalizationPatcher mints its own keys). |
+| **Stub** | GuidHash + Prefab | Minimum viable. **Sufficient for name AND description overrides** (both patchers mint their own keys). |
 | **Partial** | + Name | Admin-friendly config keys, logging, command output |
-| **Complete** | + NameKey + DescKey | Vanilla-key reference record; required by the (pending) tooltip path. **No longer required for name overrides.** |
+| **Complete** | + NameKey + DescKey | Vanilla-key reference record only. **No longer required by any appearance path.** |
 
 ## Discovery Pattern
 
@@ -75,10 +78,15 @@ foreach (var type in types) {
 | `_nameToPrefabGuid` | Prefab string or Name | `PrefabGUID` |
 | `_previousNames` | `GuidHash` (int) | original `LocalizationKey`, captured for `ClearPrevious()` restore |
 
-> Note the difference from the retired `LocalizationInjector`: the patcher maps
-> name → **PrefabGUID** (to locate the item), not name → NameKey **AssetGuid**.
-> It reads the item's current name key off `ManagedItemData` at apply time and
-> mints a replacement, so it needs no recorded localization GUID.
+### DescriptionPatcher._descToPrefabGuid (description repoint)
+| Dictionary | Key | Value |
+|------------|-----|-------|
+| `_descToPrefabGuid` | Prefab string or Name | `PrefabGUID` |
+| `_previousDescriptions` | `GuidHash` (int) | original `LocalizedStringBuilderBase` struct, captured for `Clear()` restore |
+
+> Both patchers map name → **PrefabGUID** (to locate the item), not name →
+> AssetGuid. They read the item's current key off `ManagedItemData` at apply
+> time and mint a replacement, so they need no recorded localization GUID.
 
 ## Definition File Naming Convention
 
@@ -109,6 +117,12 @@ Each file uses a `public static class` (or `partial class`) named with the categ
 | `RecipesJewelIndex.cs` | `RecipesJewelIndex` | — | All jewel recipes |
 | `RecipesEquipmentIndex.cs` | `RecipesEquipmentIndex` | — | All equipment recipes |
 
+## PrefabDef.Name Convention (no spaces)
+
+The `Name` field uses no spaces, matching the `[PrefabName]` attribute style
+(e.g. `"BanditBag"`, not `"Bandit Bag"`). Fields are named after the prefab
+string exactly (e.g. `Item_NewBag_T01`) — no invented tier or category names.
+
 ## Example Entry (Complete — AccessoryIndex)
 
 ```csharp
@@ -135,9 +149,9 @@ public static readonly PrefabDef Item_Weapon_Sword_T02_Bone_Reinforced = new()
 };
 ```
 
-> A Stub like this is now **fully renamable**: with `NameKey = null`, the old
-> injector would have silently skipped it, but LocalizationPatcher mints a fresh
-> key and repoints regardless.
+> A Stub like this is **fully renamable AND re-describable**: with
+> `NameKey`/`DescKey` null, both patchers mint fresh keys and repoint
+> regardless. (The retired injector would have silently skipped a null key.)
 
 ## Adding a New Prefab Entry
 
@@ -146,12 +160,26 @@ public static readonly PrefabDef Item_Weapon_Sword_T02_Bone_Reinforced = new()
 3. Add a `public static readonly PrefabDef` field with the prefab's constant name matching the game's Prefab string naming convention
 4. Fill GuidHash and Prefab (required)
 5. Add Name if you want admin-friendly config keys
-6. `NameKey`/`DescKey` are **optional** — not needed for display-name overrides. Add them only as a vanilla-key reference record or in anticipation of the tooltip path (find GUIDs in `LilithsMind/Resources/English.json`).
+6. `NameKey`/`DescKey` are **optional reference data** — not needed for name or description overrides. Add them only as a vanilla-key record (find GUIDs in `LilithsMind/Resources/English.json`).
 
 ## Important Constraints
 
 - `GuidHash` is a **signed int** — can be negative. It maps to `PrefabGUID._Value`.
 - `NameKey` and `DescKey` are **string GUIDs** (not integers) — they map to `AssetGuid` in `Localization._LocalizedStrings`.
-- **Display-name overrides no longer require `NameKey`.** Items with `NameKey = null` are renamed normally by LocalizationPatcher (the old injector skipped them). Do **not** mass-delete `NameKey`/`DescKey` from the indexes: they are reference data, the tooltip path may still need `DescKey`, and bulk find-and-replace across definition files risks corrupting ECS buffer type names (see CONVENTIONS).
+- **No appearance override requires `NameKey` or `DescKey`.** Items with these
+  null are renamed and re-described normally (both patchers mint their own
+  keys). Do **not** mass-delete `NameKey`/`DescKey` from the indexes: they are
+  reference data, and bulk find-and-replace across definition files risks
+  corrupting ECS buffer type names (e.g. `RecipeRequirementBuffer`,
+  `RecipeOutputBuffer`) — verify ECS types after any rename (see CONVENTIONS).
 - An entry's `Name` field takes priority over `Prefab` in all forward lookups — config files can use either form.
 - `PrefabDef` is a `readonly record struct` — value semantics, no heap allocation.
+
+## Known Data Issue
+
+`StationsIndex.CraftingStation_Player` has a **null `Prefab`** field — it logs a
+skip warning in both `LocalizationPatcher.BuildMap()` and
+`DescriptionPatcher.BuildMap()` at world ready ("Definition
+StationsIndex.CraftingStation_Player has null Prefab — skipped"). Harmless to
+the appearance pipeline, but the entry should be fixed (supply the correct
+prefab asset name) to clear the warning.

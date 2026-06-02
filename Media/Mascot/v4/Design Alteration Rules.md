@@ -246,6 +246,15 @@ Every approved change should be recorded.
 
 The change log prevents confusion when older references conflict with newer ones.
 
+## Change Log
+
+| Date       | Feature        | Previous Version       | New Version                                                    | Status                   | Notes                                                                                         |
+| ---------- | -------------- | ---------------------- | -------------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------- |
+| 2026-06-02 | Nose sharpness | Softer simplified nose | Moderately sharper nose with clearer bridge and tip definition | Approved for Draft Canon | Variant C from Nose Sharpness Test. Supports mature-chibi face without becoming overly sharp. |
+| 2026-06-02 | Iris size | Larger current-reference irises | Much smaller bright gold irises | Approved for Draft Canon | Variant D from Much Smaller Iris Test. Creates a sharper, more intense focused gaze while preserving Lilith’s mischievous personality. |
+
+
+
 ---
 
 # 10. Alteration Prompt Formula
