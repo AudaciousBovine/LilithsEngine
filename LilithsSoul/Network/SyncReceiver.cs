@@ -56,11 +56,14 @@ using LilithsMind.Network;   // ServerSyncPayload, SyncTierEnum
 //               8. RecipePatcher.ApplyStationRecipes()
 //    Normal   → 9. RecipePatcher.ApplyPlayerRecipes()
 //
-//  The two text paths (names, descriptions) lead the Critical tier so
-//  lookups resolve before the UI reads them. Description steps 3–4 only
-//  refresh a lookup dict — the actual override is applied lazily at hover
-//  by ItemDescriptionPatch. Clear-then-(re)build pairs keep re-applies
-//  idempotent across the pre-apply-from-disk + live double-apply.
+//  The two text paths (names, descriptions) lead the Critical tier so the
+//  overrides are in place before the UI reads them. Both repoint at the
+//  data layer: LocalizationPatcher.Apply mints a key for ManagedItemData.Name,
+//  and DescriptionPatcher.Build mints a key for the Key field of the
+//  ManagedItemData.Description struct (writing the whole struct back). The
+//  game's own tooltip pipeline then resolves the minted keys — there is NO
+//  UI/hover patch. Clear-then-(re)build pairs keep re-applies idempotent
+//  across the pre-apply-from-disk + live double-apply.
 //
 //  Disk cache (merge accumulator):
 //  ────────────────────────────────
@@ -82,10 +85,16 @@ using LilithsMind.Network;   // ServerSyncPayload, SyncTierEnum
 //            applied — names, icons, AND descriptions all went dark. This
 //            version matches the sender Heart has been emitting.
 //
-//  [CHANGED] Item DESCRIPTIONS now handled via DescriptionPatcher +
-//            the ItemDescriptionPatch Harmony postfix (folded into the
-//            Critical apply). Descriptions can't persist through managed
-//            data, so they're overridden at render time per hovered item.
+//  [CHANGED] Item DESCRIPTIONS are handled by DescriptionPatcher at the DATA
+//            LAYER (folded into the Critical apply, steps 3–4) — the same
+//            mint-and-repoint mechanism as names. Descriptions DO persist
+//            through managed data: ManagedItemData.Description is a value-type
+//            struct whose Key field is a LocalizationKey; repointing it (with
+//            a whole-struct write-back) sticks. This replaced an earlier
+//            attempt to override descriptions by Harmony-patching the client
+//            tooltip-build pipeline — every such target either crashed when
+//            patched or never fired on hover (see DATA_FLOW "Why the
+//            description override is data-layer"). There is no ItemDescriptionPatch.
 //
 //  [PERFORMANCE] Per-message: a few StartsWith checks on the hot chat path
 //                — negligible outside connect. Decode (GZip + Base64 + JSON)
@@ -323,12 +332,14 @@ public static class SyncReceiver
         // Critical slice — item appearance (names, descriptions, icons).
         if (payload.ItemAppearanceOverrides.Count > 0)
         {
-            // 1–2. Names — repoint via LocalizationPatcher.
+            // 1–2. Names — repoint ManagedItemData.Name via LocalizationPatcher.
             LocalizationPatcher.ClearPrevious();
             LocalizationPatcher.Apply(payload);
 
-            // 3–4. Descriptions — refresh the PrefabGUID→text lookup; the
-            //      override itself is applied lazily at hover by the postfix.
+            // 3–4. Descriptions — repoint the Key of the ManagedItemData.Description
+            //      struct via DescriptionPatcher (mint + inject + struct write-back).
+            //      Applied here at the data layer, NOT at hover; the game's tooltip
+            //      pipeline resolves the minted key on its own.
             DescriptionPatcher.Clear();
             DescriptionPatcher.Build(payload);
 
