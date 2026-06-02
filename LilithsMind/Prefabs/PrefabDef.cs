@@ -34,8 +34,18 @@
 //  ──────────────────
 //  Stub     — GuidHash + Prefab only.
 //  Partial  — GuidHash + Prefab + Name.
-//  Complete — All five fields filled. Prioritise for modules that
-//             need localization (LilithsVision, name overrides).
+//  Complete — All five fields filled.
+//
+//  [CHANGED] NameKey is NO LONGER REQUIRED for display-name overrides.
+//            LocalizationSoul-side, LocalizationPatcher repoints names by
+//            resolving the item via PrefabGUID, reading its live
+//            ManagedItemData.Name, and pointing it at a freshly minted
+//            AssetGuid — it never reads the recorded NameKey. A Stub
+//            (GuidHash + Prefab) is enough to rename an item. NameKey and
+//            DescKey are retained as a vanilla-key reference record and for
+//            the pending tooltip path (a Harmony patch that may need
+//            DescKey). Do not bulk-delete them: bulk find-and-replace over
+//            definition files risks corrupting ECS buffer type names.
 //
 //  [PERFORMANCE] readonly record struct is stack-allocated.
 //                Holding thousands of these as static readonly
@@ -76,16 +86,18 @@ public readonly record struct PrefabDef
     public string   Prefab   { get; init; }
 
     /// <summary>
-    /// Localization key for the display name shown in-game.
-    /// Null until manually filled. Check before use:
-    ///     if (def.NameKey is not null) { ... }
+    /// Vanilla localization key for the display name shown in-game.
+    /// OPTIONAL and reference-only: LocalizationPatcher does NOT read this
+    /// to override names — it mints a fresh key and repoints the live
+    /// ManagedItemData.Name (resolved by PrefabGUID). Retained as a record
+    /// of the item's original name GUID. Null until manually filled.
     /// </summary>
     public string?  NameKey  { get; init; }
 
     /// <summary>
-    /// Localization key for the item description/tooltip shown in-game.
-    /// Null until manually filled. Check before use:
-    ///     if (def.DescKey is not null) { ... }
+    /// Vanilla localization key for the item description/tooltip shown in-game.
+    /// Reference data; the (pending) tooltip Harmony patch may consume it.
+    /// Not used by the current name-override path. Null until manually filled.
     /// </summary>
     public string?  DescKey  { get; init; }
 }

@@ -1,39 +1,47 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ProjectM;
-using ProjectM.UI;            // LocalizedStringBuilderBase
-using Stunlock.Localization;  // LocalizationKey, AssetGuid
-using Stunlock.Core;          // PrefabGUID
+using ProjectM.UI;
+using Stunlock.Core;
 using LilithsSoul.Foundation;
 
 // ============================================================
-//  RepointDiagnostic — LilithsSoul  (TEMPORARY PROBE, v5)
+//  RepointDiagnostic — LilithsSoul  (TEMPORARY PROBE, v8)
 //  LilithsSoul/Services/RepointDiagnostic.cs
 //
 //  THROWAWAY DIAGNOSTIC — delete after confirmation. NOT in .aidevs.
 //
-//  Why v5 — confirm the tooltip source:
-//  ------------------------------------
-//  Read-back proved item.Description does NOT persist a repoint:
-//  after `item.Description = builder`, re-getting Description still
-//  resolves vanilla. So the Description PROPERTY round-trips through
-//  a copy, and the real tooltip source is elsewhere.
+//  Why v8 — find the CALLER that knows both item AND tooltip:
+//  ----------------------------------------------------------
+//  v7 found TooltipManagerComponent.SetTooltip(LocalizationKey/String,...)
+//  — a generic display service with NO item context. The item→text
+//  decision happens in its CALLER: an inventory/hover handler that takes
+//  an item (ManagedItemData / Entity) and reads its Description. That
+//  caller is the Option-C patch target, and it is NOT named "Tooltip"
+//  necessarily (could be InventoryEntry, ItemSlot, HoverState, etc.), and
+//  it lives in a client-UI assembly v7 didn't scan.
 //
-//  v5 enumerates ManagedItemData's ENTIRE member surface (all fields
-//  + properties, full base chain) so we can find:
-//    - a BACKING FIELD behind Description we could write directly
-//      (property setters often have a private backing field), and/or
-//    - any OTHER description/tooltip-bearing member the UI reads.
+//  What v8 does:
+//  -------------
+//  Scans ALL loaded assemblies (skipping obvious noise: System/Unity
+//  core/BepInEx/Il2CppInterop) for INSTANCE methods that BOTH:
+//    (a) take an item-identifying parameter (ManagedItemData / Entity /
+//        InventoryItem*), AND
+//    (b) look tooltip/description/hover-related by method OR declaring-type
+//        name (Tooltip, Description, Hover, Inspect, Examine, ItemSlot,
+//        Entry, Inventory).
+//  Filtering on (a)+(b) keeps output to real candidates regardless of how
+//  the type is named.
 //
-//  It also reports, for Name and Description properties, whether each
-//  is auto-implemented (has a <Name>k__BackingField) so we know if a
-//  direct field write is even an option.
+//  Also: explicitly lists any method ANYWHERE whose parameters include
+//  LocalizedStringBuilderBase (the Description builder type) — whoever
+//  consumes that builder is reading item tooltips.
 //
-//  NO MUTATION. Read-only reflection.
+//  NO MUTATION. Read-only reflection over type metadata.
 //
-//  [PERFORMANCE] One-shot. Single type's member surface. Trivial.
+//  [PERFORMANCE] One-shot. Metadata-only scan; bounded by hard line cap.
+//                No game-data iteration, no per-frame cost.
 // ============================================================
 
 namespace LilithsSoul.Services;
@@ -42,103 +50,101 @@ public static class RepointDiagnostic
 {
     private const string LOG_SOURCE = "LilithsSoul.RepointDiagnostic";
 
-    private const int BoneSwordGuidHash = -2085919458;
-    private const string KnownDescCompact = "01e7d9c32bf44c6094d41e75be7cf658";
+    // (a) parameter types proving the method knows which item.
+    static readonly string[] ItemParamMarkers =
+        { "ManagedItemData", "Entity", "InventoryItem", "ItemData" };
 
-    public static void Run(int guidHash = BoneSwordGuidHash)
+    // (b) method- or type-name markers for the item-tooltip path.
+    static readonly string[] ContextMarkers =
+        { "Tooltip", "Description", "Hover", "Inspect", "Examine",
+          "ItemSlot", "Entry", "Inventory", "ItemPanel" };
+
+    // Assemblies to skip (framework noise — never hosts V Rising UI).
+    static readonly string[] SkipAssemblies =
+        { "System", "mscorlib", "netstandard", "Unity", "UnityEngine",
+          "BepInEx", "Il2CppInterop", "Il2Cppmscorlib", "Il2CppSystem",
+          "Mono", "0Harmony", "Newtonsoft" };
+
+    static int _lines;
+    const int LineCap = 900;
+
+    public static void Run(int guidHash = 0)
     {
-        if (Soul.ClientWorld == null)
+        _lines = 0;
+        SoulLogger.Info(LOG_SOURCE, "───── tooltip-caller probe (v8, all assemblies) ─────");
+
+        var builderType = typeof(LocalizedStringBuilderBase);
+
+        foreach (var asm in AppDomain.CurrentDomain.GetAssemblies()
+                     .OrderBy(a => a.GetName().Name, StringComparer.Ordinal))
         {
-            SoulLogger.Warning(LOG_SOURCE, "Client world not ready — cannot run probe.");
-            return;
-        }
+            var asmName = asm.GetName().Name ?? "";
+            if (SkipAssemblies.Any(s => asmName.StartsWith(s, StringComparison.Ordinal)))
+                continue;
 
-        var registry = Soul.ClientWorld
-            .GetExistingSystemManaged<ManagedDataSystem>()
-            ?.ManagedDataRegistry;
-        if (registry == null)
-        {
-            SoulLogger.Warning(LOG_SOURCE, "ManagedDataRegistry not available — cannot run probe.");
-            return;
-        }
+            Type[] types;
+            try   { types = asm.GetTypes(); }
+            catch (ReflectionTypeLoadException ex) { types = ex.Types.Where(t => t != null).ToArray()!; }
+            catch { continue; }
 
-        var item = registry.GetOrDefault<ManagedItemData>(new PrefabGUID(guidHash));
-        if (item == null)
-        {
-            SoulLogger.Warning(LOG_SOURCE, $"No ManagedItemData for GUID {guidHash} — cannot run probe.");
-            return;
-        }
-
-        SoulLogger.Info(LOG_SOURCE, $"───── ManagedItemData full member surface (GUID {guidHash}) ─────");
-        SoulLogger.Info(LOG_SOURCE, $"(vanilla sword DescKey compact = {KnownDescCompact})");
-
-        var type = item.GetType();
-        while (type != null
-               && type != typeof(object)
-               && !type.Name.Contains("Il2CppObjectBase", StringComparison.Ordinal))
-        {
-            const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Public
-                                     | BindingFlags.NonPublic   | BindingFlags.Instance;
-
-            foreach (var f in type.GetFields(flags))
+            foreach (var t in types)
             {
-                string val;
-                try   { val = f.GetValue(item)?.ToString() ?? "null"; }
-                catch (Exception ex) { val = $"<threw {ex.GetType().Name}>"; }
-                var line = $"[field] {type.Name}.{f.Name} : {f.FieldType.Name} = {Trim(val)}";
-                if (LooksDescriptionRelated(f.Name, f.FieldType.Name, val)) line += "   ⇐ description-related?";
-                SoulLogger.Info(LOG_SOURCE, line);
+                if (t == null) continue;
+                ScanType(t, asmName, builderType);
+                if (_lines >= LineCap) { SoulLogger.Info(LOG_SOURCE, "..."); goto done; }
             }
-
-            foreach (var p in type.GetProperties(flags))
-            {
-                if (!p.CanRead || p.GetIndexParameters().Length > 0) continue;
-                string val;
-                try   { val = p.GetValue(item)?.ToString() ?? "null"; }
-                catch (Exception ex) { val = $"<threw {ex.GetType().Name}>"; }
-                var setter = p.GetSetMethod(true);
-                var setInfo = setter == null ? "no-set" : (setter.IsPublic ? "set:public" : "set:nonpublic");
-                var line = $"[prop ] {type.Name}.{p.Name} : {p.PropertyType.Name} [{setInfo}] = {Trim(val)}";
-                if (LooksDescriptionRelated(p.Name, p.PropertyType.Name, val)) line += "   ⇐ description-related?";
-                SoulLogger.Info(LOG_SOURCE, line);
-            }
-
-            type = type.BaseType;
         }
 
-        // Explicitly report whether Name/Description are auto-props with backing fields.
-        ReportBackingField(item.GetType(), "Description");
-        ReportBackingField(item.GetType(), "Name");
-
-        SoulLogger.Info(LOG_SOURCE, "───── end dump ─────");
+        done:
+        SoulLogger.Info(LOG_SOURCE, "───── end probe ─────");
     }
 
-    // Auto-implemented properties compile to a "<PropName>k__BackingField".
-    // If one exists we can write it directly, bypassing a copy-returning setter.
-    static void ReportBackingField(Type type, string propName)
+    static void ScanType(Type t, string asmName, Type builderType)
     {
-        var backingName = $"<{propName}>k__BackingField";
-        FieldInfo? f = null;
-        var t = type;
-        while (t != null && f == null && t != typeof(object))
+        const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic
+                                 | BindingFlags.Instance | BindingFlags.Static
+                                 | BindingFlags.DeclaredOnly;
+
+        MethodInfo[] methods;
+        try   { methods = t.GetMethods(flags); }
+        catch { return; }
+
+        bool typeNameContext = ContextMarkers.Any(mk =>
+            t.Name.Contains(mk, StringComparison.OrdinalIgnoreCase));
+
+        foreach (var m in methods)
         {
-            f = t.GetField(backingName, BindingFlags.NonPublic | BindingFlags.Instance);
-            t = t.BaseType;
+            ParameterInfo[] pars;
+            try   { pars = m.GetParameters(); }
+            catch { continue; }
+
+            bool takesBuilder = pars.Any(p => p.ParameterType == builderType);
+
+            bool itemShaped = pars.Any(p => ItemParamMarkers.Any(mk =>
+                p.ParameterType.Name.Contains(mk, StringComparison.Ordinal)));
+
+            bool methodNameContext = ContextMarkers.Any(mk =>
+                m.Name.Contains(mk, StringComparison.OrdinalIgnoreCase));
+
+            // Report if: consumes the Description builder (strongest signal),
+            // OR (knows an item AND is in a tooltip/inventory context).
+            bool report = takesBuilder
+                       || (itemShaped && (methodNameContext || typeNameContext));
+
+            if (!report) continue;
+
+            var sig  = string.Join(", ", pars.Select(p => $"{p.ParameterType.Name} {p.Name}"));
+            var kind = m.IsStatic ? "static " : "";
+            var tag  = takesBuilder ? "   ⇐ TAKES Description BUILDER"
+                     : "   ⇐ knows item + tooltip context";
+            Log($"[{asmName}] {t.FullName}.{m.Name} : {kind}{m.ReturnType.Name}({sig}){tag}");
         }
-        SoulLogger.Info(LOG_SOURCE,
-            f == null
-              ? $"[backing] {propName}: NO auto-backing field (custom getter/setter — likely the copy path)."
-              : $"[backing] {propName}: HAS backing field '{f.Name}' : {f.FieldType.Name} — directly writable.");
     }
 
-    static bool LooksDescriptionRelated(string memberName, string typeName, string value)
+    static void Log(string msg)
     {
-        if (memberName.IndexOf("desc", StringComparison.OrdinalIgnoreCase) >= 0) return true;
-        if (memberName.IndexOf("tooltip", StringComparison.OrdinalIgnoreCase) >= 0) return true;
-        if (typeName.Contains("LocalizedString", StringComparison.Ordinal)) return true;
-        if (value.Contains(KnownDescCompact, StringComparison.OrdinalIgnoreCase)) return true;
-        return false;
+        if (_lines >= LineCap) { _lines++; return; }
+        SoulLogger.Info(LOG_SOURCE, msg);
+        _lines++;
     }
-
-    static string Trim(string s) => s.Length <= 110 ? s : s.Substring(0, 107) + "...";
 }

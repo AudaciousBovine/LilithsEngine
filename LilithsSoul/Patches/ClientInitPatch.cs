@@ -2,7 +2,7 @@ using HarmonyLib;
 using ProjectM;
 using LilithsSoul.Foundation;
 using LilithsSoul.Network;
-using LilithsSoul.Services; // [CHANGED] for LocalizationPatcher (TEMPORARY test call — remove at payload cutover)
+using LilithsSoul.Services;
 
 // ============================================================
 //  ClientInitPatch — LilithsSoul
@@ -11,25 +11,22 @@ using LilithsSoul.Services; // [CHANGED] for LocalizationPatcher (TEMPORARY test
 //
 //  Hook target: GameDataManager.OnUpdate (postfix, single-fire)
 //
-//  [CHANGED] Now reads ClientBootstrapSystem.ConnectionString and
-//            passes it to SyncReceiver.NotifyWorldReady(). This
-//            allows SyncReceiver to look up the server in servers.json
-//            and pre-apply the cached sync.json BEFORE CharacterHUD
-//            builds — eliminating the UI timing race condition where
-//            the server payload arrives after the UI is already built.
+//  [CHANGED] Reads ClientBootstrapSystem.ConnectionString and passes
+//            it to SyncReceiver.NotifyWorldReady(). This lets
+//            SyncReceiver look up the server in servers.json and
+//            pre-apply the cached sync.json BEFORE CharacterHUD builds
+//            — eliminating the UI timing race where the server payload
+//            arrives after the UI is already built.
 //
-//  [CHANGED] Fires LocalizationPatcher.ApplyTest() once after world-ready
-//            as a TEMPORARY first-cut test of the name/tooltip repoint.
-//            It mutates a single item (Bone Sword) so the rename can be
-//            verified in-game. Reads vanilla managed data only — no
-//            dependency on server sync — so it runs on world-ready alone.
-//            REMOVE this call once the repoint is driven by the sync
-//            payload at cutover. (Replaces the earlier RepointDiagnostic
-//            probe call, which has served its purpose.)
+//  [CHANGED] Removed the temporary RepointDiagnostic probe (and its
+//            LilithsSoul.Services using). The tooltip-build target it
+//            was hunting for (SomeReusableSubMenuThings.RefreshGeneral-
+//            ItemTooltip) has been identified and is now patched by
+//            ItemDescriptionPatch. RepointDiagnostic.cs can be deleted.
 //
-//  [PERFORMANCE] Guard check is a single bool read per frame
-//                until initialization — negligible cost.
-//                After first fire the patch is effectively free.
+//  [PERFORMANCE] Guard check is a single bool read per frame until
+//                initialization — negligible. After first fire the
+//                patch is effectively free.
 // ============================================================
 
 namespace LilithsSoul.Patches;
@@ -53,13 +50,12 @@ internal static class ClientInitPatch
         {
             SoulLogger.Info(LOG_SOURCE, "Client world ready — game data initialized.");
 
-            // [CHANGED] Read the current server connection string from
-            //           ClientBootstrapSystem so SyncReceiver can look up
-            //           the cached sync.json before the server payload arrives.
-            //           ConnectionString is populated before OnUpdate fires
-            //           since the client must already be connecting.
+            // Read the current server connection string from ClientBootstrapSystem
+            // so SyncReceiver can look up the cached sync.json before the server
+            // payload arrives. ConnectionString is populated before OnUpdate fires
+            // since the client must already be connecting.
             //
-            //           [PERFORMANCE] One system lookup — negligible.
+            // [PERFORMANCE] One system lookup — negligible.
             string connectionString = string.Empty;
 
             try
@@ -88,20 +84,6 @@ internal static class ClientInitPatch
             }
 
             SyncReceiver.NotifyWorldReady(connectionString);
-
-            // [CHANGED] TEMPORARY first-cut repoint test — fully isolated in its
-            //           own try/catch so a failure here can never affect init
-            //           (NotifyWorldReady has already completed above). Remove
-            //           this block once the repoint is driven by the sync payload.
-            try
-            {
-                RepointDiagnostic.Run();
-            }
-            catch (Exception ex)
-            {
-                SoulLogger.Warning(LOG_SOURCE,
-                    $"RepointDiagnostic probe threw (non-fatal): {ex.Message}");
-            }
         }
         catch (Exception ex)
         {

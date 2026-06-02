@@ -35,7 +35,7 @@ public sealed class ItemAppearanceData
     /// Custom tooltip text for this item.
     /// Injected into Localization._LocalizedStrings via the item's DescKey.
     /// </summary>
-    public string? Tooltip { get; set; }
+    public string? DescriptionText { get; set; }
 
     /// <summary>
     /// Icon override for this item. Resolved in order:

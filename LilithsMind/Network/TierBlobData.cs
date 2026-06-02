@@ -32,7 +32,7 @@ using LilithsMind.Network;
 //                no allocation occurs during send.
 // ============================================================
 
-namespace LilithsHeart.Network;
+namespace LilithsMind.Network;
 
 public sealed class TierBlobData
 {

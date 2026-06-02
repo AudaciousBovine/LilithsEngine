@@ -20,6 +20,16 @@ using LilithsMind.Network;
 //            This prevents large simultaneous-connect spikes from
 //            creating thousands of entities in one frame.
 //
+//  [CHANGED] NetworkIds are now captured at ENQUEUE time and carried
+//            through the queue, instead of being re-read off the
+//            stored entities at SEND time. Because the queue spans
+//            frames, a client could disconnect before the drain ran;
+//            re-reading NetworkId off a destroyed entity throws and
+//            would silently abort the drain, leaving chunks unsent.
+//            Capturing the IDs up front (entities are valid at connect)
+//            removes that failure. SyncQueue.Drain() additionally drops
+//            entries whose client entity no longer exists.
+//
 //  Protocol per tier:
 //  ───────────────────
 //  [[LG:begin:T:N:CKSUM]]   — begin sentinel (tier, chunk count, checksum)
@@ -76,6 +86,10 @@ public static class SyncSender
     /// and are applied in priority order.
     /// Called from ClientConnectPatch.
     ///
+    /// [CHANGED] Captures user/character NetworkIds here (entities are
+    ///           valid at connect) and passes them into the queue so the
+    ///           drain never re-reads them off a possibly-dead entity.
+    ///
     /// [PERFORMANCE] Builds message strings and enqueues — no entity creation.
     ///               Entity creation is deferred to SchedulerPatch.Drain().
     /// </summary>
@@ -90,12 +104,18 @@ public static class SyncSender
             return;
         }
 
+        // Capture routing IDs now, while the entities are guaranteed valid.
+        // These travel with the queue entry; the drain uses them directly.
+        var userNetId      = userEntity.Read<NetworkId>();
+        var characterNetId = characterEntity.Read<NetworkId>();
+
         int totalChunks = 0;
 
         foreach (var blob in blobs.OrderBy(b => (int)b.Tier))
         {
             var messages = BuildTierMessages(blob);
-            SyncQueue.Enqueue(userEntity, characterEntity, userIndex, messages);
+            SyncQueue.Enqueue(
+                userEntity, characterEntity, userNetId, characterNetId, userIndex, messages);
             totalChunks += blob.ChunkCount + 2; // +2 for begin + end sentinels
         }
 
@@ -108,16 +128,23 @@ public static class SyncSender
     /// Sends a single queued chunk entity immediately.
     /// Called by SchedulerPatch via SyncQueue.Drain().
     /// Must run on the server main thread (EntityManager not thread-safe).
+    ///
+    /// [CHANGED] Takes the pre-captured user/character NetworkIds rather
+    ///           than re-reading them from the entities (which may have
+    ///           been recycled). The caller (SyncQueue.Drain) has already
+    ///           confirmed the user entity still exists.
     /// </summary>
     public static void SendQueuedChunk(
-        Entity userEntity,
-        Entity characterEntity,
-        int    userIndex,
-        string message)
+        Entity    userEntity,
+        Entity    characterEntity,
+        NetworkId userNetId,
+        NetworkId characterNetId,
+        int       userIndex,
+        string    message)
     {
-        var em        = Heart.EntityManager;
-        var userNetId = userEntity.Read<NetworkId>();
-        SendSystemMessage(em, userEntity, characterEntity, userNetId, userIndex, message);
+        var em = Heart.EntityManager;
+        SendSystemMessage(
+            em, userEntity, characterEntity, userNetId, characterNetId, userIndex, message);
     }
 
     // ── Internal ─────────────────────────────────────────────
@@ -150,6 +177,7 @@ public static class SyncSender
         Entity userEntity,
         Entity characterEntity,
         NetworkId userNetId,
+        NetworkId characterNetId,
         int userIndex,
         string text)
     {
@@ -160,7 +188,7 @@ public static class SyncSender
         {
             MessageText   = new FixedString512Bytes(text),
             MessageType   = ServerChatMessageType.System,
-            FromCharacter = characterEntity.Read<NetworkId>(),
+            FromCharacter = characterNetId,   // [CHANGED] pre-captured, not re-read
             FromUser      = userNetId,
             TimeUTC       = DateTime.UtcNow.Ticks
         };

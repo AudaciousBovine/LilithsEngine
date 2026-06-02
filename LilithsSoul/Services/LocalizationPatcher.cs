@@ -106,7 +106,17 @@ public static class LocalizationPatcher
             {
                 var def  = (PrefabDef)field.GetValue(null)!;
                 var guid = new PrefabGUID(def.GuidHash);
-                _nameToPrefabGuid[def.Prefab] = guid;
+
+                // Guard both keys: Prefab is declared non-nullable, but a
+                // malformed definition (or IL2CPP reflection read) can yield
+                // null — a null Dictionary key throws. Skip + warn rather than
+                // crash NotifyWorldReady (which would abort the whole apply).
+                if (def.Prefab is not null)
+                    _nameToPrefabGuid[def.Prefab] = guid;
+                else
+                    SoulLogger.Warning(LOG_SOURCE,
+                        $"Definition {type.Name}.{field.Name} has null Prefab — skipped. Fix the entry.");
+
                 if (def.Name is not null)
                     _nameToPrefabGuid[def.Name] = guid;
                 count++;

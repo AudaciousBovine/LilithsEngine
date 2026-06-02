@@ -6,7 +6,7 @@
 |--------|---------|---------|
 | `*Patch` | Harmony patch that injects before/after game code | `InitializationPatch`, `ClientConnectPatch` |
 | `*Patcher` | Modifies ECS component data | `RecipePatcher` |
-| `*Injector` | Injects values into game systems outside ECS | `LocalizationInjector` |
+| `*Injector` | Injects values into game systems outside ECS | — (LocalizationInjector retired; see LocalizationPatcher) |
 | `*Service` | Static class that performs work | `LocalizationService` |
 | `*Queue` | Holds work items done at controlled rate | — |
 | `*Builder` | Builds complex objects/data into manageable structures | `CookbookConfigBuilder` |
@@ -148,13 +148,29 @@ pre-apply path runs the same steps in one shot via `ApplyPayload()`.
  
 Within a payload the order is fixed:
  
-1. `LocalizationInjector.Inject(payload)` — text into `_LocalizedStrings`
-2. `IconPatcher.ClearPrevious()` — restore original icons
-3. `IconPatcher.Apply(payload)` — sprites into `ManagedItemData.Icon`
-4. `RecipePatcher.Apply(payload.RecipeOverrides)` — recipe ECS data
-5. `RecipePatcher.ApplyStationRecipes(payload.StationRecipeOverrides)` — station buffers
-6. `RecipePatcher.ApplyPlayerRecipes(...)` — player buffer last
-Lookup tables (`_nameToGuid`, localization/sprite maps) are built once in
+1. `LocalizationPatcher.ClearPrevious()` — restore prior repointed display names
+2. `LocalizationPatcher.Apply(payload)` — repoint display names (mint key + inject string + point `ManagedItemData.Name`)
+3. `IconPatcher.ClearPrevious()` — restore original icons
+4. `IconPatcher.Apply(payload)` — sprites into `ManagedItemData.Icon`
+5. `RecipePatcher.Apply(payload.RecipeOverrides)` — recipe ECS data
+6. `RecipePatcher.ApplyStationRecipes(payload.StationRecipeOverrides)` — station buffers
+7. `RecipePatcher.ApplyPlayerRecipes(...)` — player buffer last
+Lookup tables (name→PrefabGUID, sprite maps) are built once in
 `NotifyWorldReady()`; the steps above only read them. The fixed ordering
 ensures each patcher's `ClearPrevious()` runs before its `Apply()`, and that
-localization and icons are in place before the crafting UI reads them.
+display names and icons are in place before the crafting UI reads them.
+
+**Display-name localization changed (LocalizationInjector retired).** The old
+injector overwrote the string at an item's existing localization key and called
+`Localization.LoadDefaultLanguage()` on clear, which reloaded the entire string
+table from disk — wiping any keys it had written when it ran a second time
+(pre-apply + server payload), so renames reverted to raw GUIDs on screen.
+`LocalizationPatcher` instead **repoints**: it mints a fresh `AssetGuid` per
+item (unique by construction), writes the new string there, and points
+`ManagedItemData.Name` (a value-type property that persists) at it. No
+shared-key contamination, and no `LoadDefaultLanguage` anywhere.
+
+**Tooltips are not yet handled.** `ManagedItemData.Description` is a
+reference-type property whose getter returns a copy, so a repoint cannot be
+persisted through managed data. Tooltip overrides are currently no-ops pending
+a Harmony patch on the tooltip-build path (separate task).

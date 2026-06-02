@@ -87,11 +87,11 @@ Identity-critical traits are the features that make Lilith immediately read as L
 
 Design-critical supporting traits should be preserved whenever visible or relevant to the artwork:
 
-- Black nails when hands are visible
+- Black claws when hands are visible
 - Gothic black outfit
 - Gold jewelry or gold accents
 - Bat wings when included
-- Red spaded tail when included
+- Black spaded tail when included
 - Compact mature-chibi mascot proportions
 - Clean mascot-vector readability
 
@@ -195,7 +195,7 @@ Preserve:
 - Black nails
 - Gold eyes
 - Gold jewelry
-- Red tail
+- Black tail
 - Black and red wings
 
 Avoid hue shifts, alternate palettes, or reinterpretations unless explicitly requested by the user.
@@ -206,12 +206,12 @@ Black lips, gold eyes, red skin, and black hair are especially important and sho
 
 # Wings and Tail Rule
 
-Canon Lilith includes bat wings and a red spaded tail unless the user specifically requests their removal.
+Canon Lilith may include bat wings and/or a black spaded tail when the user specifically requests them but should not be added otherwise.
 
 When included:
 
 - Wings should be bat-like, simple, black and red, and readable.
-- Tail should be red, simple, curved, and have a spaded tip.
+- Tail should be black, simple, curved, and have a spaded tip.
 
 When removed:
 
@@ -263,7 +263,7 @@ Lilith should remain the focal point.
 
 Preferred:
 
-- Simple background
+- Single color background, Black or Dark Red
 - Transparent background
 - Minimal decorative elements
 - Clear readable composition

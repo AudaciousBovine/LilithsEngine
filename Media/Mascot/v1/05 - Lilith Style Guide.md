@@ -166,7 +166,7 @@ Silhouette anchors:
 - Compact body
 - Gothic outfit shape
 - Bat wings when included
-- Red spaded tail when included
+- Black spaded tail when included
 
 Silhouette rules:
 
@@ -393,7 +393,7 @@ When included, the tail should be simple and readable.
 
 Required:
 
-- Red tail
+- Black tail
 - Spaded tip
 - Clean curve
 - Thick outline
@@ -554,7 +554,7 @@ Required color behavior:
 - Preserve gold jewelry
 - Preserve black clothing
 - Preserve black nails
-- Preserve red tail when included
+- Preserve Black tail when included
 - Preserve black and red wings when included
 
 Avoid:

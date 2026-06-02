@@ -1,5 +1,19 @@
 # LILITH - PROMPTING TEMPLATES
 
+## My Prompts
+
+### Lilith Features Prompt
+Use canon Lilith from the project source files and these reference images. Preserve her identity exactly: red skin, sharp gold eyes, heavy upper eyelids, black hair, black sidebang silhouette, black visible lips, small visible fangs, pointed ears, black horns, black nails, gothic black outfit, gold jewelry, compact mature-chibi mascot proportions, and mischievous amused personality. She should look clever, smug, playful, and self-assured, as if she knows something the viewer does not. 
+
+Generate a Reference sheet for Lilith's features, Solid black background with no extra information other than the title "Lilith Features Reference Sheet" it should only include reference images for her eyes, lips, fangs, hangs/claws, wings, tail, horns, and ears
+
+
+
+
+
+
+
+
 ## Purpose
 
 This document provides reusable prompting templates for generating, revising, and reviewing Lilith artwork.

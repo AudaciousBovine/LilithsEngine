@@ -21,7 +21,7 @@ public static class HeartConfig
     public static void Initialize(ConfigFile config)
     {
         ServerName = config.Bind(
-            section:      "General",
+            section:      "1) General",
             key:          "ServerName",
             defaultValue: "LilithsGarden",
             description:  "Unique name for this server. Used by Soul clients to cache " +
@@ -30,7 +30,7 @@ public static class HeartConfig
         );
 
         _generateExampleConfigs = config.Bind(
-            section:      "Config Generation",
+            section:      "4) Config Generation",
             key:          "GenerateExampleConfigs",
             defaultValue: false,
             description:  "When set to true, generates example config files for all " +
@@ -40,7 +40,7 @@ public static class HeartConfig
         );
 
         _chunksPerFrame = config.Bind(
-            section:      "Client Sync",
+            section:      "2) Client Sync",
             key:          "ChunksPerFrame",
             defaultValue: 10,
             description:  "Maximum number of sync payload chunks sent per server frame. " +
@@ -50,7 +50,7 @@ public static class HeartConfig
         );
 
             _debugLogging = config.Bind(
-            section:      "Debug",
+            section:      "3) Debug",
             key:          "DebugLogging",
             defaultValue: false,
             description:  "Enable verbose debug logging for LilithsHeart. " +

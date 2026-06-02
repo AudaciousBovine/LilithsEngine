@@ -29,7 +29,7 @@
 
 | File | Class | Purpose |
 |------|-------|---------|
-| `PrefabDef.cs` | `PrefabDef` | `readonly record struct` — universal prefab definition (Name, GuidHash, Prefab, NameKey, DescKey). Stack-allocated, zero heap pressure. |
+| `PrefabDef.cs` | `PrefabDef` | `readonly record struct` — universal prefab definition (Name, GuidHash, Prefab, NameKey, DescKey). Stack-allocated, zero heap pressure. **`NameKey` is no longer required for display-name overrides** (LocalizationPatcher mints fresh keys and reads the live name by PrefabGUID); `NameKey`/`DescKey` are retained as a vanilla-key reference record and for the pending tooltip work. |
 
 ### Prefabs/Definitions/ — 22 static index classes
 
@@ -190,7 +190,7 @@
 
 | File | Class | Purpose |
 |------|-------|---------|
-| `LocalizationInjector.cs` | `LocalizationInjector` | Scans LilithsMind definitions for NameKey/DescKey. Injects `DisplayName` and `Tooltip` from `payload.ItemAppearanceOverrides` into `Localization._LocalizedStrings`. `ClearPrevious()` via `LoadDefaultLanguage()`. |
+| `LocalizationPatcher.cs` | `LocalizationPatcher` | **Replaces `LocalizationInjector` (retired).** Repoints item **display names**: per `ItemAppearanceOverrides` entry with a `DisplayName`, resolves prefab name → PrefabGUID (LilithsMind reflection), mints a fresh `AssetGuid` (`AssetGuid.FromString(Guid.NewGuid())`), writes the string to `Localization._LocalizedStrings`, and points the value-type `ManagedItemData.Name` at it. Captures originals for `ClearPrevious()` restore; **no `LoadDefaultLanguage`** (which previously wiped minted keys). Tooltips are NOT handled — `ManagedItemData.Description` is a copy-returning reference property; pending a Harmony patch. Does **not** require recorded `PrefabDef.NameKey`. |
 | `IconPatcher.cs` | `IconPatcher` | Applies `Icon` from `payload.ItemAppearanceOverrides` to `ManagedItemData.Icon`. Builds at world ready: prefab name → PrefabGUID (LilithsMind reflection), filename → PNG path (Icons/ recursive scan, PNG only), sprite name → Sprite (Resources). Resolution order: local file → in-game sprite → https:// URL. Stores previous icons for `ClearPrevious()` restore. |
 | `IconDownloader.cs` | `IconDownloader` | https:// URL icon downloads. Checks Icons/ cache first. Downloads via `UnityWebRequestTexture`, saves as PNG, invokes callback. Runs via `SoulCoroutineHost`. Filename derived from URL last path segment. |
 | `RecipePatcher.cs` | `RecipePatcher` | Name→GUID map from PrefabCollectionSystem + LilithsMind. Patches RecipeData, RecipeHashLookupMap, buffers, WorkstationRecipesBuffer. |
@@ -207,7 +207,7 @@
 
 | File | Class | Purpose |
 |------|-------|---------|
-| `SyncReceiver.cs` | `SyncReceiver` | Accumulates tiered chunks. On `[[LG:end:T:CKSUM]]`: base64-decode, GZip-decompress, deserialize, write to disk, apply. `NotifyWorldReady()` calls `LocalizationInjector.BuildLookupTable()`, `RecipePatcher.BuildNameMap()`, `IconPatcher.BuildSpriteMaps()`. `ApplyPayload` order: LocalizationInjector → IconPatcher → RecipePatcher. |
+| `SyncReceiver.cs` | `SyncReceiver` | Accumulates tiered chunks. On `[[LG:end:T:CKSUM]]`: base64-decode, GZip-decompress, deserialize, write to disk, apply. `NotifyWorldReady()` calls `LocalizationPatcher.BuildNameMap()`, `RecipePatcher.BuildNameMap()`, `IconPatcher.BuildSpriteMaps()`. `ApplyPayload` order: LocalizationPatcher (ClearPrevious→Apply) → IconPatcher (ClearPrevious→Apply) → RecipePatcher. |
 
 ### Config/
 
@@ -246,3 +246,15 @@
 - `LilithsSoul/SoulPlugin.cs` — added `SoulCoroutineHost.Register()`
 - `LilithsHeart/Foundation/Heart.cs` — added `HeartConfigBuilder.GenerateIfRequested()`
 - `LilithsCookbook/Services/CookbookConfigBuilder.cs` — renamed from `CookbookBuilder`
+
+### Added (LocalizationPatcher fold-in)
+- `LilithsSoul/Services/LocalizationPatcher.cs` — `LocalizationPatcher` — repoints item display names via minted AssetGuids; replaces LocalizationInjector for the name path. Tooltip handling deferred (Harmony patch, separate task).
+
+### Removed (LocalizationPatcher fold-in)
+- `LilithsSoul/Services/LocalizationInjector.cs` — retired. Overwrote shared localization keys and reloaded the table via `LoadDefaultLanguage()` on clear, wiping its own writes on the second apply (renames reverted to raw GUIDs).
+- `LilithsSoul/Services/RepointDiagnostic.cs` — temporary investigation probe; deleted after confirming the repoint mechanism.
+
+### Modified (LocalizationPatcher fold-in)
+- `LilithsSoul/Network/SyncReceiver.cs` — `ApplyPayload` swaps `LocalizationInjector.Inject` for `LocalizationPatcher.ClearPrevious()` + `LocalizationPatcher.Apply()`; `NotifyWorldReady` builds the patcher's name map. FIXED order is now 7 steps (localization clear+apply, icon clear+apply, recipes).
+- `LilithsSoul/Patches/ClientInitPatch.cs` — removed temporary probe/test call; back to `SyncReceiver.NotifyWorldReady()` only.
+- `PrefabDef` usage — `NameKey` no longer required for naming (see PrefabDef row).

@@ -146,28 +146,28 @@ public static class LocalizationService
                 if (element.ValueKind != JsonValueKind.Object) continue;
 
                 string? displayName = null;
-                string? tooltip     = null;
+                string? descriptionText     = null;
                 string? icon        = null;
 
                 if (element.TryGetProperty("DisplayName", out var dn) &&
                     dn.ValueKind == JsonValueKind.String)
                     displayName = dn.GetString();
 
-                if (element.TryGetProperty("Tooltip", out var tt) &&
+                if (element.TryGetProperty("DescriptionText", out var tt) &&
                     tt.ValueKind == JsonValueKind.String)
-                    tooltip = tt.GetString();
+                    descriptionText = tt.GetString();
 
                 if (element.TryGetProperty("Icon", out var ic) &&
                     ic.ValueKind == JsonValueKind.String)
                     icon = ic.GetString();
 
                 // Skip entirely empty entries.
-                if (displayName is null && tooltip is null && icon is null) continue;
+                if (displayName is null && descriptionText is null && icon is null) continue;
 
                 ItemAppearanceConfig.AddOverride(key, new ItemAppearanceData
                 {
                     DisplayName = displayName,
-                    Tooltip     = tooltip,
+                    DescriptionText     = descriptionText,
                     Icon        = icon,
                 });
 

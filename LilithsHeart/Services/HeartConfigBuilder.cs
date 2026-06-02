@@ -30,6 +30,13 @@ using LilithsHeart.Foundation;
 //            Single flag now triggers all registered generators,
 //            not just the localization example.
 //
+//  [CHANGED] Example JSON "Tooltip" key renamed to "DescriptionText"
+//            to match the ItemAppearanceData field rename. The client
+//            applies this as the item's tooltip-body (description) text
+//            via the ItemDescriptionPatch Harmony postfix — it is NOT
+//            written through any localization key. (No back-compat shim
+//            needed: no live servers have old "Tooltip" config files.)
+//
 //  [PERFORMANCE] Zero cost on normal boots — all work gated behind
 //                the GenerateExampleConfigs flag check.
 // ============================================================
@@ -91,7 +98,7 @@ public static class HeartConfigBuilder
 
     /// <summary>
     /// Generates Items/example.json demonstrating all three icon
-    /// methods alongside display name and tooltip overrides.
+    /// methods alongside display name and description overrides.
     /// Registered by Heart.OnInitialize() as the core generator.
     /// Skipped if the file already exists.
     /// </summary>
@@ -113,10 +120,12 @@ public static class HeartConfigBuilder
 
   "_icon_readme": "Icon can be set three ways: (1) a PNG filename resolved from the client's Icons/ folder — e.g. 'vitae.png'; (2) an in-game sprite name from Resources — e.g. 'Icon_BloodOrb'; (3) an https:// URL the client will download and cache to their Icons/ folder.",
 
+  "_description_readme": "DescriptionText sets the item's tooltip body text. The client overrides it per-item at hover time (no localization key is touched), so two items that share a vanilla description stay independent.",
+
   "Item_BloodEssence_T01": {
-    "_comment": "Example 1: rename + tooltip + local PNG icon (client must have vitae.png in their Icons/ folder)",
+    "_comment": "Example 1: rename + description + local PNG icon (client must have vitae.png in their Icons/ folder)",
     "DisplayName": "Vitae",
-    "Tooltip": "Concentrated life force, harvested from the living.",
+    "DescriptionText": "Concentrated life force, harvested from the living.",
     "Icon": "vitae.png"
   },
 

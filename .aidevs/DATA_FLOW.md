@@ -13,6 +13,8 @@ ServerSyncPayload
 ├── ItemAppearanceOverrides: Dictionary<string, ItemAppearanceData>
 │     Key: prefab Name or Prefab string
 │     Value: { DisplayName?, Tooltip?, Icon? }
+│            DisplayName → repointed client-side (LocalizationPatcher)
+│            Tooltip     → currently a NO-OP client-side (pending Harmony patch)
 │            Icon is self-describing:
 │              "vitae.png"              → local PNG in Icons/ folder
 │              "Icon_BloodOrb"         → in-game sprite name
@@ -134,15 +136,23 @@ ClientChatSystemPatch.Prefix (per-frame, prefix so entities destroyed before UI)
 
 ```
 ApplyPayload(ServerSyncPayload):
-  1. LocalizationInjector.Inject(payload)
-       └── ClearPrevious() — LoadDefaultLanguage() restores vanilla strings
-       └── Write DisplayName/Tooltip from ItemAppearanceOverrides
-           → Localization._LocalizedStrings[NameKey/DescKey AssetGuid]
+  1. LocalizationPatcher.ClearPrevious()
+       └── Restore each previously repointed item's original Name (LocalizationKey)
 
-  2. IconPatcher.ClearPrevious()
+  2. LocalizationPatcher.Apply(payload)
+       └── For each ItemAppearanceOverrides entry with non-null DisplayName:
+             a. Resolve prefab name → PrefabGUID (LilithsMind reflection)
+             b. Capture current ManagedItemData.Name for restore
+             c. Mint fresh AssetGuid = AssetGuid.FromString(Guid.NewGuid())
+             d. Localization._LocalizedStrings[mintedGuid] = DisplayName
+             e. ManagedItemData.Name = new LocalizationKey(mintedGuid)
+           NO LoadDefaultLanguage — minted keys are never wiped.
+           Tooltip field is NOT applied here (pending Harmony patch — no-op).
+
+  3. IconPatcher.ClearPrevious()
        └── Restore original ManagedItemData.Icon for all previously patched items
 
-  3. IconPatcher.Apply(payload)
+  4. IconPatcher.Apply(payload)
        └── For each ItemAppearanceOverrides entry with non-null Icon:
              Resolution order:
                a. Local PNG → Icons/ recursive scan, filename match
@@ -150,10 +160,26 @@ ApplyPayload(ServerSyncPayload):
                c. https:// URL → IconDownloader (async, callback on complete)
              → ManagedItemData.Icon = resolvedSprite
 
-  4. RecipePatcher.Apply(payload.RecipeOverrides)
-  5. RecipePatcher.ApplyStationRecipes(payload.StationRecipeOverrides)
-  6. RecipePatcher.ApplyPlayerRecipes(payload.PlayerRecipesToAdd, ...)
+  5. RecipePatcher.Apply(payload.RecipeOverrides)
+  6. RecipePatcher.ApplyStationRecipes(payload.StationRecipeOverrides)
+  7. RecipePatcher.ApplyPlayerRecipes(payload.PlayerRecipesToAdd, ...)
 ```
+
+### Why repoint instead of overwrite (display names)
+
+Many vanilla items share one localization key by value (e.g. every sword shares
+one tooltip key). Overwriting the string at that key changes every item sharing
+it. Worse, the retired LocalizationInjector cleared via
+`Localization.LoadDefaultLanguage()`, which reloads `_LocalizedStrings` from
+disk — so when it ran a second time (cached pre-apply + server payload), it
+wiped the keys it had just written and renames reverted to raw GUIDs.
+LocalizationPatcher mints a brand-new `AssetGuid` per item (unique, so no
+sharing) and points the **value-type** `ManagedItemData.Name` at it, which
+persists. It never reloads the table.
+
+`ManagedItemData.Description` is a **reference-type** property whose getter
+returns a copy, so assigning it does not persist — tooltips cannot be repointed
+through managed data and await a Harmony patch on the tooltip-build path.
 
 ---
 
@@ -162,7 +188,7 @@ ApplyPayload(ServerSyncPayload):
 ```
 ClientInitPatch detects world ready
   → SyncReceiver.NotifyWorldReady(connectionString)
-    → LocalizationInjector.BuildLookupTable()   — LilithsMind reflection
+    → LocalizationPatcher.BuildNameMap()         — LilithsMind reflection (name→PrefabGUID)
     → RecipePatcher.BuildNameMap()               — PrefabCollectionSystem
     → IconPatcher.BuildSpriteMaps()              — Resources + Icons/ scan
     → ServerRegistry.Load()                      — reads servers.json

@@ -164,27 +164,37 @@ Primary color identities:
 - Black nails
 - Gold eyes
 - Gold jewelry
-- Red tail
+- Black tail
 - Black and red wings
 
 Use the Canon Color Palette for exact values.
 
 Canonical palette:
 
-| Element | Hex |
-| --- | --- |
-| Skin | #CC2828 |
-| Skin Shadow | #B71C1C |
-| Hair | #0D0D0D |
-| Horns | #1A1A1A |
-| Clothing | #0D0D0D |
-| Lips | #000000 |
-| Nails | #000000 |
-| Eyes | #FFC400 |
-| Gold Jewelry | #E0B22E |
-| Gems | #FF3B30 |
-| Wing Membranes | #B71C1C |
-| Tail | #CC2828 |
+| Element | Canon Hex | Usage |
+| --- | --- | --- |
+| Abyss Background | #000000 | Primary black background and deepest black |
+| Hair Black | #0D0B0C | Main hair color |
+| Hair Highlight | #1A1516 | Subtle hair highlight and black shape separation |
+| Gothic Clothing | #090808 | Main black clothing color |
+| Clothing Highlight | #201D1E | Subtle clothing highlight and form separation |
+| Horn Charcoal | #211A1A | Main horn color |
+| Horn Ridge | #3A2B29 | Horn ridges, horn highlights, hard-surface detail |
+| Lips | #000000 | Lip color, always visible |
+| Nails | #000000 | Fingernails and toenails when visible |
+| Skin Base | #982928 | Main skin color |
+| Skin Highlight | #AF232B | Skin highlight, raised planes, brighter skin areas |
+| Skin Shadow | #5E1617 | Main skin shadow |
+| Deep Red Shadow | #2D0808 | Deepest red shadow and dark red occlusion |
+| Wing Membrane | #7A1D1F | Inner bat-wing membrane color |
+| Crimson Outline | #9E1F25 | Optional red outline/accent for dark-background art |
+| Flame Shadow | #8F2022 | Secondary red shadow/accent |
+| Flame Base | #EA3642 | Bright red accent, gems, magic, flame details |
+| Eye Bright Gold | #FFC400 | Iris color and primary eye identity |
+| Gold Base | #DA7F35 | Jewelry, gold outfit accents, warm metal base |
+| Gold Highlight | #F8C279 | Jewelry highlights, eye glints, bright gold accents |
+| Gold Shadow | #693313 | Gold shadow and dark metal separation |
+| Fang Warm Ivory | #F5D7C1 | Fangs and teeth |
 
 Avoid hue shifts, alternate palettes, pink or purple skin, non-black hair, red lips, or silver jewelry replacing gold.
 
@@ -222,7 +232,7 @@ Wings, when included:
 
 Tail, when included:
 
-- Red
+- Black
 - Simple curved shape
 - Spaded tip
 - Readable silhouette

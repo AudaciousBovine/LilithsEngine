@@ -14,7 +14,7 @@ using LilithsMind.Data;
 //            the new combined Items/ JSON format and the updated
 //            ServerSyncPayload.ItemAppearanceOverrides field.
 //
-//            Old accessors GetDisplayName() and GetTooltip() are
+//            Old accessors GetDisplayName() and GetDescriptionText() are
 //            removed. Consumers read from Overrides directly or
 //            call GetOverride() for a single entry.
 //
@@ -22,9 +22,9 @@ using LilithsMind.Data;
 //  Prefab string (e.g. "Item_BloodEssence_T01"). Soul resolves
 //  these to AssetGuids via LilithsMind's NameKey/DescKey fields.
 //
-//  ⚠️  IMPORTANT: DisplayName/Tooltip overrides only take effect
+//  ⚠️  IMPORTANT: DisplayName/DescriptionText overrides only take effect
 //  on the client if LilithsMind has a PrefabDef entry with NameKey
-//  (for DisplayName) or DescKey (for Tooltip) populated for that
+//  (for DisplayName) or DescKey (for DescriptionText) populated for that
 //  prefab. Icon overrides require the icon source to be resolvable
 //  by Soul's IconPatcher. Unresolvable entries are skipped with a
 //  warning in the Soul log.
@@ -87,7 +87,7 @@ public static class ItemAppearanceConfig
 
         // Merge — later file wins per field, not per entry.
         if (incoming.DisplayName is not null) existing.DisplayName = incoming.DisplayName;
-        if (incoming.Tooltip     is not null) existing.Tooltip     = incoming.Tooltip;
+        if (incoming.DescriptionText     is not null) existing.DescriptionText     = incoming.DescriptionText;
         if (incoming.Icon        is not null) existing.Icon        = incoming.Icon;
     }
 

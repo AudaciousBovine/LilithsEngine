@@ -14,9 +14,9 @@ using LilithsSoul.Foundation;
 //      Stunlock.Localization.Localization._LocalizedStrings
 //
 //  [CHANGED] Now reads from payload.ItemAppearanceOverrides instead
-//            of separate DisplayNameOverrides / TooltipOverrides.
+//            of separate DisplayNameOverrides / DescriptionTextOverrides.
 //            Each ItemAppearanceData entry carries both DisplayName
-//            and Tooltip — one iteration over the dict handles both.
+//            and DescriptionText — one iteration over the dict handles both.
 //            Icon is passed to IconPatcher separately — this service
 //            only handles text injection into _LocalizedStrings.
 //
@@ -130,7 +130,7 @@ public static class LocalizationInjector
     /// previous overrides are cleared via LoadDefaultLanguage() first.
     ///
     /// [CHANGED] Reads from payload.ItemAppearanceOverrides instead of
-    ///           separate DisplayNameOverrides / TooltipOverrides dicts.
+    ///           separate DisplayNameOverrides / DescriptionTextOverrides dicts.
     ///           Icon field is intentionally ignored here — handled by
     ///           IconPatcher separately.
     /// </summary>
@@ -170,12 +170,12 @@ public static class LocalizationInjector
                 }
             }
 
-            // ── Tooltip ───────────────────────────────────────
-            if (appearance.Tooltip is not null)
+            // ── DescriptionText ───────────────────────────────────────
+            if (appearance.DescriptionText is not null)
             {
                 if (_nameToDescGuid.TryGetValue(prefabName, out var descGuid))
                 {
-                    table[descGuid] = appearance.Tooltip;
+                    table[descGuid] = appearance.DescriptionText;
                     _injectedGuids.Add(descGuid);
                     tooltipCount++;
                 }

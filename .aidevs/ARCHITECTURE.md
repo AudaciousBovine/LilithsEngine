@@ -122,8 +122,8 @@ SoulPlugin.Load()
         ▼  (client world loads)
 ClientInitPatch.Postfix()               — hooks GameDataManager.OnUpdate
   └── SyncReceiver.NotifyWorldReady(connectionString)
-        ├── LocalizationInjector.BuildLookupTable()
-        │     └── LilithsMind reflection → _nameToNameGuid, _nameToDescGuid
+        ├── LocalizationPatcher.BuildNameMap()
+        │     └── LilithsMind reflection → _nameToPrefabGuid (display-name repoint)
         ├── RecipePatcher.BuildNameMap()
         │     └── PrefabCollectionSystem + LilithsMind → name→GUID
         ├── IconPatcher.BuildSpriteMaps()
@@ -144,13 +144,24 @@ ClientInitPatch.Postfix()               — hooks GameDataManager.OnUpdate
 
 ```
 ApplyPayload(ServerSyncPayload):
-  1. LocalizationInjector.Inject(payload)    — text into _LocalizedStrings
-  2. IconPatcher.ClearPrevious()             — restore original icons
-  3. IconPatcher.Apply(payload)              — sprites into ManagedItemData.Icon
-  4. RecipePatcher.Apply(...)                — recipe ECS data
-  5. RecipePatcher.ApplyStationRecipes(...)  — station buffers
-  6. RecipePatcher.ApplyPlayerRecipes(...)   — player buffer last
+  1. LocalizationPatcher.ClearPrevious()     — restore prior repointed names
+  2. LocalizationPatcher.Apply(payload)      — repoint display names (mint + inject + point Name)
+  3. IconPatcher.ClearPrevious()             — restore original icons
+  4. IconPatcher.Apply(payload)              — sprites into ManagedItemData.Icon
+  5. RecipePatcher.Apply(...)                — recipe ECS data
+  6. RecipePatcher.ApplyStationRecipes(...)  — station buffers
+  7. RecipePatcher.ApplyPlayerRecipes(...)   — player buffer last
 ```
+
+> **Display names repointed, not injected.** LocalizationInjector is retired.
+> It overwrote shared localization keys and reloaded the table via
+> LoadDefaultLanguage() on clear, wiping its own writes on the second apply.
+> LocalizationPatcher mints a fresh AssetGuid per item and points the
+> value-type ManagedItemData.Name at it — persists, no contamination, no reload.
+>
+> **Tooltips not yet handled.** ManagedItemData.Description is a reference
+> property whose getter returns a copy; a repoint cannot persist through it.
+> Tooltip overrides are no-ops pending a Harmony patch (separate task).
 
 ---
 

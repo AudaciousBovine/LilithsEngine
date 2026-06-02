@@ -480,7 +480,7 @@ The tail is a secondary silhouette feature.
 
 When the tail is included:
 
-- Tail should be red with a spaded tip.
+- Tail should be black with a spaded tip.
 - Tail should be simple and readable.
 - Tail should support the pose and silhouette.
 - Tail should not overpower the body.
