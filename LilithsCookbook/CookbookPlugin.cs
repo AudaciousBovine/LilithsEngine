@@ -67,31 +67,41 @@ public class CookbookPlugin : BasePlugin
 
     public override void Load()
     {
-        HeartLogger.Info(LOG_SOURCE,
-            $"{LilithsCookbook.MyPluginInfo.PLUGIN_NAME} v{LilithsCookbook.MyPluginInfo.PLUGIN_VERSION} loading.");
-
+        // Initialize config first so ModuleEnabled can be read.
         var configFile = new ConfigFile(
             HeartPathIndex.ModuleConfig("LilithsCookbook"), saveOnInit: true);
 
         CookbookConfig.Initialize(configFile);
 
+        // [CHANGED] ModuleEnabled check — skip all initialization if false.
+        //           No ECS patching, no Heart registration, no subscriptions.
+        if (!CookbookConfig.ModuleEnabled)
+        {
+            HeartLogger.Info(LOG_SOURCE,
+                $"{LilithsCookbook.MyPluginInfo.PLUGIN_NAME} is disabled via ModuleEnabled=false. Skipping.");
+            return;
+        }
+
+        HeartLogger.Info(LOG_SOURCE,
+            $"{LilithsCookbook.MyPluginInfo.PLUGIN_NAME} v{LilithsCookbook.MyPluginInfo.PLUGIN_VERSION} loading.");
+
         // [CHANGED] Initialize() no longer creates Stations/ directory or
         //           writes example-stations.json — only Recipes/ and its example.
         CookbookConfigBuilder.Initialize();
 
-        // [CHANGED] Register Cookbook's item example entries so HeartConfigBuilder
-        //           includes StackSize in Items/example.json when installed.
+        // Register Cookbook's item example data for merged ItemExamples.json.
         HeartConfigBuilder.RegisterItemExamples("LilithsCookbook", new Dictionary<string, LilithItemData>
         {
-            ["Item_BloodEssence_T01"] = new LilithItemData
-            {
-                StackSize = 500,
-            },
-            ["Item_Ingredient_Mineral_CopperOre"] = new LilithItemData
-            {
-                StackSize = 1000,
-            },
+            ["Item_BloodEssence_T01"]            = new LilithItemData { ChangesEnabled = false, StackSize = 500 },
+            ["Item_Ingredient_Mineral_CopperOre"] = new LilithItemData { ChangesEnabled = false, StackSize = 1000 },
+            ["Item_Consumable_Salve_Vermin"]      = new LilithItemData { ChangesEnabled = false, StackSize = 50 },
         });
+
+        // [CHANGED] Register Cookbook's example and debug generators with
+        //           HeartConfigBuilder so they are triggered by the Heart-level
+        //           GenerateAllModuleExamples and GenerateDebugConfigs flags.
+        HeartConfigBuilder.RegisterExampleGenerator(CookbookConfigBuilder.GenerateExampleFiles);
+        HeartConfigBuilder.RegisterDebugGenerator(CookbookConfigBuilder.GenerateDebugFiles);
 
         HeartModuleRegistry.Register(new HeartModuleData
         {
@@ -112,12 +122,22 @@ public class CookbookPlugin : BasePlugin
 
     static void OnHeartInitialized()
     {
-        // Generate all-recipes.json if the flag is set — runs once, then disables itself.
+        // Generate AllRecipes.json dump if requested.
         CookbookConfigBuilder.GenerateAllRecipesIfRequested();
 
-        // [CHANGED] Generate prisoner-feed-example.json if the flag is set.
-        // Runs before LoadRecipes() so the generated file is picked up on the same boot.
-        CookbookConfigBuilder.GeneratePrisonerFeedExampleIfRequested();
+        // [CHANGED] GenerateCookbookExamples — generates all four Cookbook example files.
+        if (CookbookConfig.GenerateCookbookExamples)
+        {
+            CookbookConfigBuilder.GenerateExampleFiles();
+            CookbookConfig.DisableGenerateCookbookExamples();
+        }
+
+        // [CHANGED] GenerateCookbookDebugConfigs — generates all four Cookbook debug files.
+        if (CookbookConfig.GenerateCookbookDebugConfigs)
+        {
+            CookbookConfigBuilder.GenerateDebugFiles();
+            CookbookConfig.DisableGenerateCookbookDebugConfigs();
+        }
 
         // [CHANGED] LoadRecipes() now returns a tuple (recipes, feeding).
         //           LoadStations() call removed.

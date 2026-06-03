@@ -4,18 +4,18 @@
 //
 //  BepInEx config bindings for LilithsCookbook.
 //
-//  [CHANGED] GeneratePrisonerFeedExample flag added.
-//            When enabled, writes prisoner-feed-example.json
-//            with ChangesEnabled=true entries covering all three
-//            FakeItem behaviour types (FeedPrisoner,
-//            AffectWithToxic, DealDamageToPrisoner) plus their
-//            corresponding feed recipes, so admins can verify
-//            the prisoner feeding system is working end-to-end.
-//            Auto-resets to false after generation, same pattern
-//            as GenerateAllRecipes.
+//  [CHANGED] Full overhaul to match the new suite-wide config
+//            generation system:
+//
+//    ModuleEnabled               — new, skips all initialization if false
+//    GenerateAllRecipes          — unchanged, dumps vanilla recipe ECS state
+//    GenerateCookbookExamples    — replaces GeneratePrisonerFeedExample +
+//                                  any other one-off example flags;
+//                                  generates all Cookbook example files
+//    GenerateCookbookDebugConfigs — new, generates all Cookbook debug files
 //
 //  [PERFORMANCE] All values read directly from ConfigEntry.Value.
-//                No Lazy<T> wrappers. BepInEx caches parsed values.
+//                No Lazy<T> wrappers.
 // ============================================================
 
 using BepInEx.Configuration;
@@ -27,61 +27,89 @@ public static class CookbookConfig
 {
     private const string LOG_SOURCE = "LilithsCookbook.CookbookConfig";
 
-    static ConfigEntry<bool> _generateAllRecipes          = null!;
-    static ConfigEntry<bool> _generatePrisonerFeedExample = null!;
+    static ConfigEntry<bool> _moduleEnabled              = null!;
+    static ConfigEntry<bool> _generateAllRecipes         = null!;
+    static ConfigEntry<bool> _generateCookbookExamples   = null!;
+    static ConfigEntry<bool> _generateCookbookDebugConfigs = null!;
 
+    public static bool ModuleEnabled               => _moduleEnabled.Value;
     public static bool GenerateAllRecipes          => _generateAllRecipes.Value;
-    public static bool GeneratePrisonerFeedExample => _generatePrisonerFeedExample.Value;
+    public static bool GenerateCookbookExamples    => _generateCookbookExamples.Value;
+    public static bool GenerateCookbookDebugConfigs => _generateCookbookDebugConfigs.Value;
 
     public static void Initialize(ConfigFile config)
     {
-        _generateAllRecipes = config.Bind(
-            section:      "Generation",
-            key:          "GenerateAllRecipes",
-            defaultValue: false,
-            description:  "When set to true, generates a JSON file containing all existing vanilla recipes " +
-                          "with ChangesEnabled set to false. The file will be written to " +
-                          "BepInEx/config/LilithsHeart/Recipes/all-recipes.json on next boot. " +
-                          "This setting will automatically reset to false after generation."
+        // [CHANGED] ModuleEnabled — when false, CookbookPlugin.Load() returns
+        //           immediately after reading this value. No ECS patching,
+        //           no registration, no Heart subscription.
+        _moduleEnabled = config.Bind(
+            section:      "1) General",
+            key:          "ModuleEnabled",
+            defaultValue: true,
+            description:  "When false, LilithsCookbook is completely disabled. " +
+                          "No recipe, station, prisoner feed, or item function changes " +
+                          "will be applied. Restart the server after changing this value."
         );
 
-        // [CHANGED] New flag — generates prisoner-feed-example.json with live
-        //           test entries for all three FakeItem behaviour types.
-        _generatePrisonerFeedExample = config.Bind(
-            section:      "Generation",
-            key:          "GeneratePrisonerFeedExample",
+        _generateAllRecipes = config.Bind(
+            section:      "2) Config Generation",
+            key:          "GenerateAllRecipes",
             defaultValue: false,
-            description:  "When set to true, generates prisoner-feed-example.json in the Recipes directory. " +
-                          "The file contains ChangesEnabled=true entries covering all three prisoner " +
-                          "FakeItem behaviour types (FeedPrisoner, AffectWithToxic, DealDamageToPrisoner) " +
-                          "plus their corresponding feed recipes, with values visibly different from vanilla " +
-                          "so you can confirm the system is working in-game. " +
-                          "This setting will automatically reset to false after generation."
+            description:  "Dumps all vanilla recipes from ECS to Recipes/AllRecipes.json " +
+                          "with ChangesEnabled=false. Use as a reference when authoring " +
+                          "recipe overrides. Always overwrites. Resets to false after generation."
+        );
+
+        // [CHANGED] GenerateCookbookExamples — replaces all previous one-off
+        //           example flags. Generates all four Cookbook example files:
+        //             Recipes/RecipeExamples.json
+        //             Recipes/PrisonerFeedExamples.json
+        //             Recipes/PrisonerFedExamples.json
+        //             Items/CookbookItemExamples.json
+        //           Always overwrites. Can also be triggered by Heart's
+        //           GenerateAllModuleExamples.
+        _generateCookbookExamples = config.Bind(
+            section:      "2) Config Generation",
+            key:          "GenerateCookbookExamples",
+            defaultValue: false,
+            description:  "Generates all Cookbook example config files: " +
+                          "RecipeExamples, PrisonerFeedExamples, PrisonerFedExamples, " +
+                          "and CookbookItemExamples. " +
+                          "Always overwrites. Resets to false after generation."
+        );
+
+        // [CHANGED] GenerateCookbookDebugConfigs — generates debug variants of all
+        //           Cookbook config files with ChangesEnabled=true and values
+        //           obviously different from vanilla for feature verification.
+        _generateCookbookDebugConfigs = config.Bind(
+            section:      "2) Config Generation",
+            key:          "GenerateCookbookDebugConfigs",
+            defaultValue: false,
+            description:  "Generates Cookbook debug config files with ChangesEnabled=true " +
+                          "and values visibly different from vanilla. " +
+                          "Use to verify Cookbook features are working in-game. " +
+                          "Always overwrites. Resets to false after generation."
         );
 
         HeartLogger.Info(LOG_SOURCE,
-            $"CookbookConfig loaded. " +
-            $"GenerateAllRecipes={GenerateAllRecipes}, " +
-            $"GeneratePrisonerFeedExample={GeneratePrisonerFeedExample}");
+            $"CookbookConfig loaded. ModuleEnabled={ModuleEnabled}");
     }
 
-    /// <summary>
-    /// Resets GenerateAllRecipes to false after generation completes.
-    /// Called automatically by CookbookConfigBuilder.
-    /// </summary>
     public static void DisableGenerateAllRecipes()
     {
         _generateAllRecipes.Value = false;
         HeartLogger.Info(LOG_SOURCE, "GenerateAllRecipes reset to false.");
     }
 
-    /// <summary>
-    /// [CHANGED] Resets GeneratePrisonerFeedExample to false after generation completes.
-    /// Called automatically by CookbookConfigBuilder.
-    /// </summary>
-    public static void DisableGeneratePrisonerFeedExample()
+    public static void DisableGenerateCookbookExamples()
     {
-        _generatePrisonerFeedExample.Value = false;
-        HeartLogger.Info(LOG_SOURCE, "GeneratePrisonerFeedExample reset to false.");
+        _generateCookbookExamples.Value = false;
+        HeartLogger.Info(LOG_SOURCE, "GenerateCookbookExamples reset to false.");
+    }
+
+    public static void DisableGenerateCookbookDebugConfigs()
+    {
+        _generateCookbookDebugConfigs.Value = false;
+        HeartLogger.Info(LOG_SOURCE, "GenerateCookbookDebugConfigs reset to false.");
     }
 }

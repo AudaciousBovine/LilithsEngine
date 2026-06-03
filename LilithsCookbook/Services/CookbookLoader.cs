@@ -28,7 +28,7 @@ using System.Text.Json;
 using LilithsHeart.Foundation;
 using LilithsCookbook.Data;
 
-namespace LilithsCookbook.Systems;
+namespace LilithsCookbook.Services;
 
 public static class CookbookLoader
 {

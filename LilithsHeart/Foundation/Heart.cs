@@ -83,8 +83,11 @@ public static class Heart
 
         PrefabNameResolver.Initialize();
 
-        HeartConfigBuilder.RegisterGenerator(HeartConfigBuilder.GenerateItemsExample);
-        HeartConfigBuilder.GenerateIfRequested();
+        // [CHANGED] HeartConfigBuilder.RunIfRequested() replaces GenerateIfRequested().
+        //           Handles GenerateHeartExamples, GenerateAllModuleExamples,
+        //           and GenerateDebugConfigs based on which flags are set.
+        //           GenerateAllModuleExamples takes priority over GenerateHeartExamples.
+        HeartConfigBuilder.RunIfRequested();
 
         // [CHANGED] ItemService is the single owner of Items/*.json file I/O.
         //           It populates LilithItemConfig's two dictionaries in one pass.

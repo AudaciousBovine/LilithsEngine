@@ -2,32 +2,28 @@
 //  LilithItemData — LilithsMind
 //  LilithsMind/Data/LilithItemData.cs
 //
-//  Unified item override DTO. All fields are optional — admins
-//  only populate what they want to change.
+//  Unified item override DTO. All fields are optional — null
+//  means keep vanilla. Admins only populate what they want to change.
 //
-//  All item override fields live here — appearance and functional
-//  alike. Each field is owned by a specific service that reads
-//  only what it needs:
+//  Field ownership:
+//    DisplayName     → LocalizationService / LocalizationPatcher (Soul)
+//    DescriptionText → LocalizationService / DescriptionPatcher (Soul)
+//    Icon            → InterfaceService / IconPatcher (Soul)
+//    ChangesEnabled  → gates all functional fields
+//    StackSize       → ItemFunctionService (Cookbook, server-only)
 //
-//    LocalizationService  (Heart)    — DisplayName, DescriptionText
-//    InterfaceService     (Heart)    — Icon
-//    ItemFunctionService  (Cookbook) — StackSize
+//  Appearance fields always apply when non-null — no gate needed.
+//  Functional fields only apply when ChangesEnabled = true.
 //
-//  Appearance fields (DisplayName, DescriptionText, Icon) travel
-//  in ServerSyncPayload.ItemAppearanceOverrides to Soul.
-//  StackSize is server-only — Heart's payload builder ignores it.
-//
-//  [CHANGED] LilithItemFunctionalData removed — StackSize folds
-//            directly into this class. One DTO, all item fields,
-//            each service reads what it owns.
-//
-//  [CHANGED] StackSize added. Owned by LilithsCookbook's
-//            ItemFunctionService which patches ItemData.MaxAmount
-//            on prefab entities at world ready. Never synced to Soul.
+//  [CHANGED] ChangesEnabled added — gates StackSize and any future
+//            functional fields. Appearance fields are ungated.
+//  [CHANGED] Field order: DisplayName, DescriptionText, Icon,
+//            ChangesEnabled, StackSize. Appearance first, then
+//            the functional gate, then functional values.
 //
 //  [PERFORMANCE] Plain DTO — no Unity or game dependencies.
-//                Appearance fields serialized as part of
-//                ServerSyncPayload. StackSize never crosses the wire.
+//                Appearance fields serialized in ServerSyncPayload.
+//                ChangesEnabled and StackSize never cross the wire.
 // ============================================================
 
 namespace LilithsMind.Data;
@@ -36,32 +32,41 @@ public sealed class LilithItemData
 {
     /// <summary>
     /// Custom display name for this item.
-    /// Applied client-side by LocalizationService / LocalizationPatcher.
-    /// Injected into Localization._LocalizedStrings via a minted AssetGuid.
+    /// Applied client-side by LocalizationPatcher.
+    /// Always applied when non-null — no ChangesEnabled gate.
     /// </summary>
     public string? DisplayName { get; set; }
 
     /// <summary>
     /// Custom tooltip body text for this item.
-    /// Applied client-side by LocalizationService / DescriptionPatcher.
-    /// Injected into Localization._LocalizedStrings via a minted AssetGuid.
+    /// Applied client-side by DescriptionPatcher.
+    /// Always applied when non-null — no ChangesEnabled gate.
     /// </summary>
     public string? DescriptionText { get; set; }
 
     /// <summary>
     /// Icon override for this item.
-    /// Applied client-side by InterfaceService / IconPatcher.
+    /// Applied client-side by IconPatcher.
     /// Resolution order:
     ///   1. Filename without extension → local PNG in Icons/ folder
     ///   2. Sprite name → in-game sprite from Resources
     ///   3. https:// URL → downloaded and cached to Icons/ folder
+    /// Always applied when non-null — no ChangesEnabled gate.
     /// </summary>
     public string? Icon { get; set; }
+
+    /// <summary>
+    /// When false, all functional fields (StackSize and any future
+    /// additions) are ignored. Appearance fields are unaffected.
+    /// Set to true to activate functional changes for this item.
+    /// </summary>
+    public bool ChangesEnabled { get; set; } = false;
 
     /// <summary>
     /// Maximum stack size for this item.
     /// Patches ProjectM.ItemData.MaxAmount on the item's prefab entity.
     /// Owned by LilithsCookbook's ItemFunctionService.
+    /// Only applied when ChangesEnabled = true.
     /// Server-side only — never synced to Soul.
     /// Null = keep vanilla stack size.
     ///
