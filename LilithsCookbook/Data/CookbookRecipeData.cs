@@ -6,13 +6,24 @@
 //  Deserialized from *.json files in:
 //      BepInEx/config/LilithsHeart/Recipes/
 //
-//  [CHANGED] CookbookItemData , CookbookItemData , RecipeRepairCost,
-//            and CookbookItemData have been consolidated into
-//            CookbookItemData — a single reusable item + amount
-//            type. All list fields now use CookbookItemData.
+//  [CHANGED] RecipeEntryData gains an optional Stations list.
+//            Station membership for a recipe is now declared
+//            inline with the recipe itself — no separate
+//            Stations/*.json files or CookbookStationData needed.
 //
-//  [CHANGED] RecipeEntryData renamed to RecipeEntryData to follow
-//            the suite Data suffix naming convention.
+//            Stations: null  → do not modify station membership
+//            Stations: []    → remove recipe from ALL stations
+//            Stations: [...] → explicit set of stations that
+//                              should contain this recipe;
+//                              StationSystem diffs vs. vanilla.
+//
+//            CookbookStationData and StationEntryData are retired.
+//            The Stations/ config directory is no longer created
+//            or scanned. CookbookLoader.LoadStations() is removed.
+//
+//  [CHANGED] CookbookItemData, RecipeRepairCost, and RecipeUnitOutput
+//            previously consolidated into CookbookItemData.
+//            All list fields use CookbookItemData.
 //
 //  [PERFORMANCE] Plain DTOs — no ECS types, no Unity dependencies.
 //                Deserialized once at startup by CookbookLoader.
@@ -74,10 +85,10 @@ public class RecipeEntryData
     /// </summary>
     public List<CookbookItemData>? Outputs { get; set; }
 
-    // ── Optional buffer control ──────────────────────────────
-    // null  — not specified, buffer is left untouched
-    // false — remove the buffer entirely from the entity
-    // true  — ensure buffer exists and apply the list below
+    // ── Optional buffer control fields ───────────────────────────────────────
+    // null  → not specified; buffer is left untouched
+    // false → remove the buffer entirely from the entity
+    // true  → ensure buffer exists and apply the list below
 
     /// <summary>Controls whether ItemRepairBuffer is present. Null = untouched.</summary>
     public bool? UseRepairCosts { get; set; }
@@ -88,11 +99,11 @@ public class RecipeEntryData
     /// </summary>
     public List<CookbookItemData>? RepairCosts { get; set; }
 
-    /// <summary>Controls whether CookbookItemData UnitBuffer is present. Null = untouched.</summary>
+    /// <summary>Controls whether RecipeOutputUnitBuffer is present. Null = untouched.</summary>
     public bool? UseUnitOutputs { get; set; }
 
     /// <summary>
-    /// Unit outputs. Only applied when UseUnitOutputs = true.
+    /// Unit outputs (dominated servants, etc). Only applied when UseUnitOutputs = true.
     /// Each entry is a unit prefab name and stack amount.
     /// </summary>
     public List<CookbookItemData>? UnitOutputs { get; set; }
@@ -104,4 +115,22 @@ public class RecipeEntryData
     /// Linked recipe prefab names. Only applied when UseRecipeLinks = true.
     /// </summary>
     public List<string>? RecipeLinks { get; set; }
+
+    /// <summary>
+    /// [CHANGED] Station membership for this recipe.
+    ///
+    /// Replaces the separate Stations/*.json config system.
+    /// Each entry is a station prefab name or LilithsMind Name alias.
+    /// e.g. "Blacksmith", "TM_Blacksmith_Stations_Standard"
+    ///
+    /// Null   → do not modify which stations carry this recipe.
+    /// []     → remove this recipe from every station that currently has it.
+    /// [...]  → StationSystem will add this recipe to each named station
+    ///          and remove it from any station not listed that currently
+    ///          carries it (diff against vanilla state).
+    ///
+    /// [PERFORMANCE] Resolved once at startup by StationSystem.ApplyChanges().
+    ///               No per-frame cost.
+    /// </summary>
+    public List<string>? Stations { get; set; }
 }

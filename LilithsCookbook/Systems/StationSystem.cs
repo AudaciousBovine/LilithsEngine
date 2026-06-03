@@ -1,73 +1,83 @@
+// ============================================================
+//  StationSystem — LilithsCookbook
+//  LilithsCookbook/Systems/StationSystem.cs
+//
+//  Applies crafting station recipe changes derived from each
+//  RecipeEntryData.Stations list in the Recipes config.
+//
+//  [CHANGED] No longer reads CookbookStationData / StationEntryData.
+//            Station membership is now declared inline on each
+//            recipe via its Stations list. StationSystem iterates
+//            CookbookPlugin.RecipeData to build a per-station
+//            add/remove diff, then applies it.
+//
+//  How Stations diff works:
+//  ─────────────────────────
+//  For each recipe entry with a non-null Stations list:
+//    • null   → skip (no station changes for this recipe)
+//    • []     → remove this recipe from every station that has it
+//    • [...]  → add to each listed station; remove from any station
+//               NOT listed that currently carries the recipe in ECS
+//
+//  The diff is built by scanning the prefab entity of every known
+//  station (WorkstationRecipesBuffer + RefinementstationRecipesBuffer)
+//  for the recipe GUID, then building per-station add/remove lists.
+//  This produces an equivalent result to the old separate Stations
+//  config but authored at the recipe level.
+//
+//  Two-pass approach (unchanged):
+//  ───────────────────────────────
+//  Pass 1: Patch all prefab entities.
+//  Registration: RegisterRecipes() + RegisterGameData().
+//  Pass 2: Patch live User entities + batched placed station scan.
+//
+//  Why two passes and why GetAllEntities():
+//  ──────────────────────────────────────────
+//  RegisterGameData() resets WorkstationRecipesBuffer on live
+//  entities but not prefab entities. V Rising keeps the
+//  Unity.Entities.Prefab tag on placed world instances, making
+//  None=[Prefab] query exclusion ineffective. GetAllEntities()
+//  with direct prefab-entity identity exclusion is required.
+//
+//  [PERFORMANCE] All ECS operations run once at startup only.
+//                The diff-build pass is O(recipes × stations) at
+//                startup — negligible for config-scale input.
+//                Single GetAllEntities() scan covers all stations.
+// ============================================================
+
 using ProjectM;
 using Stunlock.Core;
 using Unity.Entities;
 using LilithsHeart.Foundation;
 using LilithsHeart.Services;
 using LilithsCookbook.Data;
-namespace LilithsCookbook.Systems;
 
-// ============================================================
-//  StationSystem — LilithsCookbook
-//
-//  Applies crafting station recipe changes from stations.json.
-//
-//  Supports two buffer types:
-//    • RefinementstationRecipesBuffer — refining stations
-//      (Furnace, Grinder, etc.) where production is automatic.
-//    • WorkstationRecipesBuffer — crafting stations (Simple
-//      Workbench, etc.) and the player entity crafting menu.
-//      Buffer type is detected automatically per station entry.
-//
-//  Two-pass approach:
-//  ──────────────────
-//  Pass 1: Patch all prefab entities (all buffer types).
-//  Registration: RegisterRecipes() + RegisterGameData().
-//  Pass 2: Patch live entities only — User entities for player
-//          crafting, placed station entities via single batched
-//          GetAllEntities() scan.
-//
-//  Why two passes?
-//  ───────────────
-//  RegisterGameData() resets WorkstationRecipesBuffer on all live
-//  entities. Pass 1 prefab patches survive this reset. Pass 2 live
-//  entity patches happen after registration so they persist.
-//
-//  Why GetAllEntities() for placed stations:
-//  ──────────────────────────────────────────
-//  V Rising keeps the Unity.Entities.Prefab tag on placed world
-//  instances, making None=[Prefab] query exclusion ineffective.
-//  GetAllEntities() with direct prefab entity identity exclusion
-//  (entity == prefabEntity) is the only reliable approach.
-//
-//  [CHANGED] PatchAllLiveStationEntities() replaces the per-station
-//            PatchLiveStationEntities() call. A single GetAllEntities()
-//            scan handles all configured WorkstationRecipesBuffer
-//            stations in one pass — O(entities) instead of
-//            O(entities × station count).
-//
-//  [PERFORMANCE] All ECS operations run once at startup only.
-//                No per-frame cost after initialization.
-//                Single GetAllEntities() scan for all stations.
-// ============================================================
+namespace LilithsCookbook.Systems;
 
 public static class StationSystem
 {
     private const string LOG_SOURCE = "LilithsCookbook.StationSystem";
 
+    // ── Public entry point ────────────────────────────────────────────────────
+
     public static void ApplyChanges()
     {
-        var config = CookbookPlugin.StationData;
+        var recipeData = CookbookPlugin.RecipeData;
 
-        if (config == null || config.Stations.Count == 0)
+        if (recipeData == null || recipeData.Recipes.Count == 0)
         {
-            HeartLogger.Info(LOG_SOURCE, "No station changes configured.");
+            HeartLogger.Info(LOG_SOURCE, "No recipe data — skipping station patching.");
             return;
         }
 
-        int enabled = config.Stations.Count(kvp => kvp.Value.ChangesEnabled);
-        if (enabled == 0)
+        // Build the per-station diff from inline Stations lists.
+        // [CHANGED] Replaces reading CookbookStationData. We now derive
+        //           station membership from each recipe's own Stations list.
+        var stationDiff = BuildStationDiff(recipeData);
+
+        if (stationDiff.Count == 0)
         {
-            HeartLogger.Info(LOG_SOURCE, "No stations had ChangesEnabled = true, skipping.");
+            HeartLogger.Info(LOG_SOURCE, "No station membership changes in recipe config.");
             return;
         }
 
@@ -76,10 +86,8 @@ public static class StationSystem
         // prefab entities. RegisterGameData() resets WorkstationRecipesBuffer on
         // live entities after this — prefab patches survive unaffected.
 
-        foreach (var (stationName, entry) in config.Stations)
+        foreach (var (stationName, diff) in stationDiff)
         {
-            if (!entry.ChangesEnabled) continue;
-
             if (!PrefabNameResolver.TryResolve(stationName, out PrefabGUID guid))
             {
                 HeartLogger.Warning(LOG_SOURCE, $"Could not resolve station: '{stationName}'");
@@ -103,23 +111,25 @@ public static class StationSystem
                 continue;
             }
 
-            if (entry.AddRecipes.Count > 0)
+            if (diff.ToAdd.Count > 0)
             {
                 if (hasRefinement)
-                    AddRefinementRecipes(stationEntity, entry.AddRecipes, stationName);
+                    AddRefinementRecipes(stationEntity, diff.ToAdd, stationName);
                 else
-                    AddWorkstationRecipes(stationEntity, entry.AddRecipes, stationName);
+                    AddWorkstationRecipes(stationEntity, diff.ToAdd, stationName);
             }
 
-            if (entry.RemoveRecipes.Count > 0)
+            if (diff.ToRemove.Count > 0)
             {
                 if (hasRefinement)
-                    RemoveRefinementRecipes(stationEntity, entry.RemoveRecipes, stationName);
+                    RemoveRefinementRecipes(stationEntity, diff.ToRemove, stationName);
                 else
-                    RemoveWorkstationRecipes(stationEntity, entry.RemoveRecipes, stationName);
+                    RemoveWorkstationRecipes(stationEntity, diff.ToRemove, stationName);
             }
 
-            HeartLogger.Info(LOG_SOURCE, $"[Pass 1] Patched prefab: '{stationName}'");
+            HeartLogger.Info(LOG_SOURCE,
+                $"[Pass 1] Patched prefab '{stationName}': " +
+                $"+{diff.ToAdd.Count} / -{diff.ToRemove.Count} recipe(s).");
         }
 
         // ── Registration ──────────────────────────────────────────────────────
@@ -127,25 +137,19 @@ public static class StationSystem
         Heart.PrefabCollectionSystem.RegisterGameData();
 
         // ── Pass 2: Patch all live entities ───────────────────────────────────
-        // Build lookup maps for Pass 2 before scanning entities.
+        // Build the workstation live-patch targets map, handle user entities,
+        // then run the single batched GetAllEntities() scan.
 
-        // User entity patching — handled per-station as before (cheap query).
-        // Workstation live entity patching — batched into one GetAllEntities() scan.
-
-        // [CHANGED] Build a map of PrefabGUID → (stationName, entry, prefabEntity)
-        //           for all WorkstationRecipesBuffer stations that need live patching.
-        //           This allows a single GetAllEntities() scan to handle all of them.
-        var workstationTargets = new Dictionary<int, (string Name, StationEntryData Entry, Entity PrefabEntity)>();
+        var workstationTargets =
+            new Dictionary<int, (string Name, StationDiff Diff, Entity PrefabEntity)>();
 
         int changed = 0;
 
-        foreach (var (stationName, entry) in config.Stations)
+        foreach (var (stationName, diff) in stationDiff)
         {
-            if (!entry.ChangesEnabled) continue;
-
             if (!PrefabNameResolver.TryResolve(stationName, out PrefabGUID guid)) continue;
-
-            if (!Heart.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(guid, out Entity stationEntity)) continue;
+            if (!Heart.PrefabCollectionSystem._PrefabGuidToEntityMap.TryGetValue(
+                    guid, out Entity stationEntity)) continue;
 
             bool hasWorkstation = stationEntity.Has<WorkstationRecipesBuffer>();
             bool isPlayerEntity = stationEntity.Has<ProjectM.Network.User>();
@@ -154,28 +158,158 @@ public static class StationSystem
 
             if (isPlayerEntity)
             {
-                // User entity patching uses a targeted query — cheap, no batching needed.
-                PatchLiveUserEntities(entry.AddRecipes, entry.RemoveRecipes, stationName);
-                Heart.RegisterPlayerRecipeChanges(entry.AddRecipes, entry.RemoveRecipes);
+                // User entity patching — cheap targeted query, no batching needed.
+                PatchLiveUserEntities(diff.ToAdd, diff.ToRemove, stationName);
+                Heart.RegisterPlayerRecipeChanges(diff.ToAdd, diff.ToRemove);
                 HeartLogger.Info(LOG_SOURCE,
-                    $"[{stationName}] Registered {entry.AddRecipes.Count} add(s) and " +
-                    $"{entry.RemoveRecipes.Count} remove(s) with Heart for Soul sync.");
+                    $"[{stationName}] Registered +{diff.ToAdd.Count}/-{diff.ToRemove.Count} " +
+                    "player recipe change(s) with Heart for Soul sync.");
                 changed++;
             }
             else
             {
                 // Queue for the batched live station scan.
-                workstationTargets[guid._Value] = (stationName, entry, stationEntity);
-                Heart.RegisterStationRecipeChanges(stationName, entry.AddRecipes, entry.RemoveRecipes);
+                workstationTargets[guid._Value] = (stationName, diff, stationEntity);
+                Heart.RegisterStationRecipeChanges(stationName, diff.ToAdd, diff.ToRemove);
                 changed++;
             }
         }
 
         // Single batched scan for all WorkstationRecipesBuffer placed stations.
+        // [PERFORMANCE] One GetAllEntities() covers all stations — O(entities),
+        //               not O(entities × station count).
         if (workstationTargets.Count > 0)
             PatchAllLiveStationEntities(workstationTargets);
 
-        HeartLogger.Info(LOG_SOURCE, $"LilithsCookbook applied changes to {changed} station(s).");
+        HeartLogger.Info(LOG_SOURCE, $"Station patching complete — {changed} station(s) modified.");
+    }
+
+    // ── Diff builder ──────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Builds a per-station add/remove diff by iterating all recipes that
+    /// have a non-null Stations list.
+    ///
+    /// For each such recipe:
+    ///   • The recipe is added to every station in its Stations list.
+    ///   • The recipe is removed from every station that currently holds it
+    ///     in ECS but is NOT in its Stations list (unless Stations is null,
+    ///     which means "don't touch").
+    ///   • Stations: [] means remove from every station that has it.
+    ///
+    /// [PERFORMANCE] O(recipes) outer loop, O(stations) inner scan per recipe.
+    ///               All lookups are dictionary reads — O(1) each.
+    ///               Runs once at startup.
+    /// </summary>
+    static Dictionary<string, StationDiff> BuildStationDiff(CookbookRecipeData recipeData)
+    {
+        var diff = new Dictionary<string, StationDiff>(StringComparer.Ordinal);
+
+        // Build a lookup of every known station prefab entity and its current
+        // recipe buffers — used to find stations that currently hold a recipe
+        // so we can generate removes for stations not in the declared list.
+        var allStations = BuildStationInventory();
+
+        foreach (var (recipeName, entry) in recipeData.Recipes)
+        {
+            // Null means "don't touch station membership for this recipe".
+            if (entry.Stations == null) continue;
+            if (!entry.ChangesEnabled)
+            {
+                HeartLogger.Debug(LOG_SOURCE,
+                    $"Skipping station diff for '{recipeName}' — ChangesEnabled = false.");
+                continue;
+            }
+
+            if (!PrefabNameResolver.TryResolve(recipeName, out PrefabGUID recipeGuid))
+            {
+                HeartLogger.Warning(LOG_SOURCE,
+                    $"Could not resolve recipe '{recipeName}' for station diff — skipping.");
+                continue;
+            }
+
+            // Collect declared target stations as a set for O(1) membership check.
+            var declaredSet = new HashSet<string>(entry.Stations, StringComparer.Ordinal);
+
+            // Add to every declared station.
+            foreach (var stationName in entry.Stations)
+            {
+                var d = GetOrCreate(diff, stationName);
+                if (!d.ToAdd.Contains(recipeName))
+                    d.ToAdd.Add(recipeName);
+            }
+
+            // Remove from any station that currently has the recipe but is
+            // not in the declared list. Also handles Stations: [] (declaredSet empty).
+            foreach (var (stationName, currentRecipes) in allStations)
+            {
+                if (declaredSet.Contains(stationName)) continue;
+
+                if (currentRecipes.Contains(recipeGuid._Value))
+                {
+                    var d = GetOrCreate(diff, stationName);
+                    if (!d.ToRemove.Contains(recipeName))
+                        d.ToRemove.Add(recipeName);
+                }
+            }
+        }
+
+        return diff;
+    }
+
+    /// <summary>
+    /// Returns a map of station prefab name → set of recipe GUID int values
+    /// currently in that station's recipe buffer (Workstation or Refinement).
+    /// Used by BuildStationDiff to find existing recipe membership.
+    ///
+    /// [PERFORMANCE] O(stations × recipes per station) — runs once at startup.
+    ///               Iterates PrefabGuidToEntityMap, which is pre-built by the game.
+    /// </summary>
+    static Dictionary<string, HashSet<int>> BuildStationInventory()
+    {
+        var inventory = new Dictionary<string, HashSet<int>>(StringComparer.Ordinal);
+        var prefabMap = Heart.PrefabCollectionSystem._PrefabGuidToEntityMap;
+
+        foreach (var kvp in prefabMap)
+        {
+            var entity = kvp.Value;
+
+            // Try to get a human-readable name for this station.
+            if (!PrefabNameResolver.TryResolveName(kvp.Key, out string stationName))
+                continue;
+
+            HashSet<int>? recipes = null;
+
+            if (entity.Has<WorkstationRecipesBuffer>())
+            {
+                var buffer = entity.ReadBuffer<WorkstationRecipesBuffer>();
+                recipes = new HashSet<int>(buffer.Length);
+                for (int i = 0; i < buffer.Length; i++)
+                    recipes.Add(buffer[i].RecipeGuid._Value);
+            }
+            else if (entity.Has<RefinementstationRecipesBuffer>())
+            {
+                var buffer = entity.ReadBuffer<RefinementstationRecipesBuffer>();
+                recipes = new HashSet<int>(buffer.Length);
+                for (int i = 0; i < buffer.Length; i++)
+                    recipes.Add(buffer[i].RecipeGuid._Value);
+            }
+
+            if (recipes != null)
+                inventory[stationName] = recipes;
+        }
+
+        return inventory;
+    }
+
+    static StationDiff GetOrCreate(Dictionary<string, StationDiff> diff, string stationName)
+    {
+        if (!diff.TryGetValue(stationName, out var d))
+        {
+            d = new StationDiff();
+            diff[stationName] = d;
+        }
+        return d;
     }
 
     // ── Live User entity patching ─────────────────────────────────────────────
@@ -218,27 +352,21 @@ public static class StationSystem
 
     /// <summary>
     /// Patches WorkstationRecipesBuffer on all placed world instances of all
-    /// configured stations in a single GetAllEntities() scan.
+    /// stations in a single GetAllEntities() scan.
     ///
-    /// [CHANGED] Replaces per-station PatchLiveStationEntities() calls.
-    ///           Previously each station triggered its own GetAllEntities() scan —
-    ///           O(entities × station count). Now a single scan handles all
-    ///           configured stations — O(entities) regardless of station count.
-    ///
-    ///           V Rising keeps Unity.Entities.Prefab on placed world instances
-    ///           so None=[Prefab] query exclusion is ineffective. GetAllEntities()
-    ///           with direct prefab entity identity exclusion is required.
+    /// V Rising keeps Unity.Entities.Prefab on placed world instances
+    /// so None=[Prefab] query exclusion is ineffective. GetAllEntities()
+    /// with direct prefab entity identity exclusion is required.
     ///
     /// [PERFORMANCE] One GetAllEntities() scan at startup covering all stations.
-    ///               Patched counts are logged per station for diagnostics.
+    ///               O(entities) regardless of how many stations are configured.
     /// </summary>
     static void PatchAllLiveStationEntities(
-        Dictionary<int, (string Name, StationEntryData Entry, Entity PrefabEntity)> targets)
+        Dictionary<int, (string Name, StationDiff Diff, Entity PrefabEntity)> targets)
     {
         var em          = Heart.EntityManager;
         var allEntities = em.GetAllEntities(Unity.Collections.Allocator.Temp);
 
-        // Track patch counts per station for logging.
         var patchedCounts = new Dictionary<int, int>();
         foreach (var guid in targets.Keys)
             patchedCounts[guid] = 0;
@@ -247,22 +375,21 @@ public static class StationSystem
         {
             foreach (var entity in allEntities)
             {
-                if (!em.HasComponent<Stunlock.Core.PrefabGUID>(entity)) continue;
+                if (!em.HasComponent<PrefabGUID>(entity)) continue;
 
-                var entityGuid = em.GetComponentData<Stunlock.Core.PrefabGUID>(entity);
+                var entityGuid = em.GetComponentData<PrefabGUID>(entity);
 
                 if (!targets.TryGetValue(entityGuid._Value, out var target)) continue;
-
                 if (!em.HasBuffer<WorkstationRecipesBuffer>(entity)) continue;
 
-                // Skip the prefab template entity — already patched in Pass 1.
+                // Skip the prefab template — already patched in Pass 1.
                 if (entity == target.PrefabEntity) continue;
 
-                if (target.Entry.AddRecipes.Count > 0)
-                    AddWorkstationRecipes(entity, target.Entry.AddRecipes, target.Name);
+                if (target.Diff.ToAdd.Count > 0)
+                    AddWorkstationRecipes(entity, target.Diff.ToAdd, target.Name);
 
-                if (target.Entry.RemoveRecipes.Count > 0)
-                    RemoveWorkstationRecipes(entity, target.Entry.RemoveRecipes, target.Name);
+                if (target.Diff.ToRemove.Count > 0)
+                    RemoveWorkstationRecipes(entity, target.Diff.ToRemove, target.Name);
 
                 patchedCounts[entityGuid._Value]++;
             }
@@ -272,10 +399,12 @@ public static class StationSystem
             allEntities.Dispose();
         }
 
-        // Log results per station.
-        foreach (var (guidValue, (name, _, _)) in targets)
+        foreach (var (guidValue, (name, diff, _)) in targets)
+        {
             HeartLogger.Info(LOG_SOURCE,
-                $"[{name}] Patched {patchedCounts[guidValue]} live station entity(s).");
+                $"[Pass 2] '{name}': patched {patchedCounts[guidValue]} live instance(s) " +
+                $"(+{diff.ToAdd.Count}/-{diff.ToRemove.Count}).");
+        }
     }
 
     // ── RefinementstationRecipesBuffer helpers ────────────────────────────────
@@ -289,7 +418,7 @@ public static class StationSystem
             if (!PrefabNameResolver.TryResolve(recipeName, out PrefabGUID recipeGuid))
             {
                 HeartLogger.Warning(LOG_SOURCE,
-                    $"[{stationName}] Could not resolve recipe to add: '{recipeName}', skipping.");
+                    $"[{stationName}] Could not resolve recipe to add: '{recipeName}' — skipping.");
                 continue;
             }
 
@@ -299,20 +428,11 @@ public static class StationSystem
                 if (buffer[i].RecipeGuid.Equals(recipeGuid)) { alreadyExists = true; break; }
             }
 
-            if (alreadyExists)
+            if (!alreadyExists)
             {
-                HeartLogger.Info(LOG_SOURCE, $"[{stationName}] Recipe '{recipeName}' already present, skipping.");
-                continue;
+                buffer.Add(new RefinementstationRecipesBuffer { RecipeGuid = recipeGuid });
+                HeartLogger.Info(LOG_SOURCE, $"[{stationName}] Added refinement recipe '{recipeName}'.");
             }
-
-            buffer.Add(new RefinementstationRecipesBuffer
-            {
-                RecipeGuid = recipeGuid,
-                Disabled   = false,
-                Unlocked   = true
-            });
-
-            HeartLogger.Info(LOG_SOURCE, $"[{stationName}] Added recipe '{recipeName}'.");
         }
     }
 
@@ -325,7 +445,7 @@ public static class StationSystem
             if (!PrefabNameResolver.TryResolve(recipeName, out PrefabGUID recipeGuid))
             {
                 HeartLogger.Warning(LOG_SOURCE,
-                    $"[{stationName}] Could not resolve recipe to remove: '{recipeName}', skipping.");
+                    $"[{stationName}] Could not resolve recipe to remove: '{recipeName}' — skipping.");
                 continue;
             }
 
@@ -335,15 +455,15 @@ public static class StationSystem
                 if (buffer[i].RecipeGuid.Equals(recipeGuid))
                 {
                     buffer.RemoveAt(i);
-                    HeartLogger.Info(LOG_SOURCE, $"[{stationName}] Removed recipe '{recipeName}'.");
+                    HeartLogger.Info(LOG_SOURCE, $"[{stationName}] Removed refinement recipe '{recipeName}'.");
                     found = true;
                     break;
                 }
             }
 
             if (!found)
-                HeartLogger.Info(LOG_SOURCE,
-                    $"[{stationName}] Recipe '{recipeName}' not found in station, nothing to remove.");
+                HeartLogger.Debug(LOG_SOURCE,
+                    $"[{stationName}] Refinement recipe '{recipeName}' not found — nothing to remove.");
         }
     }
 
@@ -358,7 +478,7 @@ public static class StationSystem
             if (!PrefabNameResolver.TryResolve(recipeName, out PrefabGUID recipeGuid))
             {
                 HeartLogger.Warning(LOG_SOURCE,
-                    $"[{stationName}] Could not resolve recipe to add: '{recipeName}', skipping.");
+                    $"[{stationName}] Could not resolve recipe to add: '{recipeName}' — skipping.");
                 continue;
             }
 
@@ -368,14 +488,11 @@ public static class StationSystem
                 if (buffer[i].RecipeGuid.Equals(recipeGuid)) { alreadyExists = true; break; }
             }
 
-            if (alreadyExists)
+            if (!alreadyExists)
             {
-                HeartLogger.Info(LOG_SOURCE, $"[{stationName}] Recipe '{recipeName}' already present, skipping.");
-                continue;
+                buffer.Add(new WorkstationRecipesBuffer { RecipeGuid = recipeGuid });
+                HeartLogger.Info(LOG_SOURCE, $"[{stationName}] Added workstation recipe '{recipeName}'.");
             }
-
-            buffer.Add(new WorkstationRecipesBuffer { RecipeGuid = recipeGuid });
-            HeartLogger.Info(LOG_SOURCE, $"[{stationName}] Added recipe '{recipeName}'.");
         }
     }
 
@@ -388,7 +505,7 @@ public static class StationSystem
             if (!PrefabNameResolver.TryResolve(recipeName, out PrefabGUID recipeGuid))
             {
                 HeartLogger.Warning(LOG_SOURCE,
-                    $"[{stationName}] Could not resolve recipe to remove: '{recipeName}', skipping.");
+                    $"[{stationName}] Could not resolve recipe to remove: '{recipeName}' — skipping.");
                 continue;
             }
 
@@ -398,15 +515,34 @@ public static class StationSystem
                 if (buffer[i].RecipeGuid.Equals(recipeGuid))
                 {
                     buffer.RemoveAt(i);
-                    HeartLogger.Info(LOG_SOURCE, $"[{stationName}] Removed recipe '{recipeName}'.");
+                    HeartLogger.Info(LOG_SOURCE, $"[{stationName}] Removed workstation recipe '{recipeName}'.");
                     found = true;
                     break;
                 }
             }
 
             if (!found)
-                HeartLogger.Info(LOG_SOURCE,
-                    $"[{stationName}] Recipe '{recipeName}' not found in station, nothing to remove.");
+                HeartLogger.Debug(LOG_SOURCE,
+                    $"[{stationName}] Workstation recipe '{recipeName}' not found — nothing to remove.");
         }
+    }
+
+    // ── Internal diff record ─────────────────────────────────────────────────
+
+    /// <summary>
+    /// Per-station add/remove lists built by BuildStationDiff().
+    /// Both lists hold recipe prefab name strings (not GUIDs) —
+    /// resolved by the helper methods at apply time so error
+    /// messages are readable.
+    ///
+    /// Private nested class — used only within StationSystem.
+    /// Declared here rather than file-scoped to satisfy CS9051:
+    /// file-local types cannot appear in member signatures of
+    /// non-file-local types.
+    /// </summary>
+    sealed class StationDiff
+    {
+        public List<string> ToAdd    { get; } = new();
+        public List<string> ToRemove { get; } = new();
     }
 }
