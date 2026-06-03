@@ -4,25 +4,23 @@
 //
 //  Pure data surface for all server-defined item overrides.
 //  Holds the merged results of all Items/*.json files loaded
-//  by the item config loader.
+//  by ItemService.
 //
-//  Two dictionaries — one per class — keyed by prefab name:
-//    _appearance   → LilithItemData           (appearance fields)
-//    _functional   → LilithItemFunctionalData  (functional fields)
+//  One dictionary keyed by prefab name, valued by LilithItemData.
+//  Each service reads only the fields it owns:
+//    LocalizationService  — DisplayName, DescriptionText
+//    InterfaceService     — Icon
+//    ItemFunctionService  — StackSize (LilithsCookbook)
 //
-//  Both are populated from the same JSON files in one pass.
-//  Each service reads from the relevant dictionary only:
-//    LocalizationService   → AppearanceOverrides (DisplayName, DescriptionText)
-//    InterfaceService      → AppearanceOverrides (Icon)
-//    ItemFunctionalService → FunctionalOverrides (StackSize)
+//  [CHANGED] Replaces ItemAppearanceConfig.
 //
-//  [CHANGED] Replaces ItemAppearanceConfig. Split into two typed
-//            dictionaries to cleanly separate appearance and
-//            functional concerns while keeping one config file
-//            per item on disk.
+//  [CHANGED] FunctionalOverrides dictionary removed — StackSize
+//            lives directly on LilithItemData alongside appearance
+//            fields. One dictionary covers all item overrides.
+//            Each service reads what it needs from the same entry.
 //
-//  [PERFORMANCE] Two flat dictionaries — O(1) lookup per key.
-//                Populated once at world ready by the item loader.
+//  [PERFORMANCE] Single flat dictionary — O(1) lookup per key.
+//                Populated once at world ready by ItemService.
 //                No file I/O occurs here.
 // ============================================================
 
@@ -32,53 +30,45 @@ namespace LilithsHeart.Config;
 
 public static class LilithItemConfig
 {
-    static readonly Dictionary<string, LilithItemData>           _appearance  = new();
-    static readonly Dictionary<string, LilithItemFunctionalData> _functional  = new();
+    static readonly Dictionary<string, LilithItemData> _overrides = new();
 
     /// <summary>
-    /// All item appearance overrides keyed by prefab name.
-    /// Read by LocalizationService (DisplayName, DescriptionText)
-    /// and InterfaceService (Icon).
+    /// All item overrides keyed by prefab name.
+    /// Populated by ItemService.Initialize() / Reload().
+    /// Each service reads the fields it owns from each entry.
     /// </summary>
-    public static IReadOnlyDictionary<string, LilithItemData> AppearanceOverrides => _appearance;
+    public static IReadOnlyDictionary<string, LilithItemData> Overrides => _overrides;
 
     /// <summary>
-    /// All item functional overrides keyed by prefab name.
-    /// Read by ItemFunctionalService (StackSize).
-    /// </summary>
-    public static IReadOnlyDictionary<string, LilithItemFunctionalData> FunctionalOverrides => _functional;
-
-    /// <summary>
-    /// True once the item config loader has completed its initial load.
+    /// True once ItemService has completed its initial load.
     /// </summary>
     public static bool IsLoaded { get; private set; }
 
-    /// <summary>Returns the appearance override for a prefab, or null if none exists.</summary>
-    public static LilithItemData? GetAppearance(string prefabName)
-        => _appearance.TryGetValue(prefabName, out var v) ? v : null;
+    /// <summary>
+    /// Returns the override for a prefab, or null if none exists.
+    /// </summary>
+    public static LilithItemData? GetOverride(string prefabName)
+        => _overrides.TryGetValue(prefabName, out var v) ? v : null;
 
-    /// <summary>Returns the functional override for a prefab, or null if none exists.</summary>
-    public static LilithItemFunctionalData? GetFunctional(string prefabName)
-        => _functional.TryGetValue(prefabName, out var v) ? v : null;
-
-    // ── Called by item config loader only ────────────────────
+    // ── Called by ItemService only ────────────────────────────
 
     internal static void Clear()
     {
-        _appearance.Clear();
-        _functional.Clear();
+        _overrides.Clear();
         IsLoaded = false;
     }
 
     /// <summary>
-    /// Merges an appearance override entry.
-    /// Later file wins per field — null fields do not overwrite existing values.
+    /// Adds or merges an item override entry.
+    /// Later file wins per field — null fields do not overwrite
+    /// existing values. All fields on LilithItemData follow the
+    /// same merge rule regardless of which service owns them.
     /// </summary>
-    internal static void AddAppearanceOverride(string key, LilithItemData incoming)
+    internal static void AddOverride(string key, LilithItemData incoming)
     {
-        if (!_appearance.TryGetValue(key, out var existing))
+        if (!_overrides.TryGetValue(key, out var existing))
         {
-            _appearance[key] = incoming;
+            _overrides[key] = incoming;
             return;
         }
 
@@ -86,22 +76,7 @@ public static class LilithItemConfig
         if (incoming.DisplayName     is not null) existing.DisplayName     = incoming.DisplayName;
         if (incoming.DescriptionText is not null) existing.DescriptionText = incoming.DescriptionText;
         if (incoming.Icon            is not null) existing.Icon            = incoming.Icon;
-    }
-
-    /// <summary>
-    /// Merges a functional override entry.
-    /// Later file wins per field — null fields do not overwrite existing values.
-    /// </summary>
-    internal static void AddFunctionalOverride(string key, LilithItemFunctionalData incoming)
-    {
-        if (!_functional.TryGetValue(key, out var existing))
-        {
-            _functional[key] = incoming;
-            return;
-        }
-
-        // Per-field merge — later file wins, nulls don't overwrite.
-        if (incoming.StackSize.HasValue) existing.StackSize = incoming.StackSize;
+        if (incoming.StackSize.HasValue)          existing.StackSize       = incoming.StackSize;
     }
 
     internal static void MarkLoaded() => IsLoaded = true;

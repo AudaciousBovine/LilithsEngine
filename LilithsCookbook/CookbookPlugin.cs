@@ -34,8 +34,11 @@ using BepInEx.Unity.IL2CPP;
 using LilithsHeart.Config;
 using LilithsHeart.Foundation;
 using LilithsHeart.Modules;
+using LilithsMind.Data;
+using LilithsHeart.Services;
 using LilithsCookbook.Config;
 using LilithsCookbook.Data;
+using LilithsCookbook.Services;
 using LilithsCookbook.Systems;
 
 namespace LilithsCookbook;
@@ -76,6 +79,20 @@ public class CookbookPlugin : BasePlugin
         //           writes example-stations.json — only Recipes/ and its example.
         CookbookConfigBuilder.Initialize();
 
+        // [CHANGED] Register Cookbook's item example entries so HeartConfigBuilder
+        //           includes StackSize in Items/example.json when installed.
+        HeartConfigBuilder.RegisterItemExamples("LilithsCookbook", new Dictionary<string, LilithItemData>
+        {
+            ["Item_BloodEssence_T01"] = new LilithItemData
+            {
+                StackSize = 500,
+            },
+            ["Item_Ingredient_Mineral_CopperOre"] = new LilithItemData
+            {
+                StackSize = 1000,
+            },
+        });
+
         HeartModuleRegistry.Register(new HeartModuleData
         {
             ModuleId   = LilithsCookbook.MyPluginInfo.PLUGIN_GUID,
@@ -114,6 +131,10 @@ public class CookbookPlugin : BasePlugin
         //           It reads CookbookPlugin.RecipeData and derives station
         //           membership from each entry's Stations list.
         StationSystem.ApplyChanges();
+
+        // [CHANGED] ItemFunctionService applies StackSize overrides
+        //           from LilithItemConfig to ECS prefab entities.
+        ItemFunctionService.ApplyOverrides();
 
         // [CHANGED] PrisonerFeedSystem.ApplyChanges() wired in.
         //           Currently stubbed — will log what it would do until

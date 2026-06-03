@@ -3,49 +3,35 @@
 //  LilithsMind/Data/LilithItemData.cs
 //
 //  Unified item override DTO. All fields are optional — admins
-//  only populate what they want to change, Soul and Heart
-//  silently skip null fields.
+//  only populate what they want to change.
 //
-//  This file contains two classes with a clear separation of
-//  responsibility:
+//  All item override fields live here — appearance and functional
+//  alike. Each field is owned by a specific service that reads
+//  only what it needs:
 //
-//  LilithItemData         — appearance fields, synced to Soul
-//  LilithItemFunctionalData — functional fields, server-only
+//    LocalizationService  (Heart)    — DisplayName, DescriptionText
+//    InterfaceService     (Heart)    — Icon
+//    ItemFunctionService  (Cookbook) — StackSize
 //
-//  Both are deserialized from the same Items/*.json files by
-//  LilithItemConfig's loader. Each service reads only its own
-//  class:
-//    LocalizationService  → LilithItemData.DisplayName/DescriptionText
-//    InterfaceService     → LilithItemData.Icon
-//    ItemFunctionalService → LilithItemFunctionalData.StackSize
+//  Appearance fields (DisplayName, DescriptionText, Icon) travel
+//  in ServerSyncPayload.ItemAppearanceOverrides to Soul.
+//  StackSize is server-only — Heart's payload builder ignores it.
 //
-//  [CHANGED] Renamed from ItemAppearanceData → LilithItemData.
-//            Follows the Lilith* naming pattern for shared DTOs
-//            (LilithRecipeData, LilithStationData, etc.).
-//            Functional fields split into LilithItemFunctionalData
-//            to keep appearance and functional concerns separate.
+//  [CHANGED] LilithItemFunctionalData removed — StackSize folds
+//            directly into this class. One DTO, all item fields,
+//            each service reads what it owns.
 //
-//  [CHANGED] StackSize added to LilithItemFunctionalData.
-//            Server-side only — patches ItemData.MaxAmount on
-//            prefab entities at world ready via ItemFunctionalService.
-//            Never included in ServerSyncPayload.
+//  [CHANGED] StackSize added. Owned by LilithsCookbook's
+//            ItemFunctionService which patches ItemData.MaxAmount
+//            on prefab entities at world ready. Never synced to Soul.
 //
-//  [PERFORMANCE] Plain DTOs — no Unity or game dependencies.
-//                LilithItemData serialized as part of
-//                ServerSyncPayload by Heart, deserialized by Soul.
-//                LilithItemFunctionalData never crosses the wire.
+//  [PERFORMANCE] Plain DTO — no Unity or game dependencies.
+//                Appearance fields serialized as part of
+//                ServerSyncPayload. StackSize never crosses the wire.
 // ============================================================
 
 namespace LilithsMind.Data;
 
-/// <summary>
-/// Appearance override fields for a single item.
-/// Synced from Heart to Soul via ServerSyncPayload.ItemAppearanceOverrides.
-///
-/// Owned by:
-///   LocalizationService — DisplayName, DescriptionText
-///   InterfaceService    — Icon
-/// </summary>
 public sealed class LilithItemData
 {
     /// <summary>
@@ -71,21 +57,12 @@ public sealed class LilithItemData
     ///   3. https:// URL → downloaded and cached to Icons/ folder
     /// </summary>
     public string? Icon { get; set; }
-}
 
-/// <summary>
-/// Functional override fields for a single item.
-/// Server-side only — never synced to Soul, never included in
-/// ServerSyncPayload. Applied at world ready by ItemFunctionalService.
-///
-/// Owned by:
-///   ItemFunctionalService — StackSize (patches ItemData.MaxAmount)
-/// </summary>
-public sealed class LilithItemFunctionalData
-{
     /// <summary>
     /// Maximum stack size for this item.
     /// Patches ProjectM.ItemData.MaxAmount on the item's prefab entity.
+    /// Owned by LilithsCookbook's ItemFunctionService.
+    /// Server-side only — never synced to Soul.
     /// Null = keep vanilla stack size.
     ///
     /// [PERFORMANCE] Applied once at world ready — no per-frame cost.

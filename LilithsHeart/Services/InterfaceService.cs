@@ -3,7 +3,7 @@
 //  LilithsHeart/Services/InterfaceService.cs
 //
 //  Server-side owner of item Icon overrides.
-//  Reads Icon entries from LilithItemConfig.AppearanceOverrides
+//  Reads Icon entries from LilithItemConfig.Overrides
 //  and registers them with Heart for inclusion in the Critical
 //  sync tier payload sent to Soul on connect.
 //
@@ -52,7 +52,7 @@ public static class InterfaceService
 
     /// <summary>
     /// Reads Icon overrides from LilithItemConfig and logs a summary.
-    /// Icon values are already in LilithItemConfig.AppearanceOverrides
+    /// Icon values are already in LilithItemConfig.Overrides
     /// alongside DisplayName and DescriptionText — Heart's payload builder
     /// reads the full LilithItemData per entry, so no separate registration
     /// step is needed here. This method exists as the explicit ownership
@@ -62,7 +62,7 @@ public static class InterfaceService
     /// </summary>
     public static void Initialize()
     {
-        int iconCount = LilithItemConfig.AppearanceOverrides
+        int iconCount = LilithItemConfig.Overrides
             .Count(kvp => kvp.Value.Icon is not null);
 
         if (iconCount == 0)
@@ -76,7 +76,7 @@ public static class InterfaceService
 
         if (HeartConfig.IsDebug)
         {
-            foreach (var (key, data) in LilithItemConfig.AppearanceOverrides)
+            foreach (var (key, data) in LilithItemConfig.Overrides)
             {
                 if (data.Icon is null) continue;
                 HeartLogger.Debug(LOG_SOURCE, $"  Icon override: '{key}' → '{data.Icon}'");

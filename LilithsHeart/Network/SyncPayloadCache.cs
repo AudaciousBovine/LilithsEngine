@@ -1,12 +1,3 @@
-using System.IO.Compression;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-using LilithsHeart.Config;
-using LilithsHeart.Foundation;
-using LilithsMind.Data;
-using LilithsMind.Network;
-
 // ============================================================
 //  SyncPayloadCache — LilithsHeart
 //  LilithsHeart/Network/SyncPayloadCache.cs
@@ -38,17 +29,28 @@ using LilithsMind.Network;
 //  FixedString. Combined this lets us send much larger payloads
 //  with fewer chunks than plain JSON.
 //
-//  [CHANGED] Replaced single CachedJson string with per-tier
-//            TierBlobData array. SyncSender now calls
-//            GetAllTierBlobs() instead of reading CachedJson.
-//
-//  [CHANGED] Updated to use ItemAppearanceOverrides instead of
-//            separate DisplayNameOverrides / TooltipOverrides.
+//  [CHANGED] ItemAppearanceConfig → LilithItemConfig.
+//            ItemAppearanceData   → LilithItemData.
+//            StackSize is on LilithItemData but is server-only —
+//            the appearance payload only carries DisplayName,
+//            DescriptionText, and Icon to Soul. StackSize is
+//            excluded by building a filtered dictionary that
+//            only contains entries with at least one appearance
+//            field set.
 //
 //  [PERFORMANCE] Compression and serialization run at most twice
 //                at startup. No per-frame or per-connect cost.
 //                GetAllTierBlobs() returns cached array — O(1).
 // ============================================================
+
+using System.IO.Compression;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using LilithsHeart.Config;
+using LilithsHeart.Foundation;
+using LilithsMind.Data;
+using LilithsMind.Network;
 
 namespace LilithsHeart.Network;
 
@@ -56,12 +58,10 @@ public static class SyncPayloadCache
 {
     private const string LOG_SOURCE = "LilithsHeart.SyncPayloadCache";
 
-    // Max content chars per chunk — leaves room for [[LG:T:NNNN]] prefix.
     private const int MAX_CHUNK_CONTENT = 440;
 
     static readonly JsonSerializerOptions _writeOptions = new() { WriteIndented = false };
 
-    // One blob per tier — indexed by SyncTierEnum int value.
     static volatile TierBlobData[]? _tierBlobs;
 
     // ── Public API ───────────────────────────────────────────
@@ -91,38 +91,30 @@ public static class SyncPayloadCache
         {
             var identity = SanitizeFolderName(serverIdentity);
 
-            // ── Critical tier — item appearance ──────────────
-    // [CHANGED] ItemAppearanceConfig → LilithItemConfig.AppearanceOverrides
-    //           ItemAppearanceData  → LilithItemData
-    var appearancePayload = new
-    {
-        ServerIdentity          = identity,
-        ItemAppearanceOverrides = new Dictionary<string, LilithItemData>(
-            LilithItemConfig.AppearanceOverrides),
-    };
+            // ── Critical tier — item appearance ──────────────────────────────
+            // [CHANGED] LilithItemConfig.Overrides replaces ItemAppearanceConfig.Overrides.
+            //           StackSize lives on LilithItemData but is server-only — build a
+            //           filtered dictionary containing only entries with at least one
+            //           appearance field so Soul never receives StackSize values.
+            var appearanceOverrides = LilithItemConfig.Overrides
+                .Where(kvp =>
+                    kvp.Value.DisplayName     is not null ||
+                    kvp.Value.DescriptionText is not null ||
+                    kvp.Value.Icon            is not null)
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => new LilithItemData
+                    {
+                        DisplayName     = kvp.Value.DisplayName,
+                        DescriptionText = kvp.Value.DescriptionText,
+                        Icon            = kvp.Value.Icon,
+                        // StackSize intentionally omitted — server-only field.
+                    });
 
-            // ── High tier — recipes + stations ───────────────
-            var recipePayload = new
-            {
-                ServerIdentity         = identity,
-                RecipeOverrides        = new Dictionary<string, LilithRecipeData>(recipeOverrides),
-                StationRecipeOverrides = new Dictionary<string, LilithStationData>(stationRecipeOverrides),
-            };
-
-            // ── Normal tier — player recipe changes ──────────
-            var playerPayload = new
-            {
-                ServerIdentity        = identity,
-                PlayerRecipesToAdd    = new List<string>(playerRecipesToAdd),
-                PlayerRecipesToRemove = new List<string>(playerRecipesToRemove),
-            };
-
-            // Compute shared hash across all tiers so Soul can use
-            // a single PayloadHash for cache invalidation.
             var fullPayload = new ServerSyncPayload
             {
                 ServerIdentity          = identity,
-                ItemAppearanceOverrides = appearancePayload.ItemAppearanceOverrides,
+                ItemAppearanceOverrides = appearanceOverrides,
             };
 
             foreach (var (k, v) in recipeOverrides)
@@ -199,13 +191,8 @@ public static class SyncPayloadCache
 
     // ── Internal ─────────────────────────────────────────────
 
-    /// <summary>
-    /// Compresses a JSON string with GZip, base64-encodes it, and
-    /// splits into MAX_CHUNK_CONTENT-char chunks.
-    /// </summary>
     static TierBlobData BuildBlob(SyncTierEnum tier, string json)
     {
-        // GZip compress.
         byte[] compressed;
         using (var ms = new MemoryStream())
         {
@@ -217,11 +204,8 @@ public static class SyncPayloadCache
             compressed = ms.ToArray();
         }
 
-        // Base64 encode to ASCII-safe string.
-        var encoded = Convert.ToBase64String(compressed);
-
-        // Split into chunks.
-        var chunks  = Chunkify(encoded);
+        var encoded  = Convert.ToBase64String(compressed);
+        var chunks   = Chunkify(encoded);
         var checksum = ComputeHash(encoded);
 
         return new TierBlobData(tier, chunks, checksum);

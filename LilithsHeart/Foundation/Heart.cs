@@ -18,12 +18,16 @@ namespace LilithsHeart.Foundation;
 //  Lifecycle:
 //  ──────────
 //  1. OnInitialize() fires via WarEventRegistrySystem patch.
-//  2. PrefabNameResolver and ItemAppearanceConfig are initialized.
+//  2. PrefabNameResolver and LilithItemConfig are initialized.
 //  3. A baseline SyncPayloadCache is built (empty overrides).
 //  4. OnInitialized event fires — registered modules apply their
 //     changes and call Register*() to queue overrides.
 //  5. Payload is rebuilt with all accumulated overrides.
 //  6. OnWorldReady event fires for late subscribers.
+//
+//  [CHANGED] LocalizationService.RegisterDirectory/Initialize replaced
+//            by ItemService (file I/O owner) + LocalizationService,
+//            InterfaceService, and ItemFunctionalService (apply layers).
 //
 //  [PERFORMANCE] System accessors (PrefabCollectionSystem,
 //                GameDataSystem) are fetched per-call via Unity's
@@ -82,8 +86,18 @@ public static class Heart
         HeartConfigBuilder.RegisterGenerator(HeartConfigBuilder.GenerateItemsExample);
         HeartConfigBuilder.GenerateIfRequested();
 
-        LocalizationService.RegisterDirectory(HeartPathIndex.ItemsDir);
+        // [CHANGED] ItemService is the single owner of Items/*.json file I/O.
+        //           It populates LilithItemConfig's two dictionaries in one pass.
+        //           LocalizationService, InterfaceService, and ItemFunctionalService
+        //           are pure apply-layers that read from LilithItemConfig.
+        ItemService.RegisterDirectory(HeartPathIndex.ItemsDir);
+        ItemService.Initialize();
+
+        // Apply-layer services — read from LilithItemConfig, no file I/O.
+        // Note: ItemFunctionService (StackSize) lives in LilithsCookbook and is
+        //       called from CookbookPlugin.OnHeartInitialized(), not here.
         LocalizationService.Initialize();
+        InterfaceService.Initialize();
 
         _serverIdentity = ResolveServerIdentity();
 
@@ -127,6 +141,8 @@ public static class Heart
         HeartEventBus.Publish(new OnWorldReady());
     }
 
+    // [CHANGED] OnLocalizationReloaded is triggered by ItemService.Reload()
+    //           rather than LocalizationService.Reload() (which no longer exists).
     internal static void OnLocalizationReloaded()
         => SyncPayloadCache.Rebuild(_serverIdentity,
             _pendingRecipeOverrides,

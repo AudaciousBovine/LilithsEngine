@@ -5,13 +5,13 @@ A modular V Rising mod suite
 - Server Side Core
 - Houses all config files (For convenience!)
 - Facilitates Localization changes
-- Communicates neccesary info to Client to make sure UI is in sync
+- Communicates neccesary info to LilithsSoul (Client) to make sure UI is in sync
 
 
 
 ## LilithsSoul
 - Client Side Core
-- Gets communication from heart to make sure UI is in sync
+- Gets communication from LilithsHear (Server) to make sure UI is in sync
 - Caches sync data in a server identity folder to prepatch changes when connecting
 
 
@@ -21,7 +21,7 @@ A modular V Rising mod suite
 - Change equipment repair requirements
 - Change craft times
 - Change if recipe is unlocked at start
-- Change recipes available at every crafting and refining station as well as player crafting! 
+- Change what stations a recipe is available at
 
 ## Hopeful Additions
 ### LilithsBounty
