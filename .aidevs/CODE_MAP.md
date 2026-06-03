@@ -23,7 +23,7 @@
 
 | File | Class | Purpose |
 |------|-------|---------|
-| `ItemAppearanceData.cs` | `ItemAppearanceData` | DTO with optional `DisplayName`, `DescriptionText`, `Icon` fields. Value type in `ServerSyncPayload.ItemAppearanceOverrides`. **`DescriptionText` was formerly `Tooltip`** (renamed; no back-compat shim). Icon value is self-describing: filename → local PNG, sprite name → in-game sprite, https:// → URL download. |
+| `LilithItemData.cs` | `LilithItemData` | DTO with optional `DisplayName`, `DescriptionText`, `Icon` fields. Value type in `ServerSyncPayload.ItemAppearanceOverrides`. **`DescriptionText` was formerly `Tooltip`** (renamed; no back-compat shim). Icon value is self-describing: filename → local PNG, sprite name → in-game sprite, https:// → URL download. |
 
 ### Prefabs/
 
@@ -62,7 +62,7 @@
 
 | File | Class | Purpose |
 |------|-------|---------|
-| `ServerSyncPayload.cs` | `ServerSyncPayload` | Full data contract: identity, hash, `ItemAppearanceOverrides: Dictionary<string, ItemAppearanceData>`, recipe overrides, station overrides, player recipe changes. |
+| `ServerSyncPayload.cs` | `ServerSyncPayload` | Full data contract: identity, hash, `ItemAppearanceOverrides: Dictionary<string, LilithItemData>`, recipe overrides, station overrides, player recipe changes. |
 | `SyncTierEnum.cs` | `SyncTierEnum` | **Canonical 0-based tier enum (moved here from Heart).** `Critical(0)`, `High(1)`, `Normal(2)`, `Low(3)`, `Background(4)`. Single source of truth for both Heart and Soul. |
 | `TierBlobData.cs` | `TierBlobData` | **Moved here from Heart this session.** Pre-built chunk data for one tier: `Tier`, `Chunks[]` (base64+gzip strings), `ChunkCount`, `Checksum`. Immutable after construction. (Header comment may still read "LilithsHeart" — cosmetic.) |
 | `ServerEventPayload.cs` | `ServerEventPayload`, `EventKind` | Trigger-based in-session payload. Reserved — not yet implemented. |
@@ -130,7 +130,7 @@
 |------|-------|---------|
 | `HeartConfig.cs` | `HeartConfig` | `DebugLogging` (bool), `ServerName` (string), `GenerateExampleConfigs` (bool), `ChunksPerFrame` (int). |
 | `HeartPathIndex.cs` | `HeartPathIndex` | `Root`, `CoreConfig`, `ItemsDir`, `ModuleConfig()`, `DataDir()`. |
-| `ItemAppearanceConfig.cs` | `ItemAppearanceConfig` | Pure data surface — `Dictionary<string, ItemAppearanceData>`. **Renamed from `LocalizationConfig`.** Per-field merge via `AddOverride()` (later file wins per field, not per entry). `Clear()`, `MarkLoaded()`. |
+| `ItemAppearanceConfig.cs` | `ItemAppearanceConfig` | Pure data surface — `Dictionary<string, LilithItemData>`. **Renamed from `LocalizationConfig`.** Per-field merge via `AddOverride()` (later file wins per field, not per entry). `Clear()`, `MarkLoaded()`. |
 
 ---
 
@@ -238,7 +238,7 @@
 - `LilithsSoul/Services/RepointDiagnostic.cs` — earlier name-repoint probe; deleted.
 
 ### Modified
-- `LilithsMind/Data/ItemAppearanceData.cs` — field `Tooltip` → `DescriptionText`.
+- `LilithsMind/Data/LilithItemData.cs` — field `Tooltip` → `DescriptionText`.
 - `LilithsHeart/Config/ItemAppearanceConfig.cs` — renamed from `LocalizationConfig`.
 - `LilithsHeart/Services/HeartConfigBuilder.cs` — `example.json` "Tooltip" key → "DescriptionText"; added description readme.
 - `LilithsSoul/Network/SyncReceiver.cs` — rewritten to the tiered protocol (was a stale flat-protocol receiver that recognized no tiered sentinels — the cause of names/icons/descriptions all going dark); `ApplyPayload`/per-tier order now includes `DescriptionPatcher.Clear()` + `Build()` between the name and icon steps (9-step order).

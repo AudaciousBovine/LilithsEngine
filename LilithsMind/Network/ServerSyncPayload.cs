@@ -10,8 +10,8 @@ using LilithsMind.Data;
 //
 //  [CHANGED] Removed DisplayNameOverrides and TooltipOverrides.
 //            Replaced with a single ItemAppearanceOverrides dict
-//            keyed by prefab name, valued by ItemAppearanceData.
-//            ItemAppearanceData carries DisplayName, Tooltip, and
+//            keyed by prefab name, valued by LilithItemData.
+//            LilithItemData carries DisplayName, Tooltip, and
 //            Icon in one object — one dictionary lookup per item
 //            instead of three, and naturally extensible as more
 //            appearance fields are added in future.
@@ -63,13 +63,13 @@ public sealed class ServerSyncPayload
     ///                                   Tooltip = "...",
     ///                                   Icon = "vitae.png" }
     ///
-    /// All fields on ItemAppearanceData are optional — Soul skips
+    /// All fields on LilithItemData are optional — Soul skips
     /// null fields silently. Heart only populates fields the admin
     /// has configured. Soul applies:
     ///   DisplayName/Tooltip → Localization._LocalizedStrings
     ///   Icon               → ManagedItemData.Icon via IconPatcher
     /// </summary>
-    public Dictionary<string, ItemAppearanceData> ItemAppearanceOverrides { get; set; } = new();
+    public Dictionary<string, LilithItemData> ItemAppearanceOverrides { get; set; } = new();
 
     // ── Recipe overrides ────────────────────────────────────
 

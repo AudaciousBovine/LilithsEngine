@@ -15,7 +15,7 @@ using LilithsSoul.Foundation;
 //
 //  [CHANGED] Now reads from payload.ItemAppearanceOverrides instead
 //            of separate DisplayNameOverrides / DescriptionTextOverrides.
-//            Each ItemAppearanceData entry carries both DisplayName
+//            Each LilithItemData entry carries both DisplayName
 //            and DescriptionText — one iteration over the dict handles both.
 //            Icon is passed to IconPatcher separately — this service
 //            only handles text injection into _LocalizedStrings.

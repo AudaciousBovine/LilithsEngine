@@ -92,12 +92,14 @@ public static class SyncPayloadCache
             var identity = SanitizeFolderName(serverIdentity);
 
             // ── Critical tier — item appearance ──────────────
-            var appearancePayload = new
-            {
-                ServerIdentity          = identity,
-                ItemAppearanceOverrides = new Dictionary<string, ItemAppearanceData>(
-                    ItemAppearanceConfig.Overrides),
-            };
+    // [CHANGED] ItemAppearanceConfig → LilithItemConfig.AppearanceOverrides
+    //           ItemAppearanceData  → LilithItemData
+    var appearancePayload = new
+    {
+        ServerIdentity          = identity,
+        ItemAppearanceOverrides = new Dictionary<string, LilithItemData>(
+            LilithItemConfig.AppearanceOverrides),
+    };
 
             // ── High tier — recipes + stations ───────────────
             var recipePayload = new

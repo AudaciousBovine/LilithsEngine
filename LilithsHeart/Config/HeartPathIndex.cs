@@ -12,30 +12,23 @@
 //      LilithsHeart/
 //          LilithsHeart.cfg            ← Heart core settings
 //          LilithsCookbook.cfg         ← child module cfg files
-//          Items/                      ← item appearance overrides (*.json, recursive)
+//          Items/                      ← item overrides (appearance + functional)
 //              example.json
 //              Currencies/
 //              Weapons/
 //          Recipes/                    ← recipe config (LilithsCookbook)
-//          Stations/                   ← station config (LilithsCookbook)
 //          MainQuest/                  ← quest text (LilithsMachinations, future)
 //          Spells/                     ← spell names/tooltips (LilithsGrimoire, future)
 //
-//  [CHANGED] Replaced LocalizationDir with ItemsDir.
-//            The old Localization/ folder held flat display name
-//            and tooltip JSON files. The new Items/ folder holds
-//            combined appearance JSON files (DisplayName, Tooltip,
-//            Icon) and supports arbitrary subdirectory organization.
-//            LocalizationService scans Items/ recursively via
-//            SearchOption.AllDirectories.
+//  [CHANGED] ItemsDir comment updated — Items/ now holds all item
+//            override fields (DisplayName, DescriptionText, Icon,
+//            StackSize) parsed in one pass by LocalizationService
+//            into LilithItemConfig's two dictionaries.
 //
 //  Child modules register their own directories with
 //  LocalizationService.RegisterDirectory() rather than adding
 //  named paths here — HeartPathIndex only needs to know about
 //  directories that Heart core itself owns.
-//
-//  Child modules should use HeartPathIndex.DataDir() to resolve
-//  their own subdirectory paths consistently.
 // ============================================================
 
 namespace LilithsHeart.Config;
@@ -75,12 +68,13 @@ public static class HeartPathIndex
 
     /// <summary>
     /// BepInEx/config/LilithsHeart/Items/
-    /// Item appearance override files (DisplayName, Tooltip, Icon).
-    /// Scanned recursively by LocalizationService — admins can create
-    /// subdirectories freely (e.g. Items/Currencies/, Items/Weapons/).
-    /// Registered with LocalizationService by Heart.OnInitialize().
+    /// All item override files — appearance (DisplayName, DescriptionText,
+    /// Icon) and functional (StackSize). Parsed in one pass by
+    /// LocalizationService into LilithItemConfig's two dictionaries.
     ///
-    /// [CHANGED] Replaces LocalizationDir (Localization/ folder).
+    /// Scanned recursively — admins can create subdirectories freely
+    /// (e.g. Items/Currencies/, Items/Weapons/).
+    /// Registered with LocalizationService by Heart.OnInitialize().
     /// </summary>
     public static readonly string ItemsDir = Path.Combine(Root, "Items");
 

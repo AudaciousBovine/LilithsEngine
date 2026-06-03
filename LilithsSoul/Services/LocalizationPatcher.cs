@@ -6,7 +6,7 @@ using ProjectM;
 using Stunlock.Localization;  // LocalizationKey, AssetGuid, Localization
 using Stunlock.Core;          // PrefabGUID
 using LilithsMind.Prefabs;    // PrefabDef
-using LilithsMind.Network;    // ServerSyncPayload, ItemAppearanceData
+using LilithsMind.Network;    // ServerSyncPayload, LilithItemData
 using LilithsSoul.Foundation;
 
 // ============================================================

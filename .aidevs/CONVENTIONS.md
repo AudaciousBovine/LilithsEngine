@@ -11,7 +11,7 @@
 | `*Queue` | Holds work items done at controlled rate | `SyncQueue` |
 | `*Builder` | Builds complex objects/data into manageable structures | `CookbookConfigBuilder`, `HeartConfigBuilder` |
 | `*Cache` | Stores built data, rebuilt only when values change | `SyncPayloadCache` |
-| `*Data` | Runtime container holding data values | `LilithRecipeData`, `CookbookItemData`, `TierBlobData`, `ItemAppearanceData` |
+| `*Data` | Runtime container holding data values | `LilithRecipeData`, `CookbookItemData`, `TierBlobData`, `LilithItemData` |
 | `*Payload` | Envelope of data for sending over network | `ServerSyncPayload`, `ServerEventPayload` |
 | `*Def` | Defines the structure of a single entity | `PrefabDef` |
 | `*Index` | Static collection of values for lookup | `WeaponsIndex`, `HeartPathIndex`, `SoulPathIndex`, `HeartEventIndex` |

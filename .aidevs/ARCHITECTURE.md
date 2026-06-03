@@ -4,7 +4,7 @@
 
 ```
 LilithsMind (pure C#, no game deps)
-    ├── Data/ItemAppearanceData.cs       — item appearance DTO
+    ├── Data/LilithItemData.cs       — item appearance DTO
     ├── Prefabs/Definitions/*Index.cs    — static PrefabDef catalog
     ├── Network/*Payload.cs, *Data.cs    — shared DTOs
           │

@@ -10,7 +10,7 @@ The `ServerSyncPayload` class in `LilithsMind/Network/ServerSyncPayload.cs` is t
 ServerSyncPayload
 ├── ServerIdentity: string                              — Sanitized server name (folder key)
 ├── PayloadHash: string                                 — First 8 hex chars of SHA256 (change detection)
-├── ItemAppearanceOverrides: Dictionary<string, ItemAppearanceData>
+├── ItemAppearanceOverrides: Dictionary<string, LilithItemData>
 │     Key: prefab Name or Prefab string
 │     Value: { DisplayName?, DescriptionText?, Icon? }
 │            DisplayName     → repointed client-side (LocalizationPatcher)
@@ -51,7 +51,7 @@ All fields optional — omit any you don't want to change.
 Files load in full-path alphabetical order. Later files win per-field (not per-entry) — one file can set `DisplayName`, another can set `Icon` for the same item.
 
 > **Field rename:** the appearance field formerly called `Tooltip` is now
-> `DescriptionText` (in the `ItemAppearanceData` DTO and the JSON key). There is
+> `DescriptionText` (in the `LilithItemData` DTO and the JSON key). There is
 > no back-compat shim for the old `Tooltip` key — no live servers existed at the
 > time of the rename.
 

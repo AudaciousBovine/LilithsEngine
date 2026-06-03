@@ -31,7 +31,7 @@ using LilithsHeart.Foundation;
 //            not just the localization example.
 //
 //  [CHANGED] Example JSON "Tooltip" key renamed to "DescriptionText"
-//            to match the ItemAppearanceData field rename. The client
+//            to match the LilithItemData field rename. The client
 //            applies this as the item's tooltip-body (description) text
 //            via the ItemDescriptionPatch Harmony postfix — it is NOT
 //            written through any localization key. (No back-compat shim
