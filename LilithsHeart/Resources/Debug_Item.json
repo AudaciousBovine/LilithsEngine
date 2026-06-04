@@ -3,19 +3,43 @@
 
   "BloodEssence": {
     "DisplayName": "[Debug] Red Marble",
-    "DescriptionText": " [Debug] A lovely Red Marble dropped from the living, it swirls with life energy.",
-    "Icon": "Icon_BloodOrb"
+    "DescriptionText": "[Debug] A lovely Red Marble dropped from the living, it swirls with life energy.",
+    "Icon": "https://raw.githubusercontent.com/AudaciousBovine/LilithsGarden/refs/heads/main/Media/Icons/RedMarble.png"
+  },
+
+  "VerminSalve": {
+    "DisplayName": "[Debug] Cheesecake",
+    "DescriptionText": "[Debug] The most delightful human dessert known to exist, all it needs is some strawberry sauce.",
+    "Icon": "https://raw.githubusercontent.com/AudaciousBovine/LilithsGarden/refs/heads/main/Media/Icons/Cheesecake.png"
   },
 
   "IrradiantGruel": {
     "DisplayName": "[Debug] Smoothie",
-    "DescriptionText": " [Debug] A delicious smoothie packed full of nutrients and antioxidants!",
-    "Icon": "Icon_BloodOrb"
+    "DescriptionText": "[Debug] A delicious human smoothie packed full of nutrients and antioxidants! Supposedly it improves the quality of blood.",
+    "Icon": "https://raw.githubusercontent.com/AudaciousBovine/LilithsGarden/refs/heads/main/Media/Icons/Smoothie.png"
+  },
+
+  "ExtractBloodEssence": {
+    "DisplayName": "[Debug] Extract Red Marbles",
+    "DescriptionText": "[Debug] I know they have Red Marbles, its just about applying the apropriate force.",
+    "Icon": "https://raw.githubusercontent.com/AudaciousBovine/LilithsGarden/refs/heads/main/Media/Icons/RedMarble.png"
+  },
+
+  "FedRat": {
+    "DisplayName": "[Debug] Offer Cheesecake",
+    "DescriptionText": "[Debug] How can someone turn down this extraordinary dessert, surely they will feel much better after indulging in its deliciousness.",
+    "Icon": "https://raw.githubusercontent.com/AudaciousBovine/LilithsGarden/refs/heads/main/Media/Icons/Cheesecake.png"
+  },
+
+  "FedIrradiantGruel": {
+    "DisplayName": "[Debug] Offer Smoothie",
+    "DescriptionText": "[Debug] It's delicious AND good for you, come on drink it, I promise there's nothing strange in it. Does your blood feel any... cleaner?",
+    "Icon": "https://raw.githubusercontent.com/AudaciousBovine/LilithsGarden/refs/heads/main/Media/Icons/Smoothie.png"
   },
 
   "CopperSword": {
-    "DisplayName": "[Debug] Red Marble",
-    "DescriptionText": " [Debug] A lovely Red Marble dropped from the living, it swirls with life energy.",
-    "Icon": "Icon_BloodOrb"
+    "DisplayName": "[Debug] Orange Blade",
+    "DescriptionText": "[Debug] A bright Orange Blade made of some alloy, surely not copper as that would be too soft. The blue handle makes the color pop.",
+    "Icon": "Stunlock_Icon_BronzeSword02"
   }
 }

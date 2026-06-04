@@ -329,7 +329,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_BarrelDisguise01 = new()
     {
-        Name    = null,
+        Name    = "BarrelDisguise",
         GuidHash = -82465606,
         Prefab  = "Item_Consumable_BarrelDisguise01",
         NameKey = null,
@@ -338,7 +338,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_Bottle_Water_T02 = new()
     {
-        Name    = null,
+        Name    = "BottledWater",
         GuidHash = -1382451936,
         Prefab  = "Item_Consumable_Bottle_Water_T02",
         NameKey = null,
@@ -347,7 +347,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_Canister_ToxicSludge = new()
     {
-        Name    = null,
+        Name    = "SludgeFilledCanister",
         GuidHash = -1823614190,
         Prefab  = "Item_Consumable_Canister_ToxicSludge",
         NameKey = null,
@@ -356,7 +356,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_DuskCaller = new()
     {
-        Name    = null,
+        Name    = "DuskCaller",
         GuidHash = 1128262258,
         Prefab  = "Item_Consumable_DuskCaller",
         NameKey = null,
@@ -365,7 +365,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_Eat_Rat = new()
     {
-        Name    = null,
+        Name    = "Rat",
         GuidHash = -869864524,
         Prefab  = "Item_Consumable_Eat_Rat",
         NameKey = null,
@@ -374,7 +374,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_EmptyBottle = new()
     {
-        Name    = null,
+        Name    = "EmptyBottle",
         GuidHash = -437611596,
         Prefab  = "Item_Consumable_EmptyBottle",
         NameKey = null,
@@ -383,7 +383,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_EmptyWaterskin = new()
     {
-        Name    = null,
+        Name    = "EmptyWaterskin",
         GuidHash = -810738866,
         Prefab  = "Item_Consumable_EmptyWaterskin",
         NameKey = null,
@@ -392,7 +392,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_FireResistancePotion_T01 = new()
     {
-        Name    = null,
+        Name    = "FireResistBrew",
         GuidHash = 970650569,
         Prefab  = "Item_Consumable_FireResistancePotion_T01",
         NameKey = null,
@@ -401,7 +401,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_GarlicResistancePotion_T01 = new()
     {
-        Name    = null,
+        Name    = "GarlicResistBrew",
         GuidHash = 423790753,
         Prefab  = "Item_Consumable_GarlicResistancePotion_T01",
         NameKey = null,
@@ -410,7 +410,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_GarlicResistancePotion_T02 = new()
     {
-        Name    = null,
+        Name    = "GarlicResistPotion               ",
         GuidHash = -2139183850,
         Prefab  = "Item_Consumable_GarlicResistancePotion_T02",
         NameKey = null,
@@ -419,7 +419,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_HealingPotion_T01 = new()
     {
-        Name    = null,
+        Name    = "BloodRoseBrew",
         GuidHash = 800879747,
         Prefab  = "Item_Consumable_HealingPotion_T01",
         NameKey = null,
@@ -428,7 +428,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_HealingPotion_T02 = new()
     {
-        Name    = null,
+        Name    = "BloodRosePotion",
         GuidHash = 429052660,
         Prefab  = "Item_Consumable_HealingPotion_T02",
         NameKey = null,
@@ -437,7 +437,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_Heart_T02_Tainted = new()
     {
-        Name    = null,
+        Name    = "TaintedHeart",
         GuidHash = 947998050,
         Prefab  = "Item_Consumable_Heart_T02_Tainted",
         NameKey = null,
@@ -446,7 +446,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_Heart_T03_Unsullied = new()
     {
-        Name    = null,
+        Name    = "UnsulliedHeart",
         GuidHash = -204051056,
         Prefab  = "Item_Consumable_Heart_T03_Unsullied",
         NameKey = null,
@@ -455,7 +455,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_Heart_T04_Exquisite = new()
     {
-        Name    = null,
+        Name    = "ExqisiteHeart",
         GuidHash = -1965958712,
         Prefab  = "Item_Consumable_Heart_T04_Exquisite",
         NameKey = null,
@@ -464,7 +464,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_Heart_T05_Pristine = new()
     {
-        Name    = null,
+        Name    = "PristineHeart",
         GuidHash = -1413694594,
         Prefab  = "Item_Consumable_Heart_T05_Pristine",
         NameKey = null,
@@ -473,7 +473,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_HolyResistancePotion_T01 = new()
     {
-        Name    = null,
+        Name    = "HolyResistPotion",
         GuidHash = 890484447,
         Prefab  = "Item_Consumable_HolyResistancePotion_T01",
         NameKey = null,
@@ -482,7 +482,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_HolyResistancePotion_T02 = new()
     {
-        Name    = null,
+        Name    = "HolyResistFlask",
         GuidHash = 639992282,
         Prefab  = "Item_Consumable_HolyResistancePotion_T02",
         NameKey = null,
@@ -500,7 +500,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_PhysicalPowerPotion_T01 = new()
     {
-        Name    = null,
+        Name    = "FerocityBrew",
         GuidHash = -269326085,
         Prefab  = "Item_Consumable_PhysicalPowerPotion_T01",
         NameKey = null,
@@ -509,7 +509,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_PhysicalPowerPotion_T02 = new()
     {
-        Name    = null,
+        Name    = "RagePotion",
         GuidHash = -1568756102,
         Prefab  = "Item_Consumable_PhysicalPowerPotion_T02",
         NameKey = null,
@@ -518,7 +518,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_PrisonPotion = new()
     {
-        Name    = null,
+        Name    = "BloodPotion",
         GuidHash = 828432508,
         Prefab  = "Item_Consumable_PrisonPotion",
         NameKey = null,
@@ -527,7 +527,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_PrisonPotion_Bloodwine = new()
     {
-        Name    = null,
+        Name    = "BloodMerlot",
         GuidHash = 1223264867,
         Prefab  = "Item_Consumable_PrisonPotion_Bloodwine",
         NameKey = null,
@@ -536,7 +536,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_PrisonPotion_Mixed = new()
     {
-        Name    = null,
+        Name    = "MixedBloodPotion",
         GuidHash = 2063723255,
         Prefab  = "Item_Consumable_PrisonPotion_Mixed",
         NameKey = null,
@@ -545,7 +545,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_Salve_Vermin = new()
     {
-        Name    = null,
+        Name    = "VerminSalve",
         GuidHash = -1885959251,
         Prefab  = "Item_Consumable_Salve_Vermin",
         NameKey = null,
@@ -554,7 +554,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_SilverResistancePotion_T01 = new()
     {
-        Name    = null,
+        Name    = "SilverResistBrew",
         GuidHash = 272647158,
         Prefab  = "Item_Consumable_SilverResistancePotion_T01",
         NameKey = null,
@@ -563,7 +563,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_SilverResistancePotion_T02 = new()
     {
-        Name    = null,
+        Name    = "SilverResistPotion",
         GuidHash = 2107622409,
         Prefab  = "Item_Consumable_SilverResistancePotion_T02",
         NameKey = null,
@@ -572,7 +572,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_SpellPowerPotion_T01 = new()
     {
-        Name    = null,
+        Name    = "EnchantedBrew",
         GuidHash = 248289327,
         Prefab  = "Item_Consumable_SpellPowerPotion_T01",
         NameKey = null,
@@ -581,7 +581,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_SpellPowerPotion_T02 = new()
     {
-        Name    = null,
+        Name    = "WitchPotion",
         GuidHash = 1510182325,
         Prefab  = "Item_Consumable_SpellPowerPotion_T02",
         NameKey = null,
@@ -590,7 +590,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_SunResistancePotion_T01 = new()
     {
-        Name    = null,
+        Name    = "SunResistBrew",
         GuidHash = -38051433,
         Prefab  = "Item_Consumable_SunResistancePotion_T01",
         NameKey = null,
@@ -599,7 +599,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_TrippyShroom = new()
     {
-        Name    = null,
+        Name    = "TrippyShrom",
         GuidHash = -1566269773,
         Prefab  = "Item_Consumable_TrippyShroom",
         NameKey = null,
@@ -608,7 +608,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_Waterskin_Water_T01 = new()
     {
-        Name    = null,
+        Name    = "FilledWaterskin",
         GuidHash = -1322000172,
         Prefab  = "Item_Consumable_Waterskin_Water_T01",
         NameKey = null,
@@ -617,7 +617,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_WranglersPotion_T01 = new()
     {
-        Name    = null,
+        Name    = "WranglerPotion",
         GuidHash = 541321301,
         Prefab  = "Item_Consumable_WranglersPotion_T01",
         NameKey = null,
@@ -628,7 +628,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Elixir_Bat_T01 = new()
     {
-        Name    = null,
+        Name    = "BatElixir",
         GuidHash = -2102469163,
         Prefab  = "Item_Elixir_Bat_T01",
         NameKey = null,
@@ -637,7 +637,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Elixir_Beast_T01 = new()
     {
-        Name    = null,
+        Name    = "BeastElixir",
         GuidHash = 98952351,
         Prefab  = "Item_Elixir_Beast_T01",
         NameKey = null,
@@ -646,7 +646,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Elixir_Blasphemous_T01 = new()
     {
-        Name    = null,
+        Name    = "BlasphemousElixir",
         GuidHash = -978856806,
         Prefab  = "Item_Elixir_Blasphemous_T01",
         NameKey = null,
@@ -655,7 +655,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Elixir_Crow_T01 = new()
     {
-        Name    = null,
+        Name    = "CrowElixir",
         GuidHash = 904226111,
         Prefab  = "Item_Elixir_Crow_T01",
         NameKey = null,
@@ -664,7 +664,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Elixir_Prowler_T01 = new()
     {
-        Name    = null,
+        Name    = "ProwlerElixir",
         GuidHash = 1186268870,
         Prefab  = "Item_Elixir_Prowler_T01",
         NameKey = null,
@@ -673,7 +673,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Elixir_Raven_T01 = new()
     {
-        Name    = null,
+        Name    = "RavenElixir",
         GuidHash = -1561468105,
         Prefab  = "Item_Elixir_Raven_T01",
         NameKey = null,
@@ -682,7 +682,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Elixir_Twisted_T01 = new()
     {
-        Name    = null,
+        Name    = "TwistedElixir",
         GuidHash = 1646351394,
         Prefab  = "Item_Elixir_Twisted_T01",
         NameKey = null,
@@ -691,7 +691,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Elixir_Werewolf_T01 = new()
     {
-        Name    = null,
+        Name    = "WerewolfElixir",
         GuidHash = 948466634,
         Prefab  = "Item_Elixir_Werewolf_T01",
         NameKey = null,
@@ -702,7 +702,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Vampire_Coating_Blood = new()
     {
-        Name    = null,
+        Name    = "BloodCoating",
         GuidHash = -1617973064,
         Prefab  = "Item_Vampire_Coating_Blood",
         NameKey = null,
@@ -711,7 +711,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Vampire_Coating_Chaos = new()
     {
-        Name    = null,
+        Name    = "ChaosCoating",
         GuidHash = -1051190225,
         Prefab  = "Item_Vampire_Coating_Chaos",
         NameKey = null,
@@ -720,7 +720,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Vampire_Coating_Frost = new()
     {
-        Name    = null,
+        Name    = "FrostCoating",
         GuidHash = -1087318964,
         Prefab  = "Item_Vampire_Coating_Frost",
         NameKey = null,
@@ -729,7 +729,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Vampire_Coating_Illusion = new()
     {
-        Name    = null,
+        Name    = "IllusionCoating",
         GuidHash = 1148284648,
         Prefab  = "Item_Vampire_Coating_Illusion",
         NameKey = null,
@@ -738,7 +738,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Vampire_Coating_Storm = new()
     {
-        Name    = null,
+        Name    = "StormCoating",
         GuidHash = 2128629897,
         Prefab  = "Item_Vampire_Coating_Storm",
         NameKey = null,
@@ -747,7 +747,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Vampire_Coating_Unholy = new()
     {
-        Name    = null,
+        Name    = "UnholyCoating",
         GuidHash = 1002732935,
         Prefab  = "Item_Vampire_Coating_Unholy",
         NameKey = null,

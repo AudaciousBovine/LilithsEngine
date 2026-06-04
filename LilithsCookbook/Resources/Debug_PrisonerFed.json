@@ -25,7 +25,7 @@
     "ChangesEnabled": true,
     "Type": "AffectWithToxic",
     "ChanceToBecomeMutant": 0.0,
-    "IncreaseBloodQuality_Min": 0.04,
+    "IncreaseBloodQuality_Min": 0.10,
     "IncreaseBloodQuality_Max": 0.08
   }
 }
