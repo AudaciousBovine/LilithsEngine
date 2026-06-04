@@ -1,5 +1,3 @@
-using LilithsMind.Data;
-
 // ============================================================
 //  ServerSyncPayload — LilithsMind
 //  LilithsMind/Network/ServerSyncPayload.cs
@@ -8,29 +6,19 @@ using LilithsMind.Data;
 //  client connect. Shared between both projects via LilithsMind
 //  as the single source of truth.
 //
-//  [CHANGED] Removed DisplayNameOverrides and TooltipOverrides.
-//            Replaced with a single ItemAppearanceOverrides dict
-//            keyed by prefab name, valued by LilithItemData.
-//            LilithItemData carries DisplayName, Tooltip, and
-//            Icon in one object — one dictionary lookup per item
-//            instead of three, and naturally extensible as more
-//            appearance fields are added in future.
-//
-//  Design:
-//  ───────
-//  Heart serializes this to JSON and sends it in chunks via
-//  ChatMessageServerEvent. Soul accumulates chunks, deserializes,
-//  and writes to disk as sync.json under:
-//      BepInEx/config/LilithsSoul/<ServerIdentity>/sync.json
-//
-//  The Build() factory method lives in Heart's SyncPayloadCache
-//  and not here — LilithsMind has no dependency on Heart config
-//  or any V Rising assemblies. This class is a plain DTO.
+//  [CHANGED] ServerLanguage added — the language code used to
+//            populate ItemAppearanceOverrides (DisplayName +
+//            DescriptionText) on this server. Soul compares this
+//            against its PreferredLanguage setting. If they differ
+//            and the server has the requested language configured,
+//            a separate LocalizationSyncPayload follows.
 //
 //  [PERFORMANCE] Plain DTO — no ECS types, no Unity dependencies.
 //                Serialized once on connect by Heart, deserialized
 //                once on receipt by Soul.
 // ============================================================
+
+using LilithsMind.Data;
 
 namespace LilithsMind.Network;
 
@@ -55,49 +43,50 @@ public sealed class ServerSyncPayload
     /// </summary>
     public string PayloadHash { get; set; } = string.Empty;
 
+    /// <summary>
+    /// The language used for DisplayName and DescriptionText in
+    /// ItemAppearanceOverrides. Soul compares this against its
+    /// PreferredLanguage setting to decide whether to request a
+    /// localization payload.
+    ///
+    /// [CHANGED] Added for multi-language localization support.
+    /// Matches LanguageCodeEnum name (e.g. "English", "Spanish").
+    /// Defaults to "English".
+    /// </summary>
+    public string ServerLanguage { get; set; } = "English";
+
     // ── Item appearance overrides ────────────────────────────
 
     /// <summary>
     /// Item appearance overrides keyed by prefab name.
-    /// e.g. "Item_BloodEssence_T01" → { DisplayName = "Vitae",
-    ///                                   Tooltip = "...",
-    ///                                   Icon = "vitae.png" }
-    ///
-    /// All fields on LilithItemData are optional — Soul skips
-    /// null fields silently. Heart only populates fields the admin
-    /// has configured. Soul applies:
-    ///   DisplayName/Tooltip → Localization._LocalizedStrings
-    ///   Icon               → ManagedItemData.Icon via IconPatcher
+    /// DisplayName and DescriptionText are in the server's default
+    /// language (ServerLanguage). If Soul's PreferredLanguage differs,
+    /// it requests a LocalizationSyncPayload to override these.
+    /// Icon overrides are language-independent and always applied.
     /// </summary>
     public Dictionary<string, LilithItemData> ItemAppearanceOverrides { get; set; } = new();
 
-    // ── Recipe overrides ────────────────────────────────────
+    // ── Recipe overrides ─────────────────────────────────────
 
     /// <summary>
     /// Recipe data overrides keyed by recipe prefab name.
-    /// Soul patches RecipeData, CookbookItemData Buffer,
-    /// and RecipeHashLookupMap on client prefab entities.
     /// </summary>
     public Dictionary<string, LilithRecipeData> RecipeOverrides { get; set; } = new();
 
     /// <summary>
     /// Station recipe overrides keyed by station prefab name.
-    /// Soul patches WorkstationRecipesBuffer on matching client-side
-    /// station entities so the crafting UI reflects server-side changes.
     /// </summary>
     public Dictionary<string, LilithStationData> StationRecipeOverrides { get; set; } = new();
 
     // ── Player crafting overrides ────────────────────────────
 
     /// <summary>
-    /// Recipe prefab names to add to the client player's
-    /// WorkstationRecipesBuffer.
+    /// Recipe prefab names to add to the client player's recipe list.
     /// </summary>
     public List<string> PlayerRecipesToAdd { get; set; } = new();
 
     /// <summary>
-    /// Recipe prefab names to remove from the client player's
-    /// WorkstationRecipesBuffer.
+    /// Recipe prefab names to remove from the client player's recipe list.
     /// </summary>
     public List<string> PlayerRecipesToRemove { get; set; } = new();
 }

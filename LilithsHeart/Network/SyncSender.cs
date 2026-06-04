@@ -3,8 +3,9 @@ using ProjectM;
 using ProjectM.Network;
 using Unity.Collections;
 using Unity.Entities;
+using LilithsHeart.Config;
 using LilithsHeart.Foundation;
-using LilithsMind.Network;
+using LilithsMind.Data;
 
 // ============================================================
 //  SyncSender — LilithsHeart
@@ -30,11 +31,23 @@ using LilithsMind.Network;
 //            removes that failure. SyncQueue.Drain() additionally drops
 //            entries whose client entity no longer exists.
 //
+//  [CHANGED] SendRedirect() added for HttpServer and StaticUrl sync
+//            modes. Sends a single [[LG:sync-url:<url>:<fallback>]]
+//            sentinel instead of enqueuing dozens of chunk entities.
+//            The fallback flag travels in the sentinel so Soul does
+//            not need its own copy of the HeartConfig setting.
+//
 //  Protocol per tier:
 //  ───────────────────
 //  [[LG:begin:T:N:CKSUM]]   — begin sentinel (tier, chunk count, checksum)
 //  [[LG:T:NNNN]]<data>      — chunk (tier, zero-padded index, base64+gzip data)
 //  [[LG:end:T:CKSUM]]       — end sentinel (tier, checksum)
+//
+//  Redirect sentinel (HttpServer / StaticUrl modes):
+//  ──────────────────────────────────────────────────
+//  [[LG:sync-url:<url>:<fallback>]]
+//    url      — HTTP URL for Soul to fetch the payload from
+//    fallback — "1" if SyncFallbackToChunks=true, "0" otherwise
 //
 //  Soul accumulates chunks per tier and decompresses on end sentinel.
 //  Each tier is independent — Soul applies Critical before High arrives.
@@ -49,6 +62,7 @@ using LilithsMind.Network;
 //                over tier blobs to build message strings and enqueue.
 //                Actual entity creation is deferred to SchedulerPatch
 //                at ChunksPerFrame per frame — no connect-frame spike.
+//                SendRedirect() creates one entity — far cheaper.
 // ============================================================
 
 namespace LilithsHeart.Network;
@@ -57,9 +71,11 @@ public static class SyncSender
 {
     private const string LOG_SOURCE = "LilithsHeart.SyncSender";
 
-    private const string BEGIN_PREFIX = "[[LG:begin:";
-    private const string CHUNK_PREFIX = "[[LG:";
-    private const string END_PREFIX   = "[[LG:end:";
+    private const string BEGIN_PREFIX    = "[[LG:begin:";
+    private const string CHUNK_PREFIX    = "[[LG:";
+    private const string END_PREFIX      = "[[LG:end:";
+    // [CHANGED] Redirect sentinel prefix for HttpServer / StaticUrl modes.
+    private const string REDIRECT_PREFIX = "[[LG:sync-url:";
 
     // [PERFORMANCE] Static readonly — allocated once, reused for every entity create.
     static readonly ComponentType[] _networkEventComponents =
@@ -84,7 +100,7 @@ public static class SyncSender
     /// Enqueues all tier blobs for a connecting client into SyncQueue.
     /// Tiers are enqueued in order (Critical first) so they arrive
     /// and are applied in priority order.
-    /// Called from ClientConnectPatch.
+    /// Called from ClientConnectPatch when SyncMode = ChunkPush.
     ///
     /// [CHANGED] Captures user/character NetworkIds here (entities are
     ///           valid at connect) and passes them into the queue so the
@@ -122,6 +138,43 @@ public static class SyncSender
         HeartLogger.Info(LOG_SOURCE,
             $"Enqueued {totalChunks} message(s) across {blobs.Count} tier(s) " +
             $"for userIndex {userIndex}.");
+    }
+
+    /// <summary>
+    /// Sends a single redirect sentinel to a connecting client directing
+    /// Soul to fetch the sync payload from a URL instead of receiving chunks.
+    ///
+    /// Sentinel format: [[LG:sync-url:<url>:<fallback>]]
+    ///   url      — HTTP URL to fetch payload from
+    ///   fallback — "1" if SyncFallbackToChunks=true, "0" otherwise
+    ///
+    /// The fallback flag travels in the sentinel so Soul does not need
+    /// its own copy of HeartConfig.SyncFallbackToChunks — Heart is the
+    /// single source of truth for this setting.
+    ///
+    /// Called from ClientConnectPatch when SyncMode = HttpServer or StaticUrl.
+    ///
+    /// [PERFORMANCE] One entity created vs dozens for chunk delivery.
+    /// </summary>
+    public static void SendRedirect(
+        Entity userEntity,
+        Entity characterEntity,
+        int    userIndex,
+        string url)
+    {
+        var userNetId      = userEntity.Read<NetworkId>();
+        var characterNetId = characterEntity.Read<NetworkId>();
+        var fallback       = HeartConfig.SyncFallbackToChunks ? "1" : "0";
+        var message        = $"{REDIRECT_PREFIX}{url}:{fallback}]]";
+
+        SendSystemMessage(
+            Heart.EntityManager,
+            userEntity, characterEntity,
+            userNetId, characterNetId,
+            userIndex, message);
+
+        HeartLogger.Debug(LOG_SOURCE,
+            $"Sent redirect sentinel to userIndex {userIndex}: url='{url}' fallback={fallback}");
     }
 
     /// <summary>

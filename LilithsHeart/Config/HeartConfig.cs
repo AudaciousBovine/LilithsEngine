@@ -17,6 +17,8 @@
 
 using BepInEx.Configuration;
 using LilithsHeart.Foundation;
+using LilithsMind.Data;    // SyncModeEnum, LanguageCodeEnum
+using LilithsMind.Network; // ServerSyncPayload
 
 namespace LilithsHeart.Config;
 
@@ -24,21 +26,37 @@ public static class HeartConfig
 {
     private const string LOG_SOURCE = "LilithsHeart.HeartConfig";
 
-    static ConfigEntry<bool>   _debugLogging             = null!;
-    static ConfigEntry<int>    _chunksPerFrame            = null!;
-    static ConfigEntry<bool>   _generateHeartExamples     = null!;
-    static ConfigEntry<bool>   _generateAllModuleExamples = null!;
-    static ConfigEntry<bool>   _generateDebugConfigs      = null!;
-    static ConfigEntry<bool>   _generateNameAliasConfigs  = null!;
+    static ConfigEntry<bool>         _debugLogging             = null!;
+    static ConfigEntry<int>          _chunksPerFrame            = null!;
+    static ConfigEntry<bool>         _generateHeartExamples     = null!;
+    static ConfigEntry<bool>         _generateAllModuleExamples = null!;
+    static ConfigEntry<bool>         _generateDebugConfigs      = null!;
+    static ConfigEntry<bool>         _generateNameAliasConfigs  = null!;
+
+    // [CHANGED] Sync transport mode settings.
+    static ConfigEntry<SyncModeEnum>    _syncMode                  = null!;
+
+    // [CHANGED] Default language for item name/description overrides.
+    static ConfigEntry<LanguageCodeEnum> _defaultLanguage           = null!;
+    static ConfigEntry<int>          _httpPort                  = null!;
+    static ConfigEntry<string>       _staticSyncUrl             = null!;
+    static ConfigEntry<bool>         _syncFallbackToChunks      = null!;
 
     public static ConfigEntry<string> ServerName { get; private set; } = null!;
 
-    public static bool IsDebug                  => _debugLogging.Value;
-    public static int  ChunksPerFrame           => _chunksPerFrame.Value;
-    public static bool GenerateHeartExamples    => _generateHeartExamples.Value;
-    public static bool GenerateAllModuleExamples => _generateAllModuleExamples.Value;
-    public static bool GenerateDebugConfigs     => _generateDebugConfigs.Value;
-    public static bool GenerateNameAliasConfigs => _generateNameAliasConfigs.Value;
+    public static bool        IsDebug                  => _debugLogging.Value;
+    public static int         ChunksPerFrame           => _chunksPerFrame.Value;
+    public static bool        GenerateHeartExamples    => _generateHeartExamples.Value;
+    public static bool        GenerateAllModuleExamples => _generateAllModuleExamples.Value;
+    public static bool        GenerateDebugConfigs     => _generateDebugConfigs.Value;
+    public static bool        GenerateNameAliasConfigs => _generateNameAliasConfigs.Value;
+
+    // [CHANGED] Sync transport mode properties.
+    public static SyncModeEnum    SyncMode              => _syncMode.Value;
+    public static LanguageCodeEnum DefaultLanguage    => _defaultLanguage.Value;
+    public static int          HttpPort              => _httpPort.Value;
+    public static string       StaticSyncUrl         => _staticSyncUrl.Value;
+    public static bool         SyncFallbackToChunks  => _syncFallbackToChunks.Value;
 
     public static void Initialize(ConfigFile config)
     {
@@ -59,6 +77,59 @@ public static class HeartConfig
                           "Higher values sync clients faster but increase CPU load on connect. " +
                           "Reduce if you see frame drops when many players connect simultaneously. " +
                           "Default: 10. Range: 1-50."
+        );
+
+        // [CHANGED] Default language for item name/description overrides.
+        // Soul clients whose PreferredLanguage differs will request a
+        // localization payload for their preferred language after connecting.
+        _defaultLanguage = config.Bind(
+            section:      "1) General",
+            key:          "DefaultLanguage",
+            defaultValue: LanguageCodeEnum.English,
+            description:  "Language used for DisplayName and DescriptionText in the " +
+                          "standard sync payload. Soul clients with a different " +
+                          "PreferredLanguage will request their language separately. " +
+                          "Folder names under Localization/ must match LanguageCodeEnum values."
+        );
+
+        // [CHANGED] Sync transport mode settings.
+        _syncMode = config.Bind(
+            section:      "2) Sync",
+            key:          "SyncMode",
+            defaultValue: SyncModeEnum.ChunkPush,
+            description:  "Sync transport mode. " +
+                          "ChunkPush: payload sent as tiered chat chunks on connect (default, no extra config). " +
+                          "HttpServer: Heart hosts an HTTP endpoint; Soul fetches directly (requires HttpPort open in firewall). " +
+                          "StaticUrl: Soul fetches from StaticSyncUrl; Heart hosts nothing extra."
+        );
+
+        _httpPort = config.Bind(
+            section:      "2) Sync",
+            key:          "HttpPort",
+            defaultValue: 7902,
+            description:  "Port for the HTTP sync endpoint (HttpServer mode only). " +
+                          "Must be open in the server firewall. Default: 7902."
+        );
+
+        _staticSyncUrl = config.Bind(
+            section:      "2) Sync",
+            key:          "StaticSyncUrl",
+            defaultValue: "",
+            description:  "URL of the hosted sync payload (StaticUrl mode only). " +
+                          "e.g. https://example.com/sync.json or a GitHub Gist raw URL. " +
+                          "Heart sends this URL to Soul on connect."
+        );
+
+        _syncFallbackToChunks = config.Bind(
+            section:      "2) Sync",
+            key:          "SyncFallbackToChunks",
+            defaultValue: true,
+            description:  "When true and an HTTP fetch fails (HttpServer or StaticUrl mode), " +
+                          "Soul requests chunk delivery as a fallback. " +
+                          "When false, a failed fetch logs a warning and gives up — " +
+                          "the player will not receive server config until they reconnect " +
+                          "or the admin switches to ChunkPush mode. " +
+                          "Only relevant for HttpServer and StaticUrl modes."
         );
 
         _debugLogging = config.Bind(

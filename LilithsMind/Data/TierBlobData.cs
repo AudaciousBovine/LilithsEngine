@@ -1,4 +1,4 @@
-using LilithsMind.Network;
+using LilithsMind.Data;
 
 // ============================================================
 //  TierBlobData — LilithsHeart
@@ -21,7 +21,7 @@ using LilithsMind.Network;
 //               payload for this tier. Soul verifies on receipt
 //               to detect truncated or corrupted transmissions.
 //
-//  [CHANGED] Added `using LilithsMind.Network;` — SyncTierEnum was
+//  [CHANGED] Added `using LilithsMind.Data;` — SyncTierEnum was
 //            relocated from LilithsHeart.Network to LilithsMind.Network
 //            so the receiver (Soul) can share the same definition.
 //            No logic change; only the type's namespace moved.
@@ -32,7 +32,7 @@ using LilithsMind.Network;
 //                no allocation occurs during send.
 // ============================================================
 
-namespace LilithsMind.Network;
+namespace LilithsMind.Data;
 
 public sealed class TierBlobData
 {

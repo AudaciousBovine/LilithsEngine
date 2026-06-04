@@ -5,7 +5,8 @@ using LilithsHeart.Events;
 using LilithsHeart.Network;
 using LilithsHeart.Modules;
 using LilithsHeart.Services;
-using LilithsMind.Network;
+using LilithsMind.Data;    // SyncModeEnum
+using LilithsMind.Network; // LilithRecipeData, LilithStationData, ServerSyncPayload
 
 namespace LilithsHeart.Foundation;
 
@@ -102,7 +103,20 @@ public static class Heart
         LocalizationService.Initialize();
         InterfaceService.Initialize();
 
+        // [CHANGED] Load per-language overrides from Localization/ subfolders.
+        //           Must run after ItemService so the default language overrides
+        //           are already loaded (for reference/comparison). Results are
+        //           cached in LocalizationFileService and served on demand when
+        //           Soul clients request a specific language.
+        LocalizationFileService.Initialize();
+
         _serverIdentity = ResolveServerIdentity();
+
+        // [CHANGED] Start SyncHttpServer if mode requires it.
+        // Must start before the payload is built so the endpoint
+        // is ready by the time clients can connect.
+        if (HeartConfig.SyncMode == LilithsMind.Data.SyncModeEnum.HttpServer)
+            LilithsHeart.Network.SyncHttpServer.Start();
 
         // Build a baseline payload before modules register overrides.
         SyncPayloadCache.Rebuild(_serverIdentity,
@@ -168,6 +182,9 @@ public static class Heart
         //         Prevents stale chunks from a previous world session
         //         being sent on the next world load.
         SyncQueue.Clear();
+
+        // [CHANGED] Stop SyncHttpServer if it was running.
+        LilithsHeart.Network.SyncHttpServer.Stop();
 
         HeartLogger.Info(LOG_SOURCE, "Heart destroyed.");
     }

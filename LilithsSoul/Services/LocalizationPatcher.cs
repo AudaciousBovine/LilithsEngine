@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using ProjectM;
 using Stunlock.Localization;  // LocalizationKey, AssetGuid, Localization
 using Stunlock.Core;          // PrefabGUID
 using LilithsMind.Prefabs;    // PrefabDef
-using LilithsMind.Network;    // ServerSyncPayload, LilithItemData
+using LilithsMind.Network;
 using LilithsSoul.Foundation;
 
 // ============================================================

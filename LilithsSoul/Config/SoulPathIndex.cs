@@ -10,25 +10,17 @@
 //
 //  Structure:
 //      LilithsSoul/
-//          LilithsSoul.cfg                 ← Soul core settings
+//          LilithsSoul.cfg
 //          servers.json                    ← connection string → folder name map
 //          Icons/                          ← custom PNG icons + URL download cache
-//              vitae.png
-//              Weapons/
-//                  bone-sword.png
 //          <ServerIdentity>/
 //              sync.json                   ← cached ServerSyncPayload per server
+//              localization_Spanish.json   ← cached localization payload per language
+//              localization_French.json
 //
-//  [CHANGED] Added IconsDir.
-//            Soul's IconPatcher scans this directory recursively
-//            for *.png files, building a filename → full path lookup.
-//            URL downloads are also saved here (flat, no subfolder)
-//            so they are found on subsequent connects without
-//            re-downloading.
-//
-//  ServerIdentity is the sanitized server name received in the
-//  ServerSyncPayload. Each server the client connects to gets
-//  its own subfolder so configs don't collide.
+//  [CHANGED] LocalizationFile() added — per-server, per-language
+//            cached localization payloads. Pre-applied on reconnect
+//            alongside sync.json before the UI builds.
 // ============================================================
 
 namespace LilithsSoul.Config;
@@ -39,7 +31,6 @@ public static class SoulPathIndex
 
     /// <summary>
     /// BepInEx/config/LilithsSoul/
-    /// All Soul config lives under this directory.
     /// </summary>
     public static readonly string Root = Path.Combine(
         BepInEx.Paths.ConfigPath,
@@ -57,12 +48,8 @@ public static class SoulPathIndex
 
     /// <summary>
     /// BepInEx/config/LilithsSoul/Icons/
-    /// Custom PNG icon files placed by the client operator, plus
-    /// any icons downloaded from URLs advertised by the server.
-    /// Scanned recursively by IconPatcher — admins can organize
-    /// into subdirectories freely (e.g. Icons/Weapons/, Icons/Currencies/).
-    /// Matched by filename without extension (e.g. "vitae" matches "vitae.png"
-    /// anywhere under this directory). First alphabetical match wins on collision.
+    /// Custom PNG icon files and URL download cache.
+    /// Scanned recursively by IconPatcher.
     /// </summary>
     public static readonly string IconsDir = Path.Combine(Root, "Icons");
 
@@ -72,9 +59,6 @@ public static class SoulPathIndex
     /// Returns the directory for a specific server's cached data.
     /// e.g. SoulPathIndex.ServerDir("LilithsGarden")
     ///      → BepInEx/config/LilithsSoul/LilithsGarden/
-    ///
-    /// ServerIdentity comes from ServerSyncPayload.ServerIdentity
-    /// which is already sanitized by Heart before sending.
     /// </summary>
     public static string ServerDir(string serverIdentity)
         => Path.Combine(Root, serverIdentity);
@@ -86,4 +70,16 @@ public static class SoulPathIndex
     /// </summary>
     public static string SyncFile(string serverIdentity)
         => Path.Combine(ServerDir(serverIdentity), "sync.json");
+
+    /// <summary>
+    /// Returns the path to the cached localization payload for a specific
+    /// server and language.
+    /// e.g. SoulPathIndex.LocalizationFile("LilithsGarden", "Spanish")
+    ///      → BepInEx/config/LilithsSoul/LilithsGarden/localization_Spanish.json
+    ///
+    /// [CHANGED] Added for multi-language localization support.
+    /// Pre-applied on reconnect after sync.json before the UI builds.
+    /// </summary>
+    public static string LocalizationFile(string serverIdentity, string languageName)
+        => Path.Combine(ServerDir(serverIdentity), $"localization_{languageName}.json");
 }

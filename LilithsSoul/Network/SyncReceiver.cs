@@ -2,10 +2,15 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Il2CppInterop.Runtime;
+using ProjectM.Network;
+using Unity.Collections;
+using Unity.Entities;
+using LilithsMind.Data;    // SyncTierEnum, LanguageCodeEnum
+using LilithsMind.Network; // ServerSyncPayload
 using LilithsSoul.Config;
 using LilithsSoul.Foundation;
 using LilithsSoul.Services;
-using LilithsMind.Network;   // ServerSyncPayload, SyncTierEnum
 
 // ============================================================
 //  SyncReceiver — LilithsSoul
@@ -22,6 +27,13 @@ using LilithsMind.Network;   // ServerSyncPayload, SyncTierEnum
 //                                payload is a slice of the tier's ONE Base64
 //                                string (whole gzip blob Base64'd, THEN sliced)
 //    [[LG:end:T:CKSUM]]          end tier T — verify + decode + apply
+//
+//  Redirect sentinel (HttpServer / StaticUrl modes):
+//  ──────────────────────────────────────────────────
+//    [[LG:sync-url:<url>:<fallback>]]
+//      url      — HTTP URL to fetch the full payload from
+//      fallback — "1" = request chunk fallback on failure,
+//                 "0" = log warning and give up
 //
 //  Decode pipeline (exact inverse of SyncPayloadCache.BuildBlob):
 //  ──────────────────────────────────────────────────────────────
@@ -78,6 +90,13 @@ using LilithsMind.Network;   // ServerSyncPayload, SyncTierEnum
 //  If a tier verifies before the client ECS world is ready, its decoded
 //  payload is queued and applied in NotifyWorldReady once maps are built.
 //
+//  [CHANGED] HandleRedirect() added — handles [[LG:sync-url:...]] sentinels
+//            sent by Heart in HttpServer and StaticUrl modes. Triggers
+//            SyncHttpFetcher to fetch the payload directly. On failure,
+//            sends [[LG:sync-fallback]] as a plain chat message to the
+//            server (no VCF dependency) — Heart's ClientSyncFallbackPatch
+//            intercepts it and enqueues chunk delivery for this client.
+//
 //  [CHANGED] Rewritten from the stale FLAT protocol ([[LG:N]] / [[LG:end]],
 //            single concat→JSON) to this TIERED protocol. The flat receiver
 //            could not parse [[LG:begin:T:N:CKSUM]] / [[LG:end:T:CKSUM]], so
@@ -108,9 +127,13 @@ public static class SyncReceiver
 {
     private const string LOG_SOURCE = "LilithsSoul.SyncReceiver";
 
-    private const string BEGIN_PREFIX = "[[LG:begin:";
-    private const string END_PREFIX   = "[[LG:end:";
-    private const string CHUNK_PREFIX = "[[LG:";
+    private const string BEGIN_PREFIX        = "[[LG:begin:";
+    private const string END_PREFIX          = "[[LG:end:";
+    private const string CHUNK_PREFIX        = "[[LG:";
+    // [CHANGED] Redirect sentinel prefix for HttpServer / StaticUrl modes.
+    private const string REDIRECT_PREFIX     = "[[LG:sync-url:";
+    // [CHANGED] Language sentinels for multi-language localization.
+    private const string LANG_UNAVAILABLE_PREFIX = "[[LG:lang-unavailable:";
 
     // Per-tier in-flight reassembly state, keyed by tier int.
     sealed class TierAccumulator
@@ -148,7 +171,15 @@ public static class SyncReceiver
 
         try
         {
-            if (message.StartsWith(BEGIN_PREFIX, StringComparison.Ordinal))
+            // [CHANGED] Handle redirect sentinel BEFORE the generic chunk/begin/end
+            //           dispatch — redirect starts with [[LG:sync-url: which would
+            //           otherwise fall through to HandleChunk incorrectly.
+            if (message.StartsWith(REDIRECT_PREFIX, StringComparison.Ordinal))
+                HandleRedirect(message);
+            // [CHANGED] Language unavailable notification from Heart.
+            else if (message.StartsWith(LANG_UNAVAILABLE_PREFIX, StringComparison.Ordinal))
+                HandleLangUnavailable(message);
+            else if (message.StartsWith(BEGIN_PREFIX, StringComparison.Ordinal))
                 HandleBegin(message);
             else if (message.StartsWith(END_PREFIX, StringComparison.Ordinal))
                 HandleEnd(message);
@@ -182,6 +213,9 @@ public static class SyncReceiver
 
         TryPreApplyCachedSync(connectionString);
 
+        // [CHANGED] Pre-apply cached localization payload if available.
+        TryPreApplyCachedLocalization(connectionString);
+
         if (_pendingTierPayloads.Count > 0)
         {
             SoulLogger.Info(LOG_SOURCE,
@@ -196,6 +230,80 @@ public static class SyncReceiver
     }
 
     // ── Sentinel handlers ─────────────────────────────────────
+
+    /// <summary>
+    /// Handles [[LG:sync-url:<url>:<fallback>]] redirect sentinel.
+    /// Triggers SyncHttpFetcher to fetch the payload from the given URL.
+    /// On success: applies and caches the payload.
+    /// On failure: requests chunk fallback via VCF command if fallback=1,
+    ///             otherwise logs a warning and gives up.
+    ///
+    /// [CHANGED] Added for HttpServer and StaticUrl sync modes.
+    /// URL may contain colons (https://) so the fallback flag is split
+    /// from the END of the inner string, not position-based.
+    /// </summary>
+    static void HandleRedirect(string message)
+    {
+        // Strip REDIRECT_PREFIX and trailing "]]"
+        var inner = message[REDIRECT_PREFIX.Length..^2];
+
+        // URL may contain colons — split from the END to isolate the fallback flag.
+        var lastColon = inner.LastIndexOf(':');
+        if (lastColon < 0)
+        {
+            SoulLogger.Warning(LOG_SOURCE,
+                $"Malformed redirect sentinel (missing fallback flag): '{message}'");
+            return;
+        }
+
+        var url          = inner[..lastColon];
+        var fallbackFlag = inner[(lastColon + 1)..];
+        bool fallback    = fallbackFlag == "1";
+
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            SoulLogger.Warning(LOG_SOURCE, "Received empty sync-url redirect — ignoring.");
+            return;
+        }
+
+        SoulLogger.Info(LOG_SOURCE,
+            $"Received sync redirect → '{url}' (fallback={fallback}). Fetching...");
+
+        SyncHttpFetcher.Fetch(url,
+            onSuccess: payload =>
+            {
+                // Register server connection → identity mapping.
+                if (!string.IsNullOrEmpty(_connectionString) &&
+                    !string.IsNullOrEmpty(payload.ServerIdentity))
+                    ServerRegistry.Register(_connectionString, payload.ServerIdentity);
+
+                MergeAndCache(payload);
+
+                if (_clientWorldReady)
+                    ApplyTier(payload);
+                else
+                    _pendingTierPayloads.Add(payload);
+
+                SoulLogger.Info(LOG_SOURCE, "HTTP sync fetch applied successfully.");
+            },
+            onFailure: () =>
+            {
+                SoulLogger.Warning(LOG_SOURCE, "HTTP sync fetch failed.");
+
+                if (fallback)
+                {
+                    SoulLogger.Info(LOG_SOURCE,
+                        "Fallback enabled — sending [[LG:sync-fallback]] to server.");
+                    SendFallbackSentinel();
+                }
+                else
+                {
+                    SoulLogger.Warning(LOG_SOURCE,
+                        "Fallback disabled — sync not applied. " +
+                        "Reconnect or ask server admin to switch to ChunkPush mode.");
+                }
+            });
+    }
 
     static void HandleBegin(string message)
     {
@@ -310,8 +418,41 @@ public static class SyncReceiver
             !string.IsNullOrEmpty(payload.ServerIdentity))
             ServerRegistry.Register(_connectionString, payload.ServerIdentity);
 
+        // [CHANGED] If this is the Critical tier and the server language differs
+        //           from our preferred language, request the localization payload.
+        if (tier == (int)SyncTierEnum.Critical &&
+            !string.IsNullOrEmpty(payload.ServerLanguage))
+        {
+            var preferredLang = SoulConfig.PreferredLanguage.ToString();
+            if (!string.Equals(preferredLang, payload.ServerLanguage, StringComparison.OrdinalIgnoreCase))
+            {
+                SoulLogger.Info(LOG_SOURCE,
+                    $"Server language '{payload.ServerLanguage}' differs from preferred " +
+                    $"'{preferredLang}' — requesting localization payload.");
+                RequestLanguage(preferredLang);
+            }
+        }
+
         // Merge this tier's slice into the disk cache accumulator + write.
-        MergeAndCache(payload);
+        // [CHANGED] If this is a localization payload (ServerLanguage set and
+        //           matches preferred), cache to its own file and apply without
+        //           merging into the main sync.json accumulator.
+        var preferred = SoulConfig.PreferredLanguage.ToString();
+        bool isLocalizationPayload =
+            !string.IsNullOrEmpty(payload.ServerLanguage) &&
+            !string.Equals(payload.ServerLanguage, "English", StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(payload.ServerLanguage, preferred, StringComparison.OrdinalIgnoreCase) &&
+            payload.RecipeOverrides.Count == 0 &&
+            payload.StationRecipeOverrides.Count == 0;
+
+        if (isLocalizationPayload)
+        {
+            WriteLocalizationToDisk(payload);
+        }
+        else
+        {
+            MergeAndCache(payload);
+        }
 
         // Apply now if the world is ready; otherwise defer to NotifyWorldReady.
         if (_clientWorldReady)
@@ -418,6 +559,34 @@ public static class SyncReceiver
         }
     }
 
+    /// <summary>
+    /// Writes a localization payload to its own per-language cache file.
+    /// Called when a localization payload is received from Heart.
+    /// [CHANGED] Added for multi-language localization caching.
+    /// </summary>
+    static void WriteLocalizationToDisk(ServerSyncPayload payload)
+    {
+        if (string.IsNullOrEmpty(payload.ServerIdentity) ||
+            string.IsNullOrEmpty(payload.ServerLanguage)) return;
+
+        try
+        {
+            Directory.CreateDirectory(SoulPathIndex.ServerDir(payload.ServerIdentity));
+            var localFile = SoulPathIndex.LocalizationFile(
+                payload.ServerIdentity, payload.ServerLanguage);
+            File.WriteAllText(localFile,
+                JsonSerializer.Serialize(payload,
+                    new JsonSerializerOptions { WriteIndented = true }));
+            SoulLogger.Debug(LOG_SOURCE,
+                $"Localization payload cached to '{localFile}'.");
+        }
+        catch (Exception ex)
+        {
+            SoulLogger.Warning(LOG_SOURCE,
+                $"Failed to write localization payload to disk: {ex.Message}");
+        }
+    }
+
     // ── Pre-apply from disk ───────────────────────────────────
 
     static void TryPreApplyCachedSync(string connectionString)
@@ -471,6 +640,135 @@ public static class SyncReceiver
         {
             SoulLogger.Warning(LOG_SOURCE,
                 $"Failed to pre-apply cached sync for '{folderName}': {ex.Message}");
+        }
+    }
+
+    // ── Language sentinels ───────────────────────────────────
+
+    /// <summary>
+    /// Sends [[LG:lang-request:<language>]] to Heart requesting
+    /// a localization payload for the preferred language.
+    /// </summary>
+    static void RequestLanguage(string languageName)
+    {
+        var world = Soul.ClientWorld;
+        if (world == null) return;
+
+        try
+        {
+            var em     = world.EntityManager;
+            var entity = em.CreateEntity(
+                ComponentType.ReadOnly(Il2CppType.Of<ChatMessageEvent>()));
+
+            em.SetComponentData(entity, new ChatMessageEvent
+            {
+                MessageText = new FixedString512Bytes($"[[LG:lang-request:{languageName}]]"),
+                MessageType = ChatMessageType.Local,
+            });
+
+            SoulLogger.Debug(LOG_SOURCE,
+                $"Sent [[LG:lang-request:{languageName}]] to server.");
+        }
+        catch (Exception ex)
+        {
+            SoulLogger.Warning(LOG_SOURCE,
+                $"Failed to send lang-request: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Handles [[LG:lang-unavailable:<language>]] from Heart.
+    /// Logs a warning and stays on the server default language.
+    /// </summary>
+    static void HandleLangUnavailable(string message)
+    {
+        var languageName = message[LANG_UNAVAILABLE_PREFIX.Length..^2];
+        SoulLogger.Warning(LOG_SOURCE,
+            $"Server does not have language '{languageName}' configured. " +
+            "Staying on server default language.");
+    }
+
+    /// <summary>
+    /// Pre-applies the cached localization payload for the preferred language
+    /// if available on disk. Called from NotifyWorldReady after sync.json.
+    /// </summary>
+    static void TryPreApplyCachedLocalization(string connectionString)
+    {
+        if (string.IsNullOrEmpty(connectionString)) return;
+
+        if (!ServerRegistry.TryGetFolderName(connectionString, out var folderName)) return;
+
+        var preferred  = SoulConfig.PreferredLanguage.ToString();
+        var localFile  = SoulPathIndex.LocalizationFile(folderName, preferred);
+
+        if (!File.Exists(localFile)) return;
+
+        try
+        {
+            var json    = File.ReadAllText(localFile);
+            var payload = JsonSerializer.Deserialize<ServerSyncPayload>(json, _jsonOptions);
+
+            if (payload == null) return;
+
+            SoulLogger.Info(LOG_SOURCE,
+                $"Pre-applying cached localization for '{preferred}' " +
+                $"({payload.ItemAppearanceOverrides.Count} override(s)).");
+
+            ApplyTier(payload);
+        }
+        catch (Exception ex)
+        {
+            SoulLogger.Warning(LOG_SOURCE,
+                $"Failed to pre-apply cached localization for '{preferred}': {ex.Message}");
+        }
+    }
+
+    // ── Fallback sentinel ────────────────────────────────────
+
+    /// <summary>
+    /// Sends [[LG:sync-fallback]] to the server as a plain chat message.
+    /// Heart's ClientSyncFallbackPatch intercepts this and enqueues chunk
+    /// delivery for this client specifically.
+    ///
+    /// Uses ChatMessageEvent (ProjectM.Network) in the client ECS world — the same
+    /// mechanism the game uses for all player chat messages. No VCF
+    /// dependency required on the Soul side.
+    ///
+    /// [PERFORMANCE] Creates one ECS entity — negligible.
+    /// </summary>
+    static void SendFallbackSentinel()
+    {
+        var world = Soul.ClientWorld;
+        if (world == null)
+        {
+            SoulLogger.Warning(LOG_SOURCE,
+                "Cannot send fallback sentinel — client world not ready.");
+            return;
+        }
+
+        try
+        {
+            var em = world.EntityManager;
+
+            // Creating this entity causes the game to send the message to the server,
+            // where Heart's ClientSyncFallbackPatch will intercept and consume it.
+            //           The correct outgoing chat type is ChatMessageEvent
+            //           (ProjectM.Network) with ChatMessageType.Local.
+            var entity = em.CreateEntity(
+                ComponentType.ReadOnly(Il2CppType.Of<ChatMessageEvent>()));
+
+            em.SetComponentData(entity, new ChatMessageEvent
+            {
+                MessageText = new FixedString512Bytes("[[LG:sync-fallback]]"),
+                MessageType = ChatMessageType.Local,
+            });
+
+            SoulLogger.Debug(LOG_SOURCE, "Sent [[LG:sync-fallback]] to server.");
+        }
+        catch (Exception ex)
+        {
+            SoulLogger.Warning(LOG_SOURCE,
+                $"Failed to send fallback sentinel: {ex.Message}");
         }
     }
 

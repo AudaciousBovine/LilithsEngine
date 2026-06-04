@@ -59,7 +59,7 @@
 //                tiers to arrive.
 // ============================================================
 
-namespace LilithsMind.Network;
+namespace LilithsMind.Data;
 
 public enum SyncTierEnum
 {

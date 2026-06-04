@@ -40,7 +40,7 @@
 //                larger ServerSyncPayload.
 // ============================================================
 
-namespace LilithsMind.Network;
+namespace LilithsMind.Data;
 
 /// <summary>
 /// Full configuration data for a single recipe.

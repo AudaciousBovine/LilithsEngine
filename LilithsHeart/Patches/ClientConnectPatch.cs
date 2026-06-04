@@ -1,28 +1,38 @@
+// ============================================================
+//  ClientConnectPatch — LilithsHeart
+//  LilithsHeart/Patches/ClientConnectPatch.cs
+//
+//  Detects when a client successfully joins and delivers the
+//  sync payload via the configured transport mode.
+//
+//  [CHANGED] Branches on HeartConfig.SyncMode:
+//    ChunkPush  — existing behaviour: enqueues tiered chunks
+//    HttpServer — sends [[LG:sync-url:<url>]] redirect sentinel
+//    StaticUrl  — sends [[LG:sync-url:<configured-url>]] redirect
+//
+//  For HttpServer mode the URL is built from the server's local
+//  IP and configured HttpPort. For StaticUrl it is taken directly
+//  from HeartConfig.StaticSyncUrl.
+//
+//  If SyncFallbackToChunks = true and Soul reports a fetch failure
+//  via [[LG:sync-fallback]], Heart enqueues chunks for that client
+//  via SyncSender.EnqueueSyncTiers() at that point (handled in
+//  a separate VCF command handler, not here).
+//
+//  [PERFORMANCE] Runs once per client connect. Redirect path sends
+//                one entity instead of dozens — cheaper on connect.
+// ============================================================
+
 using HarmonyLib;
 using ProjectM;
 using ProjectM.Network;
 using Stunlock.Network;
 using Unity.Entities;
+using LilithsHeart.Config;
 using LilithsHeart.Foundation;
 using LilithsHeart.Network;
-
-// ============================================================
-//  ClientConnectPatch — LilithsHeart
-//  LilithsHeart/Patches/ClientConnectPatch.cs
-//
-//  Detects when a client successfully joins and enqueues the
-//  tiered sync payload into SyncQueue for rate-limited delivery.
-//
-//  [CHANGED] No longer calls SyncSender.SendSyncToClient() which
-//            sent all chunks immediately in one frame.
-//            Now calls SyncSender.EnqueueSyncTiers() which
-//            enqueues all tier blobs into SyncQueue.
-//            SchedulerPatch drains the queue at ChunksPerFrame
-//            rate each frame — no connect-frame spike.
-//
-//  [PERFORMANCE] Runs once per client connect — negligible cost.
-//                Chunk entity creation is deferred to SchedulerPatch.
-// ============================================================
+using LilithsMind.Data;    // SyncModeEnum, SyncTierEnum, LanguageCodeEnum
+using LilithsMind.Network;
 
 namespace LilithsHeart.Patches;
 
@@ -40,7 +50,7 @@ internal static class ClientConnectPatch
             {
                 HeartLogger.Warning(LOG_SOURCE,
                     "Client connected before Heart was ready — sync not sent. " +
-                    "Client should reconnect to receive server config.");
+                    "Client should reconnect.");
                 return;
             }
 
@@ -66,13 +76,46 @@ internal static class ClientConnectPatch
                 return;
             }
 
-            HeartLogger.Info(LOG_SOURCE,
-                $"Client '{user.CharacterName}' connected — enqueuing tiered sync payload.");
+            // [CHANGED] Branch on configured sync transport mode.
+            switch (HeartConfig.SyncMode)
+            {
+                case SyncModeEnum.ChunkPush:
+                    HeartLogger.Info(LOG_SOURCE,
+                        $"[ChunkPush] '{user.CharacterName}' connected — enqueuing tiered sync payload.");
+                    SyncSender.EnqueueSyncTiers(userEntity, characterEntity, userIndex);
+                    break;
 
-            // [CHANGED] EnqueueSyncTiers replaces SendSyncToClient.
-            //           All tier blobs are enqueued into SyncQueue here.
-            //           SchedulerPatch drains at ChunksPerFrame per frame.
-            SyncSender.EnqueueSyncTiers(userEntity, characterEntity, userIndex);
+                case SyncModeEnum.HttpServer:
+                    // Build the URL from the server's accessible address + configured port.
+                    // Uses the connection's local endpoint IP so the URL is reachable
+                    // from outside the server process.
+                    var httpUrl = $"http://{netConnectionId}:{HeartConfig.HttpPort}/sync";
+                    HeartLogger.Info(LOG_SOURCE,
+                        $"[HttpServer] '{user.CharacterName}' connected — sending redirect to '{httpUrl}'.");
+                    SyncSender.SendRedirect(userEntity, characterEntity, userIndex, httpUrl);
+                    break;
+
+                case SyncModeEnum.StaticUrl:
+                    var staticUrl = HeartConfig.StaticSyncUrl;
+                    if (string.IsNullOrWhiteSpace(staticUrl))
+                    {
+                        HeartLogger.Warning(LOG_SOURCE,
+                            $"[StaticUrl] SyncMode=StaticUrl but StaticSyncUrl is empty. " +
+                            "Falling back to ChunkPush for this client.");
+                        SyncSender.EnqueueSyncTiers(userEntity, characterEntity, userIndex);
+                        break;
+                    }
+                    HeartLogger.Info(LOG_SOURCE,
+                        $"[StaticUrl] '{user.CharacterName}' connected — sending redirect to '{staticUrl}'.");
+                    SyncSender.SendRedirect(userEntity, characterEntity, userIndex, staticUrl);
+                    break;
+
+                default:
+                    HeartLogger.Warning(LOG_SOURCE,
+                        $"Unknown SyncMode '{HeartConfig.SyncMode}' — falling back to ChunkPush.");
+                    SyncSender.EnqueueSyncTiers(userEntity, characterEntity, userIndex);
+                    break;
+            }
         }
         catch (Exception ex)
         {

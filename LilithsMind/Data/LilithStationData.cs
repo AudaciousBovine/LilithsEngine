@@ -22,7 +22,7 @@
 //                Serialized once per connect.
 // ============================================================
 
-namespace LilithsMind.Network;
+namespace LilithsMind.Data;
 
 /// <summary>
 /// Describes the recipe list configuration for a single crafting station.

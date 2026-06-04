@@ -3,7 +3,7 @@ using Stunlock.Core;
 using Unity.Entities;
 using LilithsHeart.Foundation;
 using LilithsHeart.Services;
-using LilithsMind.Network;
+using LilithsMind.Data;
 using LilithsCookbook.Data;
 
 namespace LilithsCookbook.Systems;

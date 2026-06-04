@@ -114,6 +114,10 @@ public static class SyncPayloadCache
             var fullPayload = new ServerSyncPayload
             {
                 ServerIdentity          = identity,
+                // [CHANGED] ServerLanguage tells Soul which language is in
+                //           ItemAppearanceOverrides so it can request a different
+                //           language if its PreferredLanguage differs.
+                ServerLanguage          = HeartConfig.DefaultLanguage.ToString(),
                 ItemAppearanceOverrides = appearanceOverrides,
             };
 
@@ -181,6 +185,11 @@ public static class SyncPayloadCache
                 $"{fullPayload.StationRecipeOverrides.Count} station override(s), " +
                 $"{fullPayload.PlayerRecipesToAdd.Count} player add(s), " +
                 $"{fullPayload.PlayerRecipesToRemove.Count} player remove(s).");
+
+            // [CHANGED] Update SyncHttpServer's cached payload so the HTTP endpoint
+            //           always serves the current build. No-op in other sync modes.
+            if (HeartConfig.SyncMode == SyncModeEnum.HttpServer)
+                SyncHttpServer.UpdatePayload(fullPayload);
         }
         catch (Exception ex)
         {
