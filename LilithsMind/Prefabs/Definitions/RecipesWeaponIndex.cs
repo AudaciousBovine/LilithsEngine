@@ -14,21 +14,21 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Sword_T02_Bone_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeReinforcedBoneSword",
         GuidHash = 1742703328,
         Prefab  = "Recipe_Weapon_Sword_T02_Bone_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Sword_T03_Copper = new()
     {
-        Name    = null,
+        Name    = "RecipeCopperSword",
         GuidHash = -267802321,
         Prefab  = "Recipe_Weapon_Sword_T03_Copper",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Sword_T04_Copper_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessCopperSword",
         GuidHash = 774557022,
         Prefab  = "Recipe_Weapon_Sword_T04_Copper_Reinforced",
     };

@@ -238,7 +238,7 @@ public static class ArmorBootsIndex
 
     public static readonly PrefabDef Item_Boots_T00_StartingRags = new()
     {
-        Name    = null,
+        Name    = "RagBoots",
         GuidHash = -2137364987,
         Prefab  = "Item_Boots_T00_StartingRags",
         NameKey = null,
@@ -247,7 +247,7 @@ public static class ArmorBootsIndex
 
     public static readonly PrefabDef Item_Boots_T0X_VampireKnight = new()
     {
-        Name    = null,
+        Name    = "VampireKnightBoots",
         GuidHash = 830032282,
         Prefab  = "Item_Boots_T0X_VampireKnight",
         NameKey = null,

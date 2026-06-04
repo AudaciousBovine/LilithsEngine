@@ -268,7 +268,7 @@ public static class ArmorChestIndex
 
     public static readonly PrefabDef Item_Armor_Chest_Base = new()
     {
-        Name    = null,
+        Name    = "BaseChestArmor",
         GuidHash = 1328680870,
         Prefab  = "Item_Armor_Chest_Base",
         NameKey = null,
@@ -277,7 +277,7 @@ public static class ArmorChestIndex
 
     public static readonly PrefabDef Item_Chest_T00_StartingRags = new()
     {
-        Name    = null,
+        Name    = "RagShirt",
         GuidHash = -1723445833,
         Prefab  = "Item_Chest_T00_StartingRags",
         NameKey = null,
@@ -286,7 +286,7 @@ public static class ArmorChestIndex
 
     public static readonly PrefabDef Item_Chest_T0X_TransmogTest = new()
     {
-        Name    = null,
+        Name    = "TransmogShirt",
         GuidHash = -625033436,
         Prefab  = "Item_Chest_T0X_TransmogTest",
         NameKey = null,
@@ -295,7 +295,7 @@ public static class ArmorChestIndex
 
     public static readonly PrefabDef Item_Chest_T0X_VampireKnight = new()
     {
-        Name    = null,
+        Name    = "VampireKnightChest",
         GuidHash = 1953885108,
         Prefab  = "Item_Chest_T0X_VampireKnight",
         NameKey = null,

@@ -1,19 +1,58 @@
 {
   "_readme": "DEBUG CONFIG — ChangesEnabled=true. Values obviously different from vanilla for easy in-game verification. Do not use on live servers.",
 
-  "Recipe_Weapon_Sword_T01_Bone": {
-    "ChangesEnabled": true,
-    "CraftDuration": 1.0
-  },
-
-  "Recipe_Weapon_Sword_T04_Copper_Reinforced": {
+  "RecipeBoneSword": {
     "ChangesEnabled": true,
     "AlwaysUnlocked": true,
-    "CraftDuration": 1.0
+    "CraftDuration": 1.0,
+    "Requirements": [
+      { "Item": "Bone", "Amount": 1 }
+    ],
+    "Outputs": [
+      { "Item": "BoneSword", "Amount": 1 }
+    ],
+    "Stations": [ "PlayerCrafting", "SimpleWorkbench" ]
   },
 
-  "Recipe_Consumable_WranglerSprayCan": {
+  "RecipeCopperSword": {
     "ChangesEnabled": true,
-    "Stations": [ "Blacksmith" ]
+    "AlwaysUnlocked": true,
+    "CraftDuration": 2.0,
+    "Requirements": [
+      { "Item": "Stone", "Amount": 1 },
+      { "Item": "BloodEssence", "Amount": 1 }
+    ],
+    "Outputs": [
+      { "Item": "CopperSword", "Amount": 1 }
+    ],
+    "Stations": [ "PlayerCrafting" ]
+  },
+
+  "RecipeIrradiantGruel": {
+    "ChangesEnabled": true,
+    "AlwaysUnlocked": true,
+    "CraftDuration": 0.0,
+    "Requirements": [
+      { "Item": "Rat", "Amount": 1 },
+      { "Item": "BloodEssence", "Amount": 1 }
+    ],
+    "Outputs": [
+      { "Item": "IrradiantGruel", "Amount": 1 }
+    ],
+    "Stations": [ "PlayerCrafting" ]
+  },
+  "RecipeVerminSalve": {
+    "ChangesEnabled": true,
+    "AlwaysUnlocked": true,
+    "CraftDuration": 0.0,
+    "Requirements": [
+      { "Item": "Rat", "Amount": 1 },
+      { "Item": "Wood", "Amount": 1 },
+      { "Item": "Stone", "Amount": 1 }
+    ],
+    "Outputs": [
+      { "Item": "VerminSalve", "Amount": 1 }
+    ],
+    "Stations": [ "PlayerCrafting" ]
   }
 }

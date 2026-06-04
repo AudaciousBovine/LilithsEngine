@@ -228,7 +228,7 @@ public static class ArmorGlovesIndex
 
     public static readonly PrefabDef Item_Gloves_T00_StartingRags = new()
     {
-        Name    = null,
+        Name    = "RagGloves",
         GuidHash = 1216450741,
         Prefab  = "Item_Gloves_T00_StartingRags",
         NameKey = null,
@@ -237,7 +237,7 @@ public static class ArmorGlovesIndex
 
     public static readonly PrefabDef Item_Armor_Gloves_Base = new()
     {
-        Name    = null,
+        Name    = "BaseGloves",
         GuidHash = -786493143,
         Prefab  = "Item_Armor_Gloves_Base",
         NameKey = null,

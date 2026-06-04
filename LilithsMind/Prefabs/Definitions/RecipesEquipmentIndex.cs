@@ -6,175 +6,175 @@ public static class RecipesEquipmentIndex
 
     public static readonly PrefabDef Recipe_Armor_Boots_T01_Bone = new()
     {
-        Name    = null,
+        Name    = "RecipeBoneBoots",
         GuidHash = -61202530,
         Prefab  = "Recipe_Armor_Boots_T01_Bone",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T02_Bone_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeReinforcedBoneBoots",
         GuidHash = 785023263,
         Prefab  = "Recipe_Armor_Boots_T02_Bone_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T03_Cloth = new()
     {
-        Name    = null,
+        Name    = "RecipeNightstalkerBoots",
         GuidHash = 1159379254,
         Prefab  = "Recipe_Armor_Boots_T03_Cloth",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T04_Copper_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeMarauderBoots",
         GuidHash = -211066785,
         Prefab  = "Recipe_Armor_Boots_T04_Copper_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T04_Copper_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeShadewalkerBoots",
         GuidHash = 30410046,
         Prefab  = "Recipe_Armor_Boots_T04_Copper_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T04_Copper_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeWarlockBoots",
         GuidHash = 1241016364,
         Prefab  = "Recipe_Armor_Boots_T04_Copper_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T04_Copper_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeGrimRangerBoots",
         GuidHash = -1573355501,
         Prefab  = "Recipe_Armor_Boots_T04_Copper_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T05_Cotton = new()
     {
-        Name    = null,
+        Name    = "RecipeHollowfangBoots",
         GuidHash = 1859811298,
         Prefab  = "Recipe_Armor_Boots_T05_Cotton",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T06_Iron_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeCrimsonTemplarBoots",
         GuidHash = 564937663,
         Prefab  = "Recipe_Armor_Boots_T06_Iron_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T06_Iron_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeDuskwaterBoots",
         GuidHash = -501436877,
         Prefab  = "Recipe_Armor_Boots_T06_Iron_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T06_Iron_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkMagusBoots",
         GuidHash = -1790839980,
         Prefab  = "Recipe_Armor_Boots_T06_Iron_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T06_Iron_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeBloodHunterBoots",
         GuidHash = 1598255582,
         Prefab  = "Recipe_Armor_Boots_T06_Iron_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T07_Silk = new()
     {
-        Name    = null,
+        Name    = "RecipeDawnthornBoots",
         GuidHash = -18516146,
         Prefab  = "Recipe_Armor_Boots_T07_Silk",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T08_DarkSilver_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeGrimKnightBoots",
         GuidHash = 481223129,
         Prefab  = "Recipe_Armor_Boots_T08_DarkSilver_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T08_DarkSilver_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowmoonBoots",
         GuidHash = 1020324654,
         Prefab  = "Recipe_Armor_Boots_T08_DarkSilver_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T08_DarkSilver_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeMaleficerScholarBoots",
         GuidHash = 26969974,
         Prefab  = "Recipe_Armor_Boots_T08_DarkSilver_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T08_DarkSilver_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeDreadPlateBoots",
         GuidHash = -1671420432,
         Prefab  = "Recipe_Armor_Boots_T08_DarkSilver_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T09_Dracula = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculaBoots",
         GuidHash = -1626042682,
         Prefab  = "Recipe_Armor_Boots_T09_Dracula",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T09_Dracula_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculaGrimBoots",
         GuidHash = 240689181,
         Prefab  = "Recipe_Armor_Boots_T09_Dracula_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T09_Dracula_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculaShadowBoots",
         GuidHash = -850978565,
         Prefab  = "Recipe_Armor_Boots_T09_Dracula_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T09_Dracula_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculaMaleficerBoots",
         GuidHash = -2040897849,
         Prefab  = "Recipe_Armor_Boots_T09_Dracula_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T09_Dracula_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculaDreadBoots",
         GuidHash = -1023773403,
         Prefab  = "Recipe_Armor_Boots_T09_Dracula_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T0X_BlackfangSultan = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeOpulentNightBoots",
         GuidHash = -1358062441,
         Prefab  = "Recipe_Armor_Boots_T0X_BlackfangSultan",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T0X_PMK = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeAlucardBoots",
         GuidHash = -2073504211,
         Prefab  = "Recipe_Armor_Boots_T0X_PMK",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T0X_PMK_03 = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeSomaCruzBoots",
         GuidHash = -1595671236,
         Prefab  = "Recipe_Armor_Boots_T0X_PMK_03",
     };

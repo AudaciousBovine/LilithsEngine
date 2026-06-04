@@ -1,18 +1,33 @@
 {
   "_readme": "DEBUG CONFIG — ChangesEnabled=true. Feed recipe durations cut to 1 second for rapid testing. Do not use on live servers.",
 
-  "Recipe_Misc_FeedPrisoner_Fish_SageFish": {
+  "FeedRat": {
     "ChangesEnabled": true,
-    "CraftDuration": 1.0
+    "CraftDuration": 1.0,
+    "Requirements": [
+      { "Item": "Rat", "Amount": 1 }
+    ],
+    "Outputs": [
+      { "Item": "FedRat", "Amount": 1 }
+    ]
   },
 
-  "Recipe_Misc_FeedPrisoner_IrradiantGruel": {
+  "FeedGruel": {
     "ChangesEnabled": true,
-    "CraftDuration": 1.0
+    "CraftDuration": 1.0,
+    "Requirements": [
+      { "Item": "IrradiantGruel", "Amount": 1 }
+    ],
+    "Outputs": [
+      { "Item": "FedGruel", "Amount": 1 }
+    ]
   },
 
-  "Recipe_Misc_ExtractEssencePrisoner": {
+  "ExtractEssence": {
     "ChangesEnabled": true,
-    "CraftDuration": 1.0
+    "CraftDuration": 1.0,
+    "Outputs": [
+      { "Item": "BloodEssence", "Amount": 20 }
+    ]
   }
 }

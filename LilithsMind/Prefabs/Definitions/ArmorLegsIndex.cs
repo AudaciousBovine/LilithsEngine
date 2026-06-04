@@ -259,7 +259,7 @@ public static class ArmorLegsIndex
 
     public static readonly PrefabDef Item_Armor_Legs_Base = new()
     {
-        Name    = null,
+        Name    = "BaseLegs",
         GuidHash = 269771183,
         Prefab  = "Item_Armor_Legs_Base",
         NameKey = null,
@@ -268,7 +268,7 @@ public static class ArmorLegsIndex
 
     public static readonly PrefabDef Item_Legs_T00_StartingRags = new()
     {
-        Name    = null,
+        Name    = "RagPants",
         GuidHash = 725607617,
         Prefab  = "Item_Legs_T00_StartingRags",
         NameKey = null,
@@ -277,7 +277,7 @@ public static class ArmorLegsIndex
 
     public static readonly PrefabDef Item_Legs_T0X_VampireKnight = new()
     {
-        Name    = null,
+        Name    = "VampireKnightLegs",
         GuidHash = 1966590385,
         Prefab  = "Item_Legs_T0X_VampireKnight",
         NameKey = null,
@@ -286,7 +286,7 @@ public static class ArmorLegsIndex
 
     public static readonly PrefabDef Item_Legs_T0X_TransmogTest = new()
     {
-        Name    = null,
+        Name    = "TransmogPants",
         GuidHash = 1217578824,
         Prefab  = "Item_Legs_T0X_TransmogTest",
         NameKey = null,
