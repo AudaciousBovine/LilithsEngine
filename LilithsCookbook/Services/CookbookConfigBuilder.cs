@@ -1,39 +1,34 @@
 // ============================================================
 //  CookbookConfigBuilder — LilithsCookbook
-//  LilithsCookbook/Systems/CookbookConfigBuilder.cs
+//  LilithsCookbook/Services/CookbookConfigBuilder.cs
 //
-//  Generates all Cookbook config files — examples, debug, and
-//  the vanilla recipe dump.
+//  Generates all Cookbook config files from embedded JSON resources.
 //
-//  [CHANGED] Full overhaul to match the new suite-wide config
-//            generation system. Old one-off flags replaced by:
-//              GenerateCookbookExamples   → GenerateExampleFiles()
-//              GenerateCookbookDebugConfigs → GenerateDebugFiles()
-//            Both are always-overwrite. No file-exists checks.
+//  [CHANGED] All Write*() methods replaced with embedded resource
+//            extractions. JSON files live in LilithsCookbook/Resources/
+//            and are compiled into the DLL as EmbeddedResource.
+//            Generation code is now trivial — resource → file copy.
 //
 //  Example files (ChangesEnabled = false):
-//    Recipes/RecipeExamples.json        — 3 recipe entries
-//    Recipes/PrisonerFeedExamples.json  — feed recipe entries
-//    Recipes/PrisonerFedExamples.json   — 3 FakeItem entries
-//    Items/CookbookItemExamples.json    — 3 stack size entries
+//    Recipes/Examples_Recipe.json
+//    Recipes/Examples_PrisonerFeed.json
+//    Recipes/Examples_PrisonerFed.json
+//    Items/Examples_CookbookItem.json
 //
 //  Debug files (ChangesEnabled = true, values visibly changed):
-//    Recipes/RecipeDebug.json
-//    Recipes/PrisonerFeedDebug.json
-//    Recipes/PrisonerFedDebug.json
-//    Items/CookbookItemDebug.json
+//    Recipes/Debug_Recipe.json
+//    Recipes/Debug_PrisonerFeed.json
+//    Recipes/Debug_PrisonerFed.json
+//    Items/Debug_CookbookItem.json
 //
 //  Reference dumps (ECS data, on-demand):
-//    Recipes/AllRecipes.json            — vanilla recipe ECS dump
-//
-//  [CHANGED] Initialize() no longer writes example files on first
-//            run — examples are written on demand via config flags.
-//            Only creates the Recipes/ directory.
+//    Recipes/AllRecipes.json
 //
 //  [PERFORMANCE] All generation runs once per flag trigger.
-//                No per-frame cost.
+//                Resource extraction is O(file size) — negligible.
 // ============================================================
 
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ProjectM;
@@ -49,20 +44,21 @@ namespace LilithsCookbook.Services;
 
 public static class CookbookConfigBuilder
 {
-    private const string LOG_SOURCE = "LilithsCookbook.CookbookConfigBuilder";
+    private const string LOG_SOURCE    = "LilithsCookbook.CookbookConfigBuilder";
+    private const string ASSEMBLY_NAME = "LilithsCookbook";
 
     public static readonly string RecipesDir = HeartPathIndex.DataDir("Recipes");
 
-    // ── File paths ────────────────────────────────────────────
-    static readonly string AllRecipesPath           = Path.Combine(RecipesDir, "AllRecipes.json");
-    static readonly string RecipeExamplesPath        = Path.Combine(RecipesDir, "RecipeExamples.json");
-    static readonly string PrisonerFeedExamplesPath  = Path.Combine(RecipesDir, "PrisonerFeedExamples.json");
-    static readonly string PrisonerFedExamplesPath   = Path.Combine(RecipesDir, "PrisonerFedExamples.json");
-    static readonly string RecipeDebugPath           = Path.Combine(RecipesDir, "RecipeDebug.json");
-    static readonly string PrisonerFeedDebugPath     = Path.Combine(RecipesDir, "PrisonerFeedDebug.json");
-    static readonly string PrisonerFedDebugPath      = Path.Combine(RecipesDir, "PrisonerFedDebug.json");
-    static readonly string CookbookItemExamplesPath  = Path.Combine(HeartPathIndex.ItemsDir, "CookbookItemExamples.json");
-    static readonly string CookbookItemDebugPath     = Path.Combine(HeartPathIndex.ItemsDir, "CookbookItemDebug.json");
+    // ── Output file paths ─────────────────────────────────────
+    static readonly string AllRecipesPath          = Path.Combine(RecipesDir, "AllRecipes.json");
+    static readonly string RecipeExamplesPath      = Path.Combine(RecipesDir, "Examples_Recipe.json");
+    static readonly string PrisonerFeedExamplesPath = Path.Combine(RecipesDir, "Examples_PrisonerFeed.json");
+    static readonly string PrisonerFedExamplesPath  = Path.Combine(RecipesDir, "Examples_PrisonerFed.json");
+    static readonly string RecipeDebugPath          = Path.Combine(RecipesDir, "Debug_Recipe.json");
+    static readonly string PrisonerFeedDebugPath    = Path.Combine(RecipesDir, "Debug_PrisonerFeed.json");
+    static readonly string PrisonerFedDebugPath     = Path.Combine(RecipesDir, "Debug_PrisonerFed.json");
+    static readonly string CookbookItemExamplesPath = Path.Combine(HeartPathIndex.ItemsDir, "Examples_CookbookItem.json");
+    static readonly string CookbookItemDebugPath    = Path.Combine(HeartPathIndex.ItemsDir, "Debug_CookbookItem.json");
 
     static readonly JsonSerializerOptions _writeOptions = new()
     {
@@ -86,32 +82,32 @@ public static class CookbookConfigBuilder
     // ── Public generation entry points ────────────────────────
 
     /// <summary>
-    /// Generates all four Cookbook example files.
+    /// Extracts all four Cookbook example files from embedded resources.
     /// Always overwrites. Called when GenerateCookbookExamples = true
     /// OR when Heart's GenerateAllModuleExamples triggers it.
     /// </summary>
     public static void GenerateExampleFiles()
     {
         HeartLogger.Info(LOG_SOURCE, "Generating Cookbook example files...");
-        WriteRecipeExamples();
-        WritePrisonerFeedExamples();
-        WritePrisonerFedExamples();
-        WriteCookbookItemExamples();
+        Extract("Examples_Recipe.json",      RecipeExamplesPath);
+        Extract("Examples_PrisonerFeed.json", PrisonerFeedExamplesPath);
+        Extract("Examples_PrisonerFed.json",  PrisonerFedExamplesPath);
+        Extract("Examples_CookbookItem.json", CookbookItemExamplesPath);
         HeartLogger.Info(LOG_SOURCE, "Cookbook example files generated.");
     }
 
     /// <summary>
-    /// Generates all four Cookbook debug files.
+    /// Extracts all four Cookbook debug files from embedded resources.
     /// Always overwrites. Called when GenerateCookbookDebugConfigs = true
     /// OR when Heart's GenerateDebugConfigs triggers it.
     /// </summary>
     public static void GenerateDebugFiles()
     {
         HeartLogger.Info(LOG_SOURCE, "Generating Cookbook debug files...");
-        WriteRecipeDebug();
-        WritePrisonerFeedDebug();
-        WritePrisonerFedDebug();
-        WriteCookbookItemDebug();
+        Extract("Debug_Recipe.json",          RecipeDebugPath);
+        Extract("Debug_PrisonerFeed.json",    PrisonerFeedDebugPath);
+        Extract("Debug_PrisonerFed.json",     PrisonerFedDebugPath);
+        Extract("Debug_CookbookItem.json",    CookbookItemDebugPath);
         HeartLogger.Info(LOG_SOURCE, "Cookbook debug files generated.");
     }
 
@@ -254,300 +250,33 @@ public static class CookbookConfigBuilder
         }
     }
 
-    // ── Example writers ───────────────────────────────────────
-
-    static void WriteRecipeExamples()
-    {
-        var file = new CookbookRecipeFile
-        {
-            Recipes = new Dictionary<string, RecipeEntryData>
-            {
-                // Example 1 — change requirements and craft duration
-                ["Recipe_Weapon_Sword_T01_Bone"] = new RecipeEntryData
-                {
-                    ChangesEnabled = false,
-                    CraftDuration  = 10f,
-                    Requirements   = new List<CookbookItemData>
-                    {
-                        new() { Item = "Item_Ingredient_Bone", Amount = 8 },
-                        new() { Item = "Item_BloodEssence_T01", Amount = 1 },
-                    },
-                },
-                // Example 2 — move a recipe to different stations
-                ["Recipe_Weapon_Sword_T04_Copper_Reinforced"] = new RecipeEntryData
-                {
-                    ChangesEnabled = false,
-                    Stations       = new List<string> { "Blacksmith", "MobileBlacksmith" },
-                },
-                // Example 3 — hide a recipe and change outputs
-                ["Recipe_Consumable_WranglerSprayCan"] = new RecipeEntryData
-                {
-                    ChangesEnabled = false,
-                    HideInStation  = true,
-                    Outputs        = new List<CookbookItemData>
-                    {
-                        new() { Item = "Item_Consumable_WranglerSprayCan", Amount = 5 },
-                    },
-                },
-            },
-        };
-
-        WriteJson(RecipeExamplesPath, file);
-        HeartLogger.Info(LOG_SOURCE, "Written RecipeExamples.json.");
-    }
-
-    static void WritePrisonerFeedExamples()
-    {
-        // PrisonerFeedExamples covers the Recipe side of prisoner feeding —
-        // i.e. which real item triggers a feed action and what it outputs.
-        // These are standard RecipeData entries handled by RecipeSystem.
-        var file = new CookbookRecipeFile
-        {
-            Recipes = new Dictionary<string, RecipeEntryData>
-            {
-                // Example 1 — change the food item required for SageFish feed
-                ["Recipe_Misc_FeedPrisoner_Fish_SageFish"] = new RecipeEntryData
-                {
-                    ChangesEnabled = false,
-                    CraftDuration  = 30f,
-                    Requirements   = new List<CookbookItemData>
-                    {
-                        new() { Item = "Item_Ingredient_Fish_SageFish_T02", Amount = 1 },
-                    },
-                    Outputs = new List<CookbookItemData>
-                    {
-                        new() { Item = "FakeItem_FeedPrisoner_SageFish", Amount = 1 },
-                    },
-                },
-                // Example 2 — feed recipe with a real item output alongside the FakeItem
-                // This is how blood extraction works — FakeItem + real reward item
-                ["Recipe_Misc_ExtractEssencePrisoner"] = new RecipeEntryData
-                {
-                    ChangesEnabled = false,
-                    CraftDuration  = 4f,
-                    Outputs        = new List<CookbookItemData>
-                    {
-                        new() { Item = "FakeItem_Prisoner_ExtractEssence", Amount = 1 },
-                        new() { Item = "Item_BloodEssence_T01", Amount = 30 },
-                    },
-                },
-            },
-        };
-
-        WriteJson(PrisonerFeedExamplesPath, file);
-        HeartLogger.Info(LOG_SOURCE, "Written PrisonerFeedExamples.json.");
-    }
-
-    static void WritePrisonerFedExamples()
-    {
-        // PrisonerFedExamples covers the FakeItem side — the stat effects
-        // that happen to the prisoner when the feed recipe completes.
-        var file = new CookbookRecipeFile
-        {
-            PrisonerFeeding = new Dictionary<string, PrisonerFeedEntryData>
-            {
-                // Example 1 — FeedPrisoner (standard food, health + misery recovery)
-                ["FakeItem_FeedPrisoner_SageFish"] = new PrisonerFeedEntryData
-                {
-                    ChangesEnabled    = false,
-                    Type              = PrisonerFeedTypeEnum.FeedPrisoner,
-                    RecoverHealth_Min = 0.3f,
-                    RecoverHealth_Max = 0.7f,
-                    RecoverMisery_Min = 0.1f,
-                    RecoverMisery_Max = 0.2f,
-                    AlterBloodQuality_Min = 0.0f,
-                    AlterBloodQuality_Max = 0.0f,
-                },
-                // Example 2 — DealDamageToPrisoner (blood extraction, damages prisoner)
-                ["FakeItem_Prisoner_ExtractEssence"] = new PrisonerFeedEntryData
-                {
-                    ChangesEnabled             = false,
-                    Type                       = PrisonerFeedTypeEnum.DealDamageToPrisoner,
-                    DealPercentualDamage_Min   = 0.1f,
-                    DealPercentualDamage_Max   = 0.3f,
-                    DealPercentualTorture_Min  = 0.02f,
-                    DealPercentualTorture_Max  = 0.06f,
-                },
-                // Example 3 — AffectWithToxic (irradiant food, mutation chance)
-                ["FakeItem_FeedPrisoner_IrradiantGruel"] = new PrisonerFeedEntryData
-                {
-                    ChangesEnabled           = false,
-                    Type                     = PrisonerFeedTypeEnum.AffectWithToxic,
-                    ChanceToBecomeMutant     = 0.35f,
-                    IncreaseBloodQuality_Min = 0.01f,
-                    IncreaseBloodQuality_Max = 0.02f,
-                },
-            },
-        };
-
-        WriteJson(PrisonerFedExamplesPath, file);
-        HeartLogger.Info(LOG_SOURCE, "Written PrisonerFedExamples.json.");
-    }
-
-    static void WriteCookbookItemExamples()
-    {
-        // CookbookItemExamples covers functional item overrides owned by Cookbook.
-        // Lives in Items/ so ItemService picks it up alongside appearance overrides.
-        var entries = new Dictionary<string, LilithItemData>
-        {
-            // Example 1 — increase stack size of a resource
-            ["Item_BloodEssence_T01"] = new LilithItemData
-            {
-                ChangesEnabled = false,
-                StackSize      = 500,
-            },
-            // Example 2 — increase stack size of a crafting ingredient
-            ["Item_Ingredient_Mineral_CopperOre"] = new LilithItemData
-            {
-                ChangesEnabled = false,
-                StackSize      = 1000,
-            },
-            // Example 3 — increase stack size of a consumable
-            ["Item_Consumable_Salve_Vermin"] = new LilithItemData
-            {
-                ChangesEnabled = false,
-                StackSize      = 50,
-            },
-        };
-
-        WriteJson(CookbookItemExamplesPath, entries);
-        HeartLogger.Info(LOG_SOURCE, "Written Items/CookbookItemExamples.json.");
-    }
-
-    // ── Debug writers ─────────────────────────────────────────
-
-    static void WriteRecipeDebug()
-    {
-        var file = new CookbookRecipeFile
-        {
-            Recipes = new Dictionary<string, RecipeEntryData>
-            {
-                // Debug: cut craft duration to 1 second — immediately obvious in-game
-                ["Recipe_Weapon_Sword_T01_Bone"] = new RecipeEntryData
-                {
-                    ChangesEnabled = true,
-                    CraftDuration  = 1f,
-                },
-                // Debug: make a recipe always unlocked
-                ["Recipe_Weapon_Sword_T04_Copper_Reinforced"] = new RecipeEntryData
-                {
-                    ChangesEnabled = true,
-                    AlwaysUnlocked = true,
-                    CraftDuration  = 1f,
-                },
-                // Debug: move a recipe to a different station
-                ["Recipe_Consumable_WranglerSprayCan"] = new RecipeEntryData
-                {
-                    ChangesEnabled = true,
-                    Stations       = new List<string> { "Blacksmith" },
-                },
-            },
-        };
-
-        WriteJson(RecipeDebugPath, file);
-        HeartLogger.Info(LOG_SOURCE, "Written RecipeDebug.json.");
-    }
-
-    static void WritePrisonerFeedDebug()
-    {
-        var file = new CookbookRecipeFile
-        {
-            Recipes = new Dictionary<string, RecipeEntryData>
-            {
-                // Debug: cut all feed recipe durations to 1 second
-                ["Recipe_Misc_FeedPrisoner_Fish_SageFish"] = new RecipeEntryData
-                {
-                    ChangesEnabled = true,
-                    CraftDuration  = 1f,
-                },
-                ["Recipe_Misc_FeedPrisoner_IrradiantGruel"] = new RecipeEntryData
-                {
-                    ChangesEnabled = true,
-                    CraftDuration  = 1f,
-                },
-                ["Recipe_Misc_ExtractEssencePrisoner"] = new RecipeEntryData
-                {
-                    ChangesEnabled = true,
-                    CraftDuration  = 1f,
-                },
-            },
-        };
-
-        WriteJson(PrisonerFeedDebugPath, file);
-        HeartLogger.Info(LOG_SOURCE, "Written PrisonerFeedDebug.json.");
-    }
-
-    static void WritePrisonerFedDebug()
-    {
-        var file = new CookbookRecipeFile
-        {
-            PrisonerFeeding = new Dictionary<string, PrisonerFeedEntryData>
-            {
-                // Debug: near-full health restore on SageFish — very obvious in-game
-                ["FakeItem_FeedPrisoner_SageFish"] = new PrisonerFeedEntryData
-                {
-                    ChangesEnabled    = true,
-                    Type              = PrisonerFeedTypeEnum.FeedPrisoner,
-                    RecoverHealth_Min = 0.95f,
-                    RecoverHealth_Max = 0.99f,
-                    RecoverMisery_Min = 0.0f,
-                    RecoverMisery_Max = 0.0f,
-                    AlterBloodQuality_Min = 0.01f,
-                    AlterBloodQuality_Max = 0.01f,
-                },
-                // Debug: zero damage extraction — extraction never hurts prisoner
-                ["FakeItem_Prisoner_ExtractEssence"] = new PrisonerFeedEntryData
-                {
-                    ChangesEnabled            = true,
-                    Type                      = PrisonerFeedTypeEnum.DealDamageToPrisoner,
-                    DealPercentualDamage_Min  = 0.01f,
-                    DealPercentualDamage_Max  = 0.01f,
-                    DealPercentualTorture_Min = 0.0f,
-                    DealPercentualTorture_Max = 0.0f,
-                },
-                // Debug: zero mutation chance on gruel — feed repeatedly, no mutations
-                ["FakeItem_FeedPrisoner_IrradiantGruel"] = new PrisonerFeedEntryData
-                {
-                    ChangesEnabled           = true,
-                    Type                     = PrisonerFeedTypeEnum.AffectWithToxic,
-                    ChanceToBecomeMutant     = 0.0f,
-                    IncreaseBloodQuality_Min = 0.04f,
-                    IncreaseBloodQuality_Max = 0.08f,
-                },
-            },
-        };
-
-        WriteJson(PrisonerFedDebugPath, file);
-        HeartLogger.Info(LOG_SOURCE, "Written PrisonerFedDebug.json.");
-    }
-
-    static void WriteCookbookItemDebug()
-    {
-        var entries = new Dictionary<string, LilithItemData>
-        {
-            // Debug: obviously large stack sizes — immediately visible in inventory
-            ["Item_BloodEssence_T01"] = new LilithItemData
-            {
-                ChangesEnabled = true,
-                StackSize      = 9999,
-            },
-            ["Item_Ingredient_Mineral_CopperOre"] = new LilithItemData
-            {
-                ChangesEnabled = true,
-                StackSize      = 9999,
-            },
-            ["Item_Consumable_Salve_Vermin"] = new LilithItemData
-            {
-                ChangesEnabled = true,
-                StackSize      = 999,
-            },
-        };
-
-        WriteJson(CookbookItemDebugPath, entries);
-        HeartLogger.Info(LOG_SOURCE, "Written Items/CookbookItemDebug.json.");
-    }
-
     // ── Helpers ───────────────────────────────────────────────
+
+    /// <summary>
+    /// Extracts an embedded JSON resource to the given output path.
+    /// [CHANGED] Delegates to HeartConfigBuilder.ExtractResource using
+    ///           the Cookbook assembly name.
+    /// </summary>
+    static void Extract(string fileName, string outputPath)
+    {
+        var resourceName = $"{ASSEMBLY_NAME}.Resources.{fileName}";
+        var assembly     = Assembly.GetExecutingAssembly();
+
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+
+        if (stream == null)
+        {
+            HeartLogger.Error(LOG_SOURCE,
+                $"Embedded resource '{resourceName}' not found. " +
+                "Ensure the file is marked as EmbeddedResource in LilithsCookbook.csproj.");
+            return;
+        }
+
+        using var reader = new StreamReader(stream);
+        File.WriteAllText(outputPath, reader.ReadToEnd());
+        HeartLogger.Debug(LOG_SOURCE,
+            $"Extracted '{fileName}' → '{Path.GetFileName(outputPath)}'.");
+    }
 
     static void WriteJson<T>(string path, T data)
     {

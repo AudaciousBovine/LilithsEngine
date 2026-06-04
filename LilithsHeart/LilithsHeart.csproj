@@ -13,6 +13,10 @@
     <ProjectReference Include="..\LilithsMind\LilithsMind.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Examples_Item.json" />
+    <EmbeddedResource Include="Resources\Debug_Item.json" />
+  </ItemGroup>  
+  <ItemGroup>
     <!--
       Server-side V Rising assemblies.
       VampireReferenceAssemblies exposes all server ProjectM types

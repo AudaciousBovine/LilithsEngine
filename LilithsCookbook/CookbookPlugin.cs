@@ -89,17 +89,11 @@ public class CookbookPlugin : BasePlugin
         //           writes example-stations.json — only Recipes/ and its example.
         CookbookConfigBuilder.Initialize();
 
-        // Register Cookbook's item example data for merged ItemExamples.json.
-        HeartConfigBuilder.RegisterItemExamples("LilithsCookbook", new Dictionary<string, LilithItemData>
-        {
-            ["Item_BloodEssence_T01"]            = new LilithItemData { ChangesEnabled = false, StackSize = 500 },
-            ["Item_Ingredient_Mineral_CopperOre"] = new LilithItemData { ChangesEnabled = false, StackSize = 1000 },
-            ["Item_Consumable_Salve_Vermin"]      = new LilithItemData { ChangesEnabled = false, StackSize = 50 },
-        });
-
-        // [CHANGED] Register Cookbook's example and debug generators with
-        //           HeartConfigBuilder so they are triggered by the Heart-level
-        //           GenerateAllModuleExamples and GenerateDebugConfigs flags.
+        // [CHANGED] RegisterItemExamples and RegisterItemDebug removed — Cookbook
+        //           now writes its own Items/Examples_CookbookItem.json and
+        //           Items/Debug_CookbookItem.json from embedded resources.
+        //           ItemService merges all Items/*.json files automatically,
+        //           so no code-level merging is needed.
         HeartConfigBuilder.RegisterExampleGenerator(CookbookConfigBuilder.GenerateExampleFiles);
         HeartConfigBuilder.RegisterDebugGenerator(CookbookConfigBuilder.GenerateDebugFiles);
 

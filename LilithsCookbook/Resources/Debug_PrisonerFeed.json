@@ -1,0 +1,18 @@
+{
+  "_readme": "DEBUG CONFIG — ChangesEnabled=true. Feed recipe durations cut to 1 second for rapid testing. Do not use on live servers.",
+
+  "Recipe_Misc_FeedPrisoner_Fish_SageFish": {
+    "ChangesEnabled": true,
+    "CraftDuration": 1.0
+  },
+
+  "Recipe_Misc_FeedPrisoner_IrradiantGruel": {
+    "ChangesEnabled": true,
+    "CraftDuration": 1.0
+  },
+
+  "Recipe_Misc_ExtractEssencePrisoner": {
+    "ChangesEnabled": true,
+    "CraftDuration": 1.0
+  }
+}

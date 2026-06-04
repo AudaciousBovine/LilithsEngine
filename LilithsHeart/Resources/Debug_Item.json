@@ -1,0 +1,21 @@
+{
+  "_readme": "DEBUG CONFIG — Appearance fields always apply when non-null. Values are obviously different from vanilla for easy in-game verification. Do not use on live servers.",
+
+  "BloodEssence": {
+    "DisplayName": "[Debug] Red Marble",
+    "DescriptionText": " [Debug] A lovely Red Marble dropped from the living, it swirls with life energy.",
+    "Icon": "Icon_BloodOrb"
+  },
+
+  "IrradiantGruel": {
+    "DisplayName": "[Debug] Smoothie",
+    "DescriptionText": " [Debug] A delicious smoothie packed full of nutrients and antioxidants!",
+    "Icon": "Icon_BloodOrb"
+  },
+
+  "CopperSword": {
+    "DisplayName": "[Debug] Red Marble",
+    "DescriptionText": " [Debug] A lovely Red Marble dropped from the living, it swirls with life energy.",
+    "Icon": "Icon_BloodOrb"
+  }
+}

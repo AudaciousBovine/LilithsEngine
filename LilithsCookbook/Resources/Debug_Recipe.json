@@ -1,0 +1,19 @@
+{
+  "_readme": "DEBUG CONFIG — ChangesEnabled=true. Values obviously different from vanilla for easy in-game verification. Do not use on live servers.",
+
+  "Recipe_Weapon_Sword_T01_Bone": {
+    "ChangesEnabled": true,
+    "CraftDuration": 1.0
+  },
+
+  "Recipe_Weapon_Sword_T04_Copper_Reinforced": {
+    "ChangesEnabled": true,
+    "AlwaysUnlocked": true,
+    "CraftDuration": 1.0
+  },
+
+  "Recipe_Consumable_WranglerSprayCan": {
+    "ChangesEnabled": true,
+    "Stations": [ "Blacksmith" ]
+  }
+}

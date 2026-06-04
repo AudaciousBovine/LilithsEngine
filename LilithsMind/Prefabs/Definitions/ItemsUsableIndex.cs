@@ -491,7 +491,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_IrradiantGruel = new()
     {
-        Name    = null,
+        Name    = "IrradiantGruel",
         GuidHash = 1851490036,
         Prefab  = "Item_Consumable_IrradiantGruel",
         NameKey = null,

@@ -1,0 +1,18 @@
+{
+  "_readme": "DEBUG CONFIG — ChangesEnabled=true. Stack sizes obviously large for immediate inventory verification. Do not use on live servers.",
+
+  "Item_BloodEssence_T01": {
+    "ChangesEnabled": true,
+    "StackSize": 9999
+  },
+
+  "Item_Ingredient_Mineral_CopperOre": {
+    "ChangesEnabled": true,
+    "StackSize": 9999
+  },
+
+  "Item_Consumable_Salve_Vermin": {
+    "ChangesEnabled": true,
+    "StackSize": 999
+  }
+}

@@ -5,46 +5,44 @@
 //  Coordinates all config file generation for the suite.
 //  Called from Heart.OnInitialize() before ItemService loads.
 //
-//  Three generation paths:
-//  ────────────────────────
+//  Generation paths:
+//  ──────────────────
 //  GenerateHeartExamples (HeartConfig flag):
-//    Writes Items/ItemExamples.json with Heart's own appearance
-//    fields only (DisplayName, DescriptionText, Icon).
+//    Extracts Items/Examples_Item.json from embedded resources.
 //    Always overwrites.
 //
 //  GenerateAllModuleExamples (HeartConfig flag):
-//    Merges Heart's appearance examples with all registered module
-//    item example contributions into Items/ItemExamples.json.
-//    Then calls each registered module example generator so
+//    Extracts Items/Examples_Item.json from embedded resources,
+//    then calls each registered module example generator so
 //    module-specific files are also written.
-//    Always overwrites. Takes priority over GenerateHeartExamples
-//    if both flags are set on the same boot.
+//    Always overwrites. Takes priority over GenerateHeartExamples.
 //
 //  GenerateDebugConfigs (HeartConfig flag):
-//    Calls all registered module debug generators.
+//    Extracts Items/Debug_Item.json from embedded resources,
+//    then calls each registered module debug generator.
 //    Always overwrites.
 //
 //  Module registration:
 //  ─────────────────────
 //  Modules call these in Load() before Heart initializes:
-//    RegisterItemExamples(label, entries)   — item example data to
-//      merge into Items/ItemExamples.json
-//    RegisterExampleGenerator(Action)       — module's own example
+//    RegisterExampleGenerator(Action) — module's own example
 //      file generator, called by GenerateAllModuleExamples
-//    RegisterDebugGenerator(Action)         — module's own debug
+//    RegisterDebugGenerator(Action)   — module's own debug
 //      file generator, called by GenerateDebugConfigs
 //
-//  [CHANGED] Full overhaul. Old RegisterGenerator() replaced by
-//            three typed registration methods. GenerateIfRequested()
-//            replaced by three separate generation methods called
-//            from Heart.OnInitialize() based on which flags are set.
-//            GenerateAllModuleExamples takes priority over
-//            GenerateHeartExamples when both are set.
+//  [CHANGED] Full simplification — embedded JSON resources replace
+//            all C# dictionary-based example/debug builders.
+//            RegisterItemExamples(), RegisterItemDebug(), and all
+//            merge logic removed — ItemService's per-field file
+//            merge handles module coexistence automatically.
+//            Each module writes its own Items/*.json file;
+//            no merging needed at generation time.
 //
 //  [PERFORMANCE] Zero cost on normal boots — all work gated behind
-//                config flag checks.
+//                config flag checks. Resource extraction is O(file size).
 // ============================================================
 
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using LilithsMind.Data;
@@ -55,12 +53,8 @@ namespace LilithsHeart.Services;
 
 public static class HeartConfigBuilder
 {
-    private const string LOG_SOURCE = "LilithsHeart.HeartConfigBuilder";
-
-    // Item example contributions from registered modules.
-    // Each entry is (moduleLabel, LilithItemData dictionary).
-    static readonly List<(string Label, Dictionary<string, LilithItemData> Entries)>
-        _itemExampleContributors = [];
+    private const string LOG_SOURCE    = "LilithsHeart.HeartConfigBuilder";
+    private const string ASSEMBLY_NAME = "LilithsHeart";
 
     // Module example file generators — called by GenerateAllModuleExamples.
     static readonly List<Action> _exampleGenerators = [];
@@ -68,38 +62,11 @@ public static class HeartConfigBuilder
     // Module debug file generators — called by GenerateDebugConfigs.
     static readonly List<Action> _debugGenerators = [];
 
-    static readonly JsonSerializerOptions _writeOptions = new()
-    {
-        WriteIndented          = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-    };
-
     // ── Registration API ─────────────────────────────────────
 
     /// <summary>
-    /// Registers item example entries to be merged into
-    /// Items/ItemExamples.json when GenerateAllModuleExamples fires.
-    /// Call from module Load() before Heart initializes.
-    ///
-    /// label   — module name shown as a comment block in output
-    /// entries — LilithItemData keyed by prefab name; set only
-    ///           the fields your module owns, leave others null
-    /// </summary>
-    public static void RegisterItemExamples(
-        string label,
-        Dictionary<string, LilithItemData> entries)
-    {
-        if (string.IsNullOrWhiteSpace(label) || entries == null || entries.Count == 0)
-            return;
-
-        _itemExampleContributors.Add((label, entries));
-        HeartLogger.Debug(LOG_SOURCE,
-            $"Registered {entries.Count} item example(s) from '{label}'.");
-    }
-
-    /// <summary>
     /// Registers a module's example file generator.
-    /// Called by GenerateAllModuleExamples after writing ItemExamples.json.
+    /// Called by GenerateAllModuleExamples after writing Examples_Item.json.
     /// Call from module Load() before Heart initializes.
     /// </summary>
     public static void RegisterExampleGenerator(Action generator)
@@ -110,7 +77,7 @@ public static class HeartConfigBuilder
 
     /// <summary>
     /// Registers a module's debug file generator.
-    /// Called by GenerateDebugConfigs.
+    /// Called by GenerateDebugConfigs after writing Debug_Item.json.
     /// Call from module Load() before Heart initializes.
     /// </summary>
     public static void RegisterDebugGenerator(Action generator)
@@ -126,18 +93,15 @@ public static class HeartConfigBuilder
     /// Called from Heart.OnInitialize() before ItemService.
     ///
     /// GenerateAllModuleExamples takes priority over GenerateHeartExamples
-    /// when both are set on the same boot — only one ItemExamples.json
-    /// write occurs (the full merged one).
+    /// when both are set on the same boot.
     /// </summary>
     public static void RunIfRequested()
     {
-        // GenerateAllModuleExamples takes priority.
         if (HeartConfig.GenerateAllModuleExamples)
         {
             GenerateAllModuleExamples();
             HeartConfig.DisableGenerateAllModuleExamples();
 
-            // Suppress HeartExamples on same boot — already covered.
             if (HeartConfig.GenerateHeartExamples)
                 HeartConfig.DisableGenerateHeartExamples();
         }
@@ -152,84 +116,38 @@ public static class HeartConfigBuilder
             GenerateDebugConfigs();
             HeartConfig.DisableGenerateDebugConfigs();
         }
-
-        // Name alias generation is handled separately by PrefabNameResolver
-        // after it initializes — HeartConfig.GenerateNameAliasConfigs is
-        // checked there, not here.
     }
 
-    // ── Heart item examples (appearance only) ─────────────────
+    // ── Heart example generation ──────────────────────────────
 
     /// <summary>
-    /// Writes Items/ItemExamples.json with Heart's own appearance
-    /// field examples only (DisplayName, DescriptionText, Icon).
+    /// Extracts Items/Examples_Item.json from embedded resources.
     /// Always overwrites.
     /// </summary>
     public static void GenerateHeartItemExamples()
     {
-        var path = Path.Combine(HeartPathIndex.ItemsDir, "ItemExamples.json");
+        var path = Path.Combine(HeartPathIndex.ItemsDir, "Examples_Item.json");
         Directory.CreateDirectory(HeartPathIndex.ItemsDir);
-
-        var entries = BuildHeartAppearanceExamples();
-        WriteItemExamples(path, entries, "LilithsHeart",
-            "Appearance fields — DisplayName, DescriptionText, Icon. " +
-            "Always applied when non-null regardless of ChangesEnabled.");
-
-        HeartLogger.Info(LOG_SOURCE, "Generated Items/ItemExamples.json (Heart appearance only).");
+        ExtractResource(ASSEMBLY_NAME, "Examples_Item.json", path);
+        HeartLogger.Info(LOG_SOURCE, "Generated Items/Examples_Item.json.");
     }
 
-    // ── All module examples (merged) ──────────────────────────
+    // ── All module examples ───────────────────────────────────
 
     /// <summary>
-    /// Merges Heart's appearance examples with all registered module
-    /// item contributions into Items/ItemExamples.json, then calls
-    /// each registered module example generator.
+    /// Extracts Items/Examples_Item.json from embedded resources, then
+    /// calls each registered module example generator.
     /// Always overwrites.
     /// </summary>
     static void GenerateAllModuleExamples()
     {
-        var path = Path.Combine(HeartPathIndex.ItemsDir, "ItemExamples.json");
+        var path = Path.Combine(HeartPathIndex.ItemsDir, "Examples_Item.json");
         Directory.CreateDirectory(HeartPathIndex.ItemsDir);
-
-        // Start with Heart's appearance examples.
-        var merged = BuildHeartAppearanceExamples();
-
-        // Merge each module's item contributions.
-        foreach (var (label, entries) in _itemExampleContributors)
-        {
-            foreach (var (key, incoming) in entries)
-            {
-                if (!merged.TryGetValue(key, out var existing))
-                {
-                    merged[key] = incoming;
-                    continue;
-                }
-
-                // Per-field merge — module adds its fields to existing entry.
-                if (incoming.DisplayName     is not null) existing.DisplayName     = incoming.DisplayName;
-                if (incoming.DescriptionText is not null) existing.DescriptionText = incoming.DescriptionText;
-                if (incoming.Icon            is not null) existing.Icon            = incoming.Icon;
-                if (incoming.StackSize.HasValue)          existing.StackSize       = incoming.StackSize;
-                // Promote ChangesEnabled if any contributor enables it.
-                if (incoming.ChangesEnabled)              existing.ChangesEnabled  = true;
-            }
-        }
-
-        string moduleList = _itemExampleContributors.Count > 0
-            ? string.Join(", ", _itemExampleContributors.Select(c => c.Label))
-            : "none";
-
-        WriteItemExamples(path, merged,
-            $"LilithsHeart + {moduleList}",
-            "All item override fields from all installed modules. " +
-            "Appearance fields always apply when non-null. " +
-            "ChangesEnabled gates functional fields (StackSize, etc.).");
-
+        ExtractResource(ASSEMBLY_NAME, "Examples_Item.json", path);
         HeartLogger.Info(LOG_SOURCE,
-            $"Generated Items/ItemExamples.json " +
-            $"(merged: Heart + {_itemExampleContributors.Count} module contributor(s)).");
+            $"Generated Items/Examples_Item.json — " +
+            $"calling {_exampleGenerators.Count} module generator(s).");
 
-        // Call each module's own example generator.
         foreach (var generator in _exampleGenerators)
         {
             try { generator(); }
@@ -240,22 +158,21 @@ public static class HeartConfigBuilder
         }
     }
 
-    // ── Debug configs ─────────────────────────────────────────
+    // ── Debug config generation ───────────────────────────────
 
     /// <summary>
-    /// Calls all registered module debug generators.
+    /// Extracts Items/Debug_Item.json from embedded resources, then
+    /// calls each registered module debug generator.
     /// Always overwrites.
     /// </summary>
     static void GenerateDebugConfigs()
     {
-        if (_debugGenerators.Count == 0)
-        {
-            HeartLogger.Info(LOG_SOURCE, "No debug generators registered — nothing to generate.");
-            return;
-        }
-
+        var path = Path.Combine(HeartPathIndex.ItemsDir, "Debug_Item.json");
+        Directory.CreateDirectory(HeartPathIndex.ItemsDir);
+        ExtractResource(ASSEMBLY_NAME, "Debug_Item.json", path);
         HeartLogger.Info(LOG_SOURCE,
-            $"GenerateDebugConfigs — running {_debugGenerators.Count} debug generator(s).");
+            $"Generated Items/Debug_Item.json — " +
+            $"calling {_debugGenerators.Count} module debug generator(s).");
 
         foreach (var generator in _debugGenerators)
         {
@@ -267,80 +184,35 @@ public static class HeartConfigBuilder
         }
     }
 
-    // ── Helpers ───────────────────────────────────────────────
+    // ── Resource extraction ───────────────────────────────────
 
     /// <summary>
-    /// Builds Heart's built-in appearance example entries.
-    /// Three items demonstrating the three icon resolution methods
-    /// plus display name and description overrides.
-    /// ChangesEnabled = false (appearance fields have no gate,
-    /// but we set false on the functional field gate so the
-    /// example doesn't accidentally enable stack size changes).
-    /// </summary>
-    static Dictionary<string, LilithItemData> BuildHeartAppearanceExamples()
-        => new(StringComparer.Ordinal)
-        {
-            ["Item_BloodEssence_T01"] = new LilithItemData
-            {
-                DisplayName     = "Vitae",
-                DescriptionText = "Concentrated life force, harvested from the living.",
-                Icon            = "vitae.png",
-                ChangesEnabled  = false,
-            },
-            ["Item_Ingredient_Gem_Ruby_T01"] = new LilithItemData
-            {
-                DisplayName    = "Bloodstone",
-                Icon           = "Icon_BloodOrb",
-                ChangesEnabled = false,
-            },
-            ["Item_MagicSource_BloodKey_T01"] = new LilithItemData
-            {
-                DisplayName    = "Crimson Key",
-                Icon           = "https://example.com/icons/crimson-key.png",
-                ChangesEnabled = false,
-            },
-        };
-
-    /// <summary>
-    /// Serializes item example entries to JSON with readme headers.
+    /// Extracts an embedded JSON resource to a file path.
+    /// Resource name format: {assemblyName}.Resources.{fileName}
     /// Always overwrites the target file.
+    ///
+    /// [PERFORMANCE] Stream read once per generation trigger — negligible.
     /// </summary>
-    static void WriteItemExamples(
-        string path,
-        Dictionary<string, LilithItemData> entries,
-        string source,
-        string fieldNote)
+    public static void ExtractResource(string assemblyName, string fileName, string outputPath)
     {
-        try
-        {
-            // Build the output object with readme entries first.
-            var output = new Dictionary<string, object>(StringComparer.Ordinal)
-            {
-                ["_readme"] =
-                    "Keys are prefab Name or Prefab string from LilithsMind PrefabDef entries " +
-                    "(e.g. 'BloodEssence' or 'Item_BloodEssence_T01'). " +
-                    "Files load alphabetically — later files win per-field on key conflicts.",
-                ["_fields"] = fieldNote,
-                ["_source"] = source,
-                ["_icon_readme"] =
-                    "Icon: (1) PNG filename in client Icons/ folder e.g. 'vitae.png'; " +
-                    "(2) in-game sprite name e.g. 'Icon_BloodOrb'; " +
-                    "(3) https:// URL downloaded and cached by client.",
-                ["_changesEnabled_readme"] =
-                    "ChangesEnabled gates functional fields (StackSize). " +
-                    "Appearance fields (DisplayName, DescriptionText, Icon) " +
-                    "always apply when non-null regardless of ChangesEnabled.",
-            };
+        var resourceName = $"{assemblyName}.Resources.{fileName}";
+        var assembly     = Assembly.GetExecutingAssembly();
 
-            foreach (var (key, data) in entries)
-                output[key] = data;
+        using var stream = assembly.GetManifestResourceStream(resourceName);
 
-            var json = JsonSerializer.Serialize(output, _writeOptions);
-            File.WriteAllText(path, json);
-        }
-        catch (Exception ex)
+        if (stream == null)
         {
-            HeartLogger.Warning(LOG_SOURCE, $"Could not write '{path}': {ex.Message}");
+            HeartLogger.Error(LOG_SOURCE,
+                $"Embedded resource '{resourceName}' not found. " +
+                "Ensure the file is marked as EmbeddedResource in the .csproj.");
+            return;
         }
+
+        using var reader = new StreamReader(stream);
+        var json = reader.ReadToEnd();
+        File.WriteAllText(outputPath, json);
+
+        HeartLogger.Debug(LOG_SOURCE,
+            $"Extracted '{resourceName}' → '{Path.GetFileName(outputPath)}'.");
     }
 }

@@ -1,0 +1,31 @@
+{
+  "_readme": "DEBUG CONFIG — ChangesEnabled=true. Values obviously different from vanilla for easy in-game verification. Do not use on live servers.",
+
+  "FakeItem_FeedPrisoner_SageFish": {
+    "ChangesEnabled": true,
+    "Type": "FeedPrisoner",
+    "RecoverHealth_Min": 0.95,
+    "RecoverHealth_Max": 0.99,
+    "RecoverMisery_Min": 0.0,
+    "RecoverMisery_Max": 0.0,
+    "AlterBloodQuality_Min": 0.01,
+    "AlterBloodQuality_Max": 0.01
+  },
+
+  "FakeItem_Prisoner_ExtractEssence": {
+    "ChangesEnabled": true,
+    "Type": "DealDamageToPrisoner",
+    "DealPercentualDamage_Min": 0.01,
+    "DealPercentualDamage_Max": 0.01,
+    "DealPercentualTorture_Min": 0.0,
+    "DealPercentualTorture_Max": 0.0
+  },
+
+  "FakeItem_FeedPrisoner_IrradiantGruel": {
+    "ChangesEnabled": true,
+    "Type": "AffectWithToxic",
+    "ChanceToBecomeMutant": 0.0,
+    "IncreaseBloodQuality_Min": 0.04,
+    "IncreaseBloodQuality_Max": 0.08
+  }
+}
