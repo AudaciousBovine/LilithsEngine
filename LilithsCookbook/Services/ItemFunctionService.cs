@@ -3,9 +3,9 @@
 //  LilithsCookbook/Services/ItemFunctionService.cs
 //
 //  Applies item functional overrides to server-side ECS prefab
-//  entities. Reads StackSize from LilithItemConfig.Overrides
-//  (populated by Heart's ItemService) and patches
-//  ProjectM.ItemData.MaxAmount on each item's prefab entity.
+//  entities AND GameDataSystem.ItemHashLookupMap. Reads StackSize
+//  from LilithItemConfig.Overrides (populated by Heart's ItemService)
+//  and patches ProjectM.ItemData.MaxAmount.
 //
 //  Ownership:
 //  ───────────
@@ -21,16 +21,30 @@
 //  enforced server-side by the ECS inventory system. The client
 //  reads stack limits from the server's ECS state.
 //
+//  Why BOTH the entity AND the map:
+//  ─────────────────────────────────
+//  [CHANGED] The inventory system reads MaxAmount from
+//  GameDataSystem.ItemHashLookupMap (a NativeParallelHashMap<PrefabGUID,
+//  ItemData>), NOT from the prefab entity component. This is the exact
+//  same entity-vs-map split as RecipeHashLookupMap for crafting:
+//    • Entity component write → drives some display paths
+//    • Map write             → what the inventory system actually enforces
+//  Writing only the prefab entity (the previous behaviour) left the map
+//  holding the vanilla MaxAmount, so stacks were never actually limited.
+//  See CONVENTIONS.md "ECS Write Ordering" — the map write must be the
+//  final mutation, after every RegisterGameData() call. ItemFunctionService
+//  runs last in CookbookPlugin.OnHeartInitialized() (after StationSystem's
+//  RegisterGameData()), so the map write here is safe.
+//
 //  ECS approach:
 //  ─────────────
-//  Item prefab entities live in PrefabCollectionSystem.
-//  _PrefabGuidToEntityMap. A single write at startup is sufficient
-//  — item prefabs have no live world instances that get reset
-//  by RegisterGameData(), unlike workstation recipe buffers.
-//  No two-pass required.
+//  Item prefab entities live in PrefabCollectionSystem._PrefabGuidToEntityMap.
+//  A single write at startup is sufficient for both the entity and the map —
+//  item prefabs have no live world instances that get reset, and this service
+//  runs after all RegisterGameData() calls.
 //
 //  [PERFORMANCE] Runs once at startup. O(configured items).
-//                No per-frame cost.
+//                One entity write + one map write per item. No per-frame cost.
 // ============================================================
 
 using ProjectM;
@@ -47,8 +61,9 @@ public static class ItemFunctionService
 
     /// <summary>
     /// Reads StackSize from LilithItemConfig and patches ItemData.MaxAmount
-    /// on each item's prefab entity.
-    /// Called from CookbookPlugin.OnHeartInitialized() after Heart is ready.
+    /// on each item's prefab entity AND in GameDataSystem.ItemHashLookupMap.
+    /// Called LAST from CookbookPlugin.OnHeartInitialized() — after all
+    /// RegisterGameData() calls — so the map write is not reset.
     /// </summary>
     public static void ApplyOverrides()
     {
@@ -67,8 +82,13 @@ public static class ItemFunctionService
         }
 
         var prefabMap = Heart.PrefabCollectionSystem._PrefabGuidToEntityMap;
-        int patched   = 0;
-        int failed    = 0;
+
+        // [CHANGED] The authoritative stack-size source read by the inventory
+        // system. Patched in addition to the prefab entity component.
+        var itemMap = Heart.GameDataSystem.ItemHashLookupMap;
+
+        int patched = 0;
+        int failed  = 0;
 
         foreach (var (itemName, data) in stackEntries)
         {
@@ -80,31 +100,48 @@ public static class ItemFunctionService
                 continue;
             }
 
-            if (!prefabMap.TryGetValue(guid, out var entity))
+            int newMax = data.StackSize!.Value;
+            bool any   = false;
+
+            // ── Prefab entity component write ─────────────────────────────
+            if (prefabMap.TryGetValue(guid, out var entity) && entity.Has<ItemData>())
+            {
+                var itemData = entity.Read<ItemData>();
+                itemData.MaxAmount = newMax;
+                entity.Write(itemData);
+                any = true;
+            }
+            else
             {
                 HeartLogger.Warning(LOG_SOURCE,
-                    $"Item '{itemName}' (GUID {guid._Value}) has no prefab entity. Skipping.");
-                failed++;
-                continue;
+                    $"'{itemName}' has no prefab entity with ItemData — entity write skipped.");
             }
 
-            if (!entity.Has<ItemData>())
+            // ── ItemHashLookupMap write (authoritative for inventory) ─────
+            // [CHANGED] This is the write that actually enforces the stack limit.
+            if (itemMap.TryGetValue(guid, out var mapItemData))
+            {
+                mapItemData.MaxAmount = newMax;
+                itemMap[guid] = mapItemData;
+                any = true;
+            }
+            else
             {
                 HeartLogger.Warning(LOG_SOURCE,
-                    $"'{itemName}' has no ItemData component — cannot set StackSize. Skipping.");
-                failed++;
-                continue;
+                    $"'{itemName}' (GUID {guid._Value}) not found in ItemHashLookupMap — " +
+                    "stack limit may not be enforced.");
             }
 
-            // Read → mutate → write back (value-type struct semantics).
-            // [PERFORMANCE] One component read + one write per item at startup.
-            var itemData = entity.Read<ItemData>();
-            itemData.MaxAmount = data.StackSize!.Value;
-            entity.Write(itemData);
-
-            HeartLogger.Info(LOG_SOURCE,
-                $"[StackSize] '{itemName}' MaxAmount → {data.StackSize.Value}");
-            patched++;
+            if (any)
+            {
+                HeartLogger.Info(LOG_SOURCE,
+                    $"[StackSize] '{itemName}' MaxAmount → {newMax} (entity + map).");
+                patched++;
+            }
+            else
+            {
+                failed++;
+            }
         }
 
         HeartLogger.Info(LOG_SOURCE,

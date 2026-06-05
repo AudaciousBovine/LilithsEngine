@@ -53,6 +53,10 @@ All config files use no spaces in key names (e.g. `ChangesEnabled`, `StackSize`)
 
 All module `.cfg` files live under `BepInEx/config/LilithsHeart/` using `HeartPathIndex.ModuleConfig("ModuleName")`. Not in the module's own config directory. This keeps all LilithsEngine configuration under one root.
 
+## JSON Deserialization Convention
+
+Module config loaders deserialize with `PropertyNameCaseInsensitive = true`. **Never register `JsonStringEnumConverter` globally** in a loader's `JsonSerializerOptions` — on .NET 6 a global string-enum converter can silently null out nullable value-type fields (`float?`, `bool?`, `int?`) in surrounding objects during deserialization of a complex graph. Instead, scope it per-field with `[JsonConverter(typeof(JsonStringEnumConverter))]` on the specific enum property (e.g. `PrisonerFeedEntryData.Type`). See `CookbookLoader` / `CookbookPrisonerFeedData`.
+
 ## Design Patterns
 
 ### Singleton/Static Service
@@ -115,6 +119,9 @@ JSON config templates are embedded resources in each module's DLL:
 - `LilithsCookbook/Resources/Debug/Debug_*.json`
 Resource name format: `<AssemblyName>.Resources.Examples.<FileName>` or `<AssemblyName>.Resources.Debug.<FileName>`.
 
+### Combined Config File Convention
+A single Recipes/*.json file may carry multiple typed blocks under separate top-level keys via a `file`-scoped wrapper type (e.g. `CookbookRecipeFile` with `Recipes` and `PrisonerFeeding`). Loaders deserialize the wrapper once and split into the respective containers. Recipe and prisoner-feed entries are keyed by prefab name or LilithsMind Name alias.
+
 ## Appearance Overrides — Data-Layer Repointing
 
 All three item-appearance overrides are applied at the **managed data layer** (`ManagedItemData`), never by patching the UI.
@@ -124,6 +131,35 @@ All three item-appearance overrides are applied at the **managed data layer** (`
 - **Icon** — `ManagedItemData.Icon` is a `Sprite` reference; assign directly.
 
 Each patcher captures originals and restores them in its clear step before the next apply.
+
+### Color Tag Translation
+Injected strings (names, descriptions) bypass V Rising's named-colour-tag processing layer, so V Rising tags (`<teal1>`, `</c>`, etc.) render literally. `ColorTranslator.Translate()` (LilithsSoul) converts V Rising tags to Unity rich text (`<color=#...>`, `</color>`) before the string is written to `_LocalizedStrings`. Both patchers call it at inject time. Unity rich text is processed at the render layer and works directly. Admins may use either tag style interchangeably in config.
+
+## ECS Write Ordering — GameDatas Lookup Maps Are Authoritative, Write Them Last
+
+**V Rising's `GameDatas` struct holds several `NativeParallelHashMap<PrefabGUID, T>` lookup maps that are the AUTHORITATIVE source for their data — not the prefab entity components.** Writing only the prefab entity component leaves the map holding vanilla values, and the game reads the map. Confirmed maps and the systems that read them:
+
+| Map | Value type | Read by | Field controlling |
+|-----|-----------|---------|-------------------|
+| `RecipeHashLookupMap` | `RecipeData` | Crafting completion system | `CraftDuration`, `AlwaysUnlocked`, `HideInStation`, etc. |
+| `ItemHashLookupMap` | `ItemData` | Inventory system | `MaxAmount` (stack size) |
+
+(Other maps exist on `GameDatas` — `ItemGroupHashLookupMap`, `DropTableDataHashLookupMap`, `BlueprintHashLookupMap`, `StationBonusLookupMap` — and almost certainly follow the same pattern. Treat any future `*HashLookupMap` as authoritative until proven otherwise.)
+
+The trap is a **entity-vs-map split**: the entity component write often drives a *display* path (e.g. the crafting countdown timer), so the value LOOKS applied, while the map still holds vanilla and the game's actual logic uses it. Symptoms seen: recipes counting down correctly then failing at completion and reverting to 86400s (24h); stack sizes appearing set but items stacking past the limit.
+
+`RegisterRecipes()` and `RegisterGameData()` **rebuild these maps from baked scene data**, wiping any map writes made before them.
+
+Rules:
+- **Entity component writes** (`recipeEntity.Write(data)`, `entity.Write(itemData)`) survive registration — do these in the normal apply pass. Still write them; some display paths read the entity.
+- **Map writes** (`map[guid] = entry`) must be the **final ECS mutation** in the whole module init sequence, after *every* `RegisterRecipes()`/`RegisterGameData()` call across *all* systems. Access via `Heart.GameDataSystem.<MapName>`.
+- In Cookbook this is enforced by ordering in `CookbookPlugin.OnHeartInitialized()`:
+  - `RecipeSystem.ApplyChanges()` — entity + buffers + own `RegisterRecipes()`
+  - `StationSystem.ApplyChanges()` — calls both registration methods
+  - `ItemFunctionService.ApplyOverrides()` — writes both the item prefab entity AND `ItemHashLookupMap` (runs after StationSystem's `RegisterGameData()`, so its map write is safe)
+  - `RecipeSystem.ApplyMapValues()` called **LAST** — `RecipeHashLookupMap` scalar writes only
+- Any future module that modifies a field backed by a `GameDatas` lookup map AND calls a register method (e.g. Grimoire spell stats, Armory weapon stats) must follow the same write-the-map-last ordering.
+- Build Soul override DTOs from the **config entry** value, not by reading back the entity/map, so the synced value is correct regardless of ECS state during the multi-system init sequence.
 
 ## Performance Practices
 
