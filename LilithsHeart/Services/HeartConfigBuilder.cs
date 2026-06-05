@@ -8,7 +8,7 @@
 //  Generation paths:
 //  ──────────────────
 //  GenerateHeartExamples (HeartConfig flag):
-//    Extracts Items/Examples_Item.json from embedded resources.
+//    Extracts Items/Examples_Item.json from LilithsHeart/Resources/Examples/.
 //    Always overwrites.
 //
 //  GenerateAllModuleExamples (HeartConfig flag):
@@ -128,7 +128,7 @@ public static class HeartConfigBuilder
     {
         var path = Path.Combine(HeartPathIndex.ItemsDir, "Examples_Item.json");
         Directory.CreateDirectory(HeartPathIndex.ItemsDir);
-        ExtractResource(ASSEMBLY_NAME, "Examples_Item.json", path);
+        ExtractResource(ASSEMBLY_NAME, "Examples.Examples_Item.json", path);
         HeartLogger.Info(LOG_SOURCE, "Generated Items/Examples_Item.json.");
     }
 
@@ -143,7 +143,7 @@ public static class HeartConfigBuilder
     {
         var path = Path.Combine(HeartPathIndex.ItemsDir, "Examples_Item.json");
         Directory.CreateDirectory(HeartPathIndex.ItemsDir);
-        ExtractResource(ASSEMBLY_NAME, "Examples_Item.json", path);
+        ExtractResource(ASSEMBLY_NAME, "Examples.Examples_Item.json", path);
         HeartLogger.Info(LOG_SOURCE,
             $"Generated Items/Examples_Item.json — " +
             $"calling {_exampleGenerators.Count} module generator(s).");
@@ -169,7 +169,7 @@ public static class HeartConfigBuilder
     {
         var path = Path.Combine(HeartPathIndex.ItemsDir, "Debug_Item.json");
         Directory.CreateDirectory(HeartPathIndex.ItemsDir);
-        ExtractResource(ASSEMBLY_NAME, "Debug_Item.json", path);
+        ExtractResource(ASSEMBLY_NAME, "Debug.Debug_Item.json", path);
         HeartLogger.Info(LOG_SOURCE,
             $"Generated Items/Debug_Item.json — " +
             $"calling {_debugGenerators.Count} module debug generator(s).");

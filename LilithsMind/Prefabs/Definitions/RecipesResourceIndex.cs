@@ -6,189 +6,189 @@ public static class RecipesResourceIndex
 
     public static readonly PrefabDef Recipe_Ingredient_BatLeather = new()
     {
-        Name    = null,
+        Name    = "RecipeBatLeather",
         GuidHash = 878778315,
         Prefab  = "Recipe_Ingredient_BatLeather",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_BatteryCharged = new()
     {
-        Name    = null,
+        Name    = "RecipeChargedBattery",
         GuidHash = -40415372,
         Prefab  = "Recipe_Ingredient_BatteryCharged",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_BatteryCharged_10x = new()
     {
-        Name    = null,
+        Name    = "Recipe10ChargedBattery",
         GuidHash = 1499185347,
         Prefab  = "Recipe_Ingredient_BatteryCharged_10x",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Canister = new()
     {
-        Name    = null,
+        Name    = "RecipeSludgeCanister",
         GuidHash = -1219663401,
         Prefab  = "Recipe_Ingredient_Canister",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_CarpetRoll = new()
     {
-        Name    = null,
+        Name    = "RecipeCarpetRoll",
         GuidHash = -76978559,
         Prefab  = "Recipe_Ingredient_CarpetRoll",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_CastleKey_T01 = new()
     {
-        Name    = null,
+        Name    = "RecipeBoneCastleKey",
         GuidHash = -1158613345,
         Prefab  = "Recipe_Ingredient_CastleKey_T01",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_CastleKey_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeCopperCastleKey",
         GuidHash = -1538704240,
         Prefab  = "Recipe_Ingredient_CastleKey_T02",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_CastleKey_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeIronCastleKey",
         GuidHash = 690675608,
         Prefab  = "Recipe_Ingredient_CastleKey_T03",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_CastleKey_T04 = new()
     {
-        Name    = null,
+        Name    = "RecipeGoldenCastleKey",
         GuidHash = 1627186216,
         Prefab  = "Recipe_Ingredient_CastleKey_T04",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_ClayMold = new()
     {
-        Name    = null,
+        Name    = "RecipeClayMold",
         GuidHash = -1039804369,
         Prefab  = "Recipe_Ingredient_ClayMold",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Cloth01 = new()
     {
-        Name    = null,
+        Name    = "RecipeCloth",
         GuidHash = -535699316,
         Prefab  = "Recipe_Ingredient_Cloth01",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Cloth02 = new()
     {
-        Name    = null,
+        Name    = "RecipeCloth2",
         GuidHash = 691688637,
         Prefab  = "Recipe_Ingredient_Cloth02",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Cloth03 = new()
     {
-        Name    = null,
+        Name    = "RecipeCloth3",
         GuidHash = -18607093,
         Prefab  = "Recipe_Ingredient_Cloth03",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_CoarseThread = new()
     {
-        Name    = null,
+        Name    = "RecipeCourseThread",
         GuidHash = 217985609,
         Prefab  = "Recipe_Ingredient_CoarseThread",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Coin_Copper = new()
     {
-        Name    = null,
+        Name    = "RecipeCopperCoin",
         GuidHash = 1611921852,
         Prefab  = "Recipe_Ingredient_Coin_Copper",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Coin_Royal = new()
     {
-        Name    = null,
+        Name    = "RecipeGoldsunCoin",
         GuidHash = 1679369423,
         Prefab  = "Recipe_Ingredient_Coin_Royal",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Coin_Silver = new()
     {
-        Name    = null,
+        Name    = "RecipeSilverCoin",
         GuidHash = 1987529758,
         Prefab  = "Recipe_Ingredient_Coin_Silver",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_CopperBar = new()
     {
-        Name    = null,
+        Name    = "RecipeCopperBar",
         GuidHash = 43160202,
         Prefab  = "Recipe_Ingredient_CopperBar",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_CopperWires = new()
     {
-        Name    = null,
+        Name    = "RecipeCopperWires",
         GuidHash = -2031309726,
         Prefab  = "Recipe_Ingredient_CopperWires",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_CottonYarn = new()
     {
-        Name    = null,
+        Name    = "RecipeCottonYarn",
         GuidHash = -1463059104,
         Prefab  = "Recipe_Ingredient_CottonYarn",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_DarkSilverBar = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverBar",
         GuidHash = 1763037087,
         Prefab  = "Recipe_Ingredient_DarkSilverBar",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Emberglass = new()
     {
-        Name    = null,
+        Name    = "RecipeEmberglass",
         GuidHash = 1907177885,
         Prefab  = "Recipe_Ingredient_Emberglass",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Fake_Gems_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeRegularGems",
         GuidHash = 1333711523,
         Prefab  = "Recipe_Ingredient_Fake_Gems_T02",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Fake_Gems_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessGems",
         GuidHash = 1197952732,
         Prefab  = "Recipe_Ingredient_Fake_Gems_T03",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_FakeFish = new()
     {
-        Name    = null,
+        Name    = "RecipeOil",
         GuidHash = -1690732149,
         Prefab  = "Recipe_Ingredient_FakeFish",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_FakeGemDust = new()
     {
-        Name    = null,
+        Name    = "RecipeGemDust",
         GuidHash = -1105418306,
         Prefab  = "Recipe_Ingredient_FakeGemDust",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_FakePollen = new()
     {
-        Name    = null,
+        Name    = "RecipePollen",
         GuidHash = -2095604835,
         Prefab  = "Recipe_Ingredient_FakePollen",
     };
@@ -197,63 +197,63 @@ public static class RecipesResourceIndex
 
     public static readonly PrefabDef Recipe_Ingredient_Fish_T01_FatGoby_Fishoil = new()
     {
-        Name    = null,
+        Name    = "RecipeFatGobyOil",
         GuidHash = 1456918437,
         Prefab  = "Recipe_Ingredient_Fish_T01_FatGoby_Fishoil",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Fish_T01_FierceStinger_Fishoil = new()
     {
-        Name    = null,
+        Name    = "RecipeFierceStingerOil",
         GuidHash = 310077690,
         Prefab  = "Recipe_Ingredient_Fish_T01_FierceStinger_Fishoil",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Fish_T01_RainbowTrout_Fishoil = new()
     {
-        Name    = null,
+        Name    = "RecipeRainbowTroutOil",
         GuidHash = -1998323031,
         Prefab  = "Recipe_Ingredient_Fish_T01_RainbowTrout_Fishoil",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Fish_T02_BloodSnapper_Fishoil = new()
     {
-        Name    = null,
+        Name    = "RecipeBloodSnapperOil",
         GuidHash = 2073670444,
         Prefab  = "Recipe_Ingredient_Fish_T02_BloodSnapper_Fishoil",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Fish_T02_SageFish_Fishoil = new()
     {
-        Name    = null,
+        Name    = "RecipeSageFishOil",
         GuidHash = 2034067759,
         Prefab  = "Recipe_Ingredient_Fish_T02_SageFish_Fishoil",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Fish_T02_TwilightSnapper_Fishoil = new()
     {
-        Name    = null,
+        Name    = "RecipeTwilightSnapperOil",
         GuidHash = -1158638582,
         Prefab  = "Recipe_Ingredient_Fish_T02_TwilightSnapper_Fishoil",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Fish_T03_CorruptedFish_Sap = new()
     {
-        Name    = null,
+        Name    = "RecipeCorruptedFishVenomSap",
         GuidHash = 2001831411,
         Prefab  = "Recipe_Ingredient_Fish_T03_CorruptedFish_Sap",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Fish_T03_GoldenRiverBass_Fishoil = new()
     {
-        Name    = null,
+        Name    = "RecipeGoldenRiverBassOil",
         GuidHash = -579466337,
         Prefab  = "Recipe_Ingredient_Fish_T03_GoldenRiverBass_Fishoil",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Fish_T03_SwampDweller_Fishoil = new()
     {
-        Name    = null,
+        Name    = "RecipeSwampDwellerOil",
         GuidHash = -914403055,
         Prefab  = "Recipe_Ingredient_Fish_T03_SwampDweller_Fishoil",
     };
@@ -262,168 +262,168 @@ public static class RecipesResourceIndex
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Amethyst_T01 = new()
     {
-        Name    = null,
+        Name    = "RecipeCrudeAmethystDust",
         GuidHash = 794513497,
         Prefab  = "Recipe_Ingredient_Gem_Amethyst_T01",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Amethyst_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeAmethystDust",
         GuidHash = 1267772432,
         Prefab  = "Recipe_Ingredient_Gem_Amethyst_T02",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Amethyst_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessAmethystDust",
         GuidHash = -1305847600,
         Prefab  = "Recipe_Ingredient_Gem_Amethyst_T03",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Amethyst_T04 = new()
     {
-        Name    = null,
+        Name    = "RecipePerfectAmethystDust",
         GuidHash = -259193408,
         Prefab  = "Recipe_Ingredient_Gem_Amethyst_T04",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Emerald_T01 = new()
     {
-        Name    = null,
+        Name    = "RecipeCrudeEmeraldDust",
         GuidHash = -818431229,
         Prefab  = "Recipe_Ingredient_Gem_Emerald_T01",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Emerald_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeEmeraldDust",
         GuidHash = 2145878785,
         Prefab  = "Recipe_Ingredient_Gem_Emerald_T02",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Emerald_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessEmeraldDust",
         GuidHash = -49650299,
         Prefab  = "Recipe_Ingredient_Gem_Emerald_T03",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Emerald_T04 = new()
     {
-        Name    = null,
+        Name    = "RecipePerfectEmeraldDust",
         GuidHash = 824127202,
         Prefab  = "Recipe_Ingredient_Gem_Emerald_T04",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Miststone_T01 = new()
     {
-        Name    = null,
+        Name    = "RecipeCrudeMiststoneDust",
         GuidHash = 1511000106,
         Prefab  = "Recipe_Ingredient_Gem_Miststone_T01",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Miststone_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeMiststoneDust",
         GuidHash = -1803835046,
         Prefab  = "Recipe_Ingredient_Gem_Miststone_T02",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Miststone_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessMiststoneDust",
         GuidHash = -793702579,
         Prefab  = "Recipe_Ingredient_Gem_Miststone_T03",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Miststone_T04 = new()
     {
-        Name    = null,
+        Name    = "RecipePerfectMiststoneDust",
         GuidHash = 191342827,
         Prefab  = "Recipe_Ingredient_Gem_Miststone_T04",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Ruby_T01 = new()
     {
-        Name    = null,
+        Name    = "RecipeCrudeRubyDust",
         GuidHash = 510709307,
         Prefab  = "Recipe_Ingredient_Gem_Ruby_T01",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Ruby_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeRubyDust",
         GuidHash = 1574438607,
         Prefab  = "Recipe_Ingredient_Gem_Ruby_T02",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Ruby_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessRubyDust",
         GuidHash = 494499358,
         Prefab  = "Recipe_Ingredient_Gem_Ruby_T03",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Ruby_T04 = new()
     {
-        Name    = null,
+        Name    = "RecipePerfectRubyDust",
         GuidHash = 438072551,
         Prefab  = "Recipe_Ingredient_Gem_Ruby_T04",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Sapphire_T01 = new()
     {
-        Name    = null,
+        Name    = "RecipeCrudeSapphireDust",
         GuidHash = 224077013,
         Prefab  = "Recipe_Ingredient_Gem_Sapphire_T01",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Sapphire_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeSapphireDust",
         GuidHash = -1411717403,
         Prefab  = "Recipe_Ingredient_Gem_Sapphire_T02",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Sapphire_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessSapphireDust",
         GuidHash = -830475571,
         Prefab  = "Recipe_Ingredient_Gem_Sapphire_T03",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Sapphire_T04 = new()
     {
-        Name    = null,
+        Name    = "RecipePerfectSapphireDust",
         GuidHash = -97850613,
         Prefab  = "Recipe_Ingredient_Gem_Sapphire_T04",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Topaz_T01 = new()
     {
-        Name    = null,
+        Name    = "RecipeCrudeTopazDust",
         GuidHash = -671939022,
         Prefab  = "Recipe_Ingredient_Gem_Topaz_T01",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Topaz_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeTopazDust",
         GuidHash = -900164684,
         Prefab  = "Recipe_Ingredient_Gem_Topaz_T02",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Topaz_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessTopazDust",
         GuidHash = -680521717,
         Prefab  = "Recipe_Ingredient_Gem_Topaz_T03",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gem_Topaz_T04 = new()
     {
-        Name    = null,
+        Name    = "RecipePerfectTopazDust",
         GuidHash = -597461125,
         Prefab  = "Recipe_Ingredient_Gem_Topaz_T04",
     };
@@ -432,133 +432,133 @@ public static class RecipesResourceIndex
 
     public static readonly PrefabDef Recipe_Ingredient_GhostYarn = new()
     {
-        Name    = null,
+        Name    = "RecipeGhostYarn",
         GuidHash = -312139320,
         Prefab  = "Recipe_Ingredient_GhostYarn",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Glass = new()
     {
-        Name    = null,
+        Name    = "RecipeGlass",
         GuidHash = -1035277730,
         Prefab  = "Recipe_Ingredient_Glass",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_GoldBar = new()
     {
-        Name    = null,
+        Name    = "RecipeGoldBar",
         GuidHash = -882942445,
         Prefab  = "Recipe_Ingredient_GoldBar",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Gravedust = new()
     {
-        Name    = null,
+        Name    = "RecipeGravedust",
         GuidHash = -621968576,
         Prefab  = "Recipe_Ingredient_Gravedust",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_ImperialThread = new()
     {
-        Name    = null,
+        Name    = "RecipeImperialThread",
         GuidHash = -2087869889,
         Prefab  = "Recipe_Ingredient_ImperialThread",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_IronBar = new()
     {
-        Name    = null,
+        Name    = "RecipeIronBar",
         GuidHash = 182584043,
         Prefab  = "Recipe_Ingredient_IronBar",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_IronBody = new()
     {
-        Name    = null,
+        Name    = "RecipeIronBody",
         GuidHash = -1270503528,
         Prefab  = "Recipe_Ingredient_IronBody",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Leather = new()
     {
-        Name    = null,
+        Name    = "RecipeLeather",
         GuidHash = 1299251205,
         Prefab  = "Recipe_Ingredient_Leather",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_NetherShard_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeGreaterStygianShard",
         GuidHash = 830427227,
         Prefab  = "Recipe_Ingredient_NetherShard_T02",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Obsidian_NetherShards = new()
     {
-        Name    = null,
+        Name    = "RecipeObsidian",
         GuidHash = -1046062818,
         Prefab  = "Recipe_Ingredient_Obsidian_NetherShards",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Obsidian_RadiumAlloy = new()
     {
-        Name    = null,
+        Name    = "RecipeObsidian2",
         GuidHash = -755040396,
         Prefab  = "Recipe_Ingredient_Obsidian_RadiumAlloy",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_OnyxTear = new()
     {
-        Name    = null,
+        Name    = "RecipeOnyxTear",
         GuidHash = -1624699880,
         Prefab  = "Recipe_Ingredient_OnyxTear",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_PaintingFrame = new()
     {
-        Name    = null,
+        Name    = "RecipePaintingFrame",
         GuidHash = 639947458,
         Prefab  = "Recipe_Ingredient_PaintingFrame",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Paper = new()
     {
-        Name    = null,
+        Name    = "RecipePaper",
         GuidHash = 1972184798,
         Prefab  = "Recipe_Ingredient_Paper",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plank = new()
     {
-        Name    = null,
+        Name    = "RecipePlank",
         GuidHash = -7510953,
         Prefab  = "Recipe_Ingredient_Plank",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plank_CorruptedSap = new()
     {
-        Name    = null,
+        Name    = "RecipeCorruptedOakRefine",
         GuidHash = 1938879259,
         Prefab  = "Recipe_Ingredient_Plank_CorruptedSap",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plank_WoodCurse = new()
     {
-        Name    = null,
+        Name    = "RecipeCursedWoodRefine",
         GuidHash = 1933452299,
         Prefab  = "Recipe_Ingredient_Plank_WoodCurse",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plank_WoodGloom = new()
     {
-        Name    = null,
+        Name    = "RecipeGloomWoodRefine",
         GuidHash = 1004035314,
         Prefab  = "Recipe_Ingredient_Plank_WoodGloom",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plank_WoodHallow = new()
     {
-        Name    = null,
+        Name    = "RecipeHallowWoodRefine",
         GuidHash = -1161643303,
         Prefab  = "Recipe_Ingredient_Plank_WoodHallow",
     };
@@ -567,77 +567,77 @@ public static class RecipesResourceIndex
 
     public static readonly PrefabDef Recipe_Ingredient_Plant_BleedingHeart_Pollen = new()
     {
-        Name    = null,
+        Name    = "RecipeBleedingHeartPollen",
         GuidHash = -1406676278,
         Prefab  = "Recipe_Ingredient_Plant_BleedingHeart_Pollen",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plant_BloodRose_Pollen = new()
     {
-        Name    = null,
+        Name    = "RecipeBloodRosePollen",
         GuidHash = -1262386399,
         Prefab  = "Recipe_Ingredient_Plant_BloodRose_Pollen",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plant_CorruptedFlower_Pollen = new()
     {
-        Name    = null,
+        Name    = "RecipeCorruptedFlowerPollen",
         GuidHash = 312087613,
         Prefab  = "Recipe_Ingredient_Plant_CorruptedFlower_Pollen",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plant_Cotton_Pollen = new()
     {
-        Name    = null,
+        Name    = "RecipeCottonPollen",
         GuidHash = -318813623,
         Prefab  = "Recipe_Ingredient_Plant_Cotton_Pollen",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plant_FireBlossom_Pollen = new()
     {
-        Name    = null,
+        Name    = "RecipeFireBlossomPollen",
         GuidHash = 1492043256,
         Prefab  = "Recipe_Ingredient_Plant_FireBlossom_Pollen",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plant_GhostShroom_Pollen = new()
     {
-        Name    = null,
+        Name    = "RecipeGhostShroomPollen",
         GuidHash = 981205115,
         Prefab  = "Recipe_Ingredient_Plant_GhostShroom_Pollen",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plant_HellsClarion_Pollen = new()
     {
-        Name    = null,
+        Name    = "RecipeHellsClarionPollen",
         GuidHash = -807387227,
         Prefab  = "Recipe_Ingredient_Plant_HellsClarion_Pollen",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plant_MourningLily_Pollen = new()
     {
-        Name    = null,
+        Name    = "RecipeMourningLilyPollen",
         GuidHash = 1987128673,
         Prefab  = "Recipe_Ingredient_Plant_MourningLily_Pollen",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plant_PlagueBrier_Pollen = new()
     {
-        Name    = null,
+        Name    = "RecipePlagueBrierPollen",
         GuidHash = -1209065169,
         Prefab  = "Recipe_Ingredient_Plant_PlagueBrier_Pollen",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plant_SnowFlower_Pollen = new()
     {
-        Name    = null,
+        Name    = "RecipeSnowFlowerPollen",
         GuidHash = -1444512478,
         Prefab  = "Recipe_Ingredient_Plant_SnowFlower_Pollen",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Plant_SunFlower_Pollen = new()
     {
-        Name    = null,
+        Name    = "RecipeSunFlowerPollen",
         GuidHash = -731341444,
         Prefab  = "Recipe_Ingredient_Plant_SunFlower_Pollen",
     };
@@ -646,133 +646,133 @@ public static class RecipesResourceIndex
 
     public static readonly PrefabDef Recipe_Ingredient_PowerCore = new()
     {
-        Name    = null,
+        Name    = "RecipePowerCore",
         GuidHash = 1399845400,
         Prefab  = "Recipe_Ingredient_PowerCore",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_PristineLeather = new()
     {
-        Name    = null,
+        Name    = "RecipePristineLeather",
         GuidHash = 3903463,
         Prefab  = "Recipe_Ingredient_PristineLeather",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_RadiumAlloy = new()
     {
-        Name    = null,
+        Name    = "RecipeRadiumAlloy",
         GuidHash = 1802509122,
         Prefab  = "Recipe_Ingredient_RadiumAlloy",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_ReinforcedPlank = new()
     {
-        Name    = null,
+        Name    = "RecipeReinforcedPlank",
         GuidHash = -1038174753,
         Prefab  = "Recipe_Ingredient_ReinforcedPlank",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Schematic = new()
     {
-        Name    = null,
+        Name    = "RecipeSchematic",
         GuidHash = 1665157021,
         Prefab  = "Recipe_Ingredient_Schematic",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Scourgestone = new()
     {
-        Name    = null,
+        Name    = "RecipeScourgestone",
         GuidHash = 667958797,
         Prefab  = "Recipe_Ingredient_Scourgestone",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Scroll = new()
     {
-        Name    = null,
+        Name    = "RecipeScroll",
         GuidHash = -1639279845,
         Prefab  = "Recipe_Ingredient_Scroll",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_SculpturedWood = new()
     {
-        Name    = null,
+        Name    = "RecipeSculpturedWood",
         GuidHash = 222408145,
         Prefab  = "Recipe_Ingredient_SculpturedWood",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_ShadowWeave = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowWeave",
         GuidHash = -279454572,
         Prefab  = "Recipe_Ingredient_ShadowWeave",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Silk = new()
     {
-        Name    = null,
+        Name    = "RecipeSilk",
         GuidHash = -1803829778,
         Prefab  = "Recipe_Ingredient_Silk",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_SilverBar = new()
     {
-        Name    = null,
+        Name    = "RecipeSilverBar",
         GuidHash = -1633898285,
         Prefab  = "Recipe_Ingredient_SilverBar",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Spectraldust = new()
     {
-        Name    = null,
+        Name    = "RecipeSpectraldust",
         GuidHash = -329288568,
         Prefab  = "Recipe_Ingredient_Spectraldust",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_StoneBody = new()
     {
-        Name    = null,
+        Name    = "RecipeStoneBody",
         GuidHash = 1356454823,
         Prefab  = "Recipe_Ingredient_StoneBody",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_StoneBrick = new()
     {
-        Name    = null,
+        Name    = "RecipeStoneBrick",
         GuidHash = 484814347,
         Prefab  = "Recipe_Ingredient_StoneBrick",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Sulfur = new()
     {
-        Name    = null,
+        Name    = "RecipeSulfur",
         GuidHash = -1718362434,
         Prefab  = "Recipe_Ingredient_Sulfur",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_ThickLeather = new()
     {
-        Name    = null,
+        Name    = "RecipeThickLeather",
         GuidHash = 1265153742,
         Prefab  = "Recipe_Ingredient_ThickLeather",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Vampiricdust = new()
     {
-        Name    = null,
+        Name    = "RecipeVampiricdust",
         GuidHash = 311920560,
         Prefab  = "Recipe_Ingredient_Vampiricdust",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_Whetstone = new()
     {
-        Name    = null,
+        Name    = "RecipeWhetstone",
         GuidHash = -1490920585,
         Prefab  = "Recipe_Ingredient_Whetstone",
     };
 
     public static readonly PrefabDef Recipe_Ingredient_WoolThread = new()
     {
-        Name    = null,
+        Name    = "RecipeWoolThread",
         GuidHash = -387502181,
         Prefab  = "Recipe_Ingredient_WoolThread",
     };
@@ -781,210 +781,210 @@ public static class RecipesResourceIndex
 
     public static readonly PrefabDef Recipe_Gem_Amethyst_T01_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeCrudeAmethyst",
         GuidHash = -1101407057,
         Prefab  = "Recipe_Gem_Amethyst_T01_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Amethyst_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeAmethyst",
         GuidHash = -439001894,
         Prefab  = "Recipe_Gem_Amethyst_T02",
     };
 
     public static readonly PrefabDef Recipe_Gem_Amethyst_T02_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeAmethyst",
         GuidHash = 434649116,
         Prefab  = "Recipe_Gem_Amethyst_T02_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Amethyst_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessAmethyst",
         GuidHash = 1447381920,
         Prefab  = "Recipe_Gem_Amethyst_T03",
     };
 
     public static readonly PrefabDef Recipe_Gem_Amethyst_T03_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeFlawlessAmethyst",
         GuidHash = -85930173,
         Prefab  = "Recipe_Gem_Amethyst_T03_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Emerald_T01_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeCrudeEmerald",
         GuidHash = 777459323,
         Prefab  = "Recipe_Gem_Emerald_T01_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Emerald_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeEmerald",
         GuidHash = 301294529,
         Prefab  = "Recipe_Gem_Emerald_T02",
     };
 
     public static readonly PrefabDef Recipe_Gem_Emerald_T02_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeEmerald",
         GuidHash = 194379742,
         Prefab  = "Recipe_Gem_Emerald_T02_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Emerald_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessEmerald",
         GuidHash = 349993374,
         Prefab  = "Recipe_Gem_Emerald_T03",
     };
 
     public static readonly PrefabDef Recipe_Gem_Emerald_T03_Trader = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessEmerald",
         GuidHash = -71067907,
         Prefab  = "Recipe_Gem_Emerald_T03_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_MistStone_T01_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeCrudeMiststone",
         GuidHash = -1882174403,
         Prefab  = "Recipe_Gem_MistStone_T01_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_MistStone_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeMiststone",
         GuidHash = 1692364442,
         Prefab  = "Recipe_Gem_MistStone_T02",
     };
 
     public static readonly PrefabDef Recipe_Gem_MistStone_T02_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeMiststone",
         GuidHash = 1550840254,
         Prefab  = "Recipe_Gem_MistStone_T02_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_MistStone_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessMiststone",
         GuidHash = -1932461468,
         Prefab  = "Recipe_Gem_MistStone_T03",
     };
 
     public static readonly PrefabDef Recipe_Gem_MistStone_T03_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeFlawlessMiststone",
         GuidHash = 2025196283,
         Prefab  = "Recipe_Gem_MistStone_T03_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Ruby_T01_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeCrudeRuby",
         GuidHash = 2003589362,
         Prefab  = "Recipe_Gem_Ruby_T01_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Ruby_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeRuby",
         GuidHash = 1058500365,
         Prefab  = "Recipe_Gem_Ruby_T02",
     };
 
     public static readonly PrefabDef Recipe_Gem_Ruby_T02_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeRuby",
         GuidHash = 11460503,
         Prefab  = "Recipe_Gem_Ruby_T02_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Ruby_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessRuby",
         GuidHash = 640226225,
         Prefab  = "Recipe_Gem_Ruby_T03",
     };
 
     public static readonly PrefabDef Recipe_Gem_Ruby_T03_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeFlawlessRuby",
         GuidHash = -484624052,
         Prefab  = "Recipe_Gem_Ruby_T03_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Sapphire_T01_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeCrudeSapphire",
         GuidHash = 1469919230,
         Prefab  = "Recipe_Gem_Sapphire_T01_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Sapphire_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeSapphire",
         GuidHash = 1944880503,
         Prefab  = "Recipe_Gem_Sapphire_T02",
     };
 
     public static readonly PrefabDef Recipe_Gem_Sapphire_T02_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeSapphire",
         GuidHash = 231142834,
         Prefab  = "Recipe_Gem_Sapphire_T02_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Sapphire_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessSapphire",
         GuidHash = 1627234060,
         Prefab  = "Recipe_Gem_Sapphire_T03",
     };
 
     public static readonly PrefabDef Recipe_Gem_Sapphire_T03_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeFlawlessSapphire",
         GuidHash = 571367805,
         Prefab  = "Recipe_Gem_Sapphire_T03_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Topaz_T01_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeCrudeTopaz",
         GuidHash = 1741718241,
         Prefab  = "Recipe_Gem_Topaz_T01_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Topaz_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeTopaz",
         GuidHash = -1954352551,
         Prefab  = "Recipe_Gem_Topaz_T02",
     };
 
     public static readonly PrefabDef Recipe_Gem_Topaz_T02_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeTopaz",
         GuidHash = 1903291770,
         Prefab  = "Recipe_Gem_Topaz_T02_Trader",
     };
 
     public static readonly PrefabDef Recipe_Gem_Topaz_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeFlawlessTopaz",
         GuidHash = -755095440,
         Prefab  = "Recipe_Gem_Topaz_T03",
     };
 
     public static readonly PrefabDef Recipe_Gem_Topaz_T03_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeFlawlessTopaz",
         GuidHash = 595424808,
         Prefab  = "Recipe_Gem_Topaz_T03_Trader",
     };
@@ -993,42 +993,42 @@ public static class RecipesResourceIndex
 
     public static readonly PrefabDef Recipe_BloodEssence_PristineHeart = new()
     {
-        Name    = null,
+        Name    = "RecipePristineHeartBloodEssence",
         GuidHash = 937701215,
         Prefab  = "Recipe_BloodEssence_PristineHeart",
     };
 
     public static readonly PrefabDef Recipe_BloodEssence_Rat = new()
     {
-        Name    = null,
+        Name    = "RecipeRatBloodEssence",
         GuidHash = -112456787,
         Prefab  = "Recipe_BloodEssence_Rat",
     };
 
     public static readonly PrefabDef Recipe_BloodEssence_TaintedHeart = new()
     {
-        Name    = null,
+        Name    = "RecipeTaintedHeartBloodEssence",
         GuidHash = -1619521520,
         Prefab  = "Recipe_BloodEssence_TaintedHeart",
     };
 
     public static readonly PrefabDef Recipe_BloodEssence_UnsulliedHeart = new()
     {
-        Name    = null,
+        Name    = "RecipeUnsulliedHeartBloodEssence",
         GuidHash = -626789771,
         Prefab  = "Recipe_BloodEssence_UnsulliedHeart",
     };
 
     public static readonly PrefabDef Recipe_BloodEssence_Upgrade_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeGreaterBloodEssence",
         GuidHash = 335190592,
         Prefab  = "Recipe_BloodEssence_Upgrade_T02",
     };
 
     public static readonly PrefabDef Recipe_BloodEssence_Upgrade_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipePrimalBloodEssence",
         GuidHash = -2050480946,
         Prefab  = "Recipe_BloodEssence_Upgrade_T03",
     };

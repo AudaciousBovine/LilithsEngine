@@ -17,8 +17,6 @@ public static class SaddleIndex
         Name    = "DarkvenomWarSaddle",
         GuidHash = -1793846754,
         Prefab  = "Item_Saddle_Blackfang_DLC",
-        NameKey = null,
-        DescKey = null,
     };
 
     // DLC: Sinister Evolution
@@ -37,7 +35,5 @@ public static class SaddleIndex
         Name    = "RowdainsSteedSaddle",
         GuidHash = -1270904319,
         Prefab  = "Item_Saddle_PMKSkeleton_DLC",
-        NameKey = null,
-        DescKey = null,
     };
 }

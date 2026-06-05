@@ -13,14 +13,14 @@
     <ProjectReference Include="..\LilithsMind\LilithsMind.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Examples_Recipe.json" />
-    <EmbeddedResource Include="Resources\Debug_Recipe.json" />
-    <EmbeddedResource Include="Resources\Examples_PrisonerFeed.json" />
-    <EmbeddedResource Include="Resources\Debug_PrisonerFeed.json" />
-    <EmbeddedResource Include="Resources\Examples_PrisonerFed.json" />
-    <EmbeddedResource Include="Resources\Debug_PrisonerFed.json" />
-    <EmbeddedResource Include="Resources\Examples_CookbookItem.json" />
-    <EmbeddedResource Include="Resources\Debug_CookbookItem.json" />
+    <EmbeddedResource Include="Resources\Examples\Examples_Recipe.json" />
+    <EmbeddedResource Include="Resources\Examples\Examples_PrisonerFeed.json" />
+    <EmbeddedResource Include="Resources\Examples\Examples_PrisonerFed.json" />
+    <EmbeddedResource Include="Resources\Examples\Examples_CookbookItem.json" />
+    <EmbeddedResource Include="Resources\Debug\Debug_Recipe.json" />
+    <EmbeddedResource Include="Resources\Debug\Debug_PrisonerFeed.json" />
+    <EmbeddedResource Include="Resources\Debug\Debug_PrisonerFed.json" />
+    <EmbeddedResource Include="Resources\Debug\Debug_CookbookItem.json" />
   </ItemGroup>
   <ItemGroup>
     <!--

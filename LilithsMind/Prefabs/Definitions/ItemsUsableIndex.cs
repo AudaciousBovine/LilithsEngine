@@ -410,7 +410,7 @@ public static class ItemsUsableIndex
 
     public static readonly PrefabDef Item_Consumable_GarlicResistancePotion_T02 = new()
     {
-        Name    = "GarlicResistPotion               ",
+        Name    = "GarlicResistPotion",
         GuidHash = -2139183850,
         Prefab  = "Item_Consumable_GarlicResistancePotion_T02",
         NameKey = null,

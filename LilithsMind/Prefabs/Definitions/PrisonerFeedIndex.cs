@@ -142,6 +142,20 @@ public static class PrisonerFeedIndex
         Prefab  = "Recipe_Misc_ExtractEssencePrisoner",
     };
 
+    public static readonly PrefabDef Recipe_Consumable_PrisonPotion = new()
+    {
+        Name    = "ExtractBloodPotion",
+        GuidHash = 1839006118,
+        Prefab  = "Recipe_Consumable_PrisonPotion",
+    };
+
+    public static readonly PrefabDef Recipe_Consumable_PrisonPotion_Bloodwine = new()
+    {
+        Name    = "ExtractBloodMerlot",
+        GuidHash = 1930190516,
+        Prefab  = "Recipe_Consumable_PrisonPotion_Bloodwine",
+    };
+
     public static readonly PrefabDef Recipe_Misc_FeedPrisoner_Fish_BloodSnapper = new()
     {
         Name    = "FeedBloodSnapper",

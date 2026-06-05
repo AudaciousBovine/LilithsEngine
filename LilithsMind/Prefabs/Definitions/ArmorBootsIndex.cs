@@ -124,8 +124,6 @@ public static class ArmorBootsIndex
         Name    = "GrimKnightBoots",
         GuidHash = -1023762087,
         Prefab  = "Item_Boots_T08_DarkSilver_Brute",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Boots_T08_DarkSilver_Rogue = new()
@@ -142,8 +140,6 @@ public static class ArmorBootsIndex
         Name    = "MaleficerScholarBoots",
         GuidHash = 1469185034,
         Prefab  = "Item_Boots_T08_DarkSilver_Scholar",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Boots_T08_DarkSilver_Warrior = new()
@@ -220,8 +216,6 @@ public static class ArmorBootsIndex
         Name    = "SomaCruzsBoots",
         GuidHash = -14368032,
         Prefab  = "Item_Boots_T0X_PMK03",
-        NameKey = null,
-        DescKey = null,
     };
 
     // DLC: Eternal Dominance Pack
@@ -230,8 +224,6 @@ public static class ArmorBootsIndex
         Name    = "OpulentNightSabatons",
         GuidHash = 540608060,
         Prefab  = "Item_Boots_T0X_BlackfangSultan",
-        NameKey = null,
-        DescKey = null,
     };
 
     // ── Unused ────────────────────────────────────────────────────────────────
@@ -241,8 +233,6 @@ public static class ArmorBootsIndex
         Name    = "RagBoots",
         GuidHash = -2137364987,
         Prefab  = "Item_Boots_T00_StartingRags",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Boots_T0X_VampireKnight = new()
@@ -250,7 +240,5 @@ public static class ArmorBootsIndex
         Name    = "VampireKnightBoots",
         GuidHash = 830032282,
         Prefab  = "Item_Boots_T0X_VampireKnight",
-        NameKey = null,
-        DescKey = null,
     };
 }

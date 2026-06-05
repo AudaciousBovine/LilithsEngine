@@ -1,13 +1,14 @@
 # Conventions
 
-## Naming Conventions (from README)
+## Naming Conventions
 
 | Suffix | Meaning | Example |
 |--------|---------|---------|
-| `*Patch` | Harmony patch that injects before/after game code | `InitializationPatch`, `ClientConnectPatch` |
+| `*Patch` | Harmony patch that injects before/after game code | `InitializationPatch`, `ClientConnectPatch`, `ServerChatSystemPatch` |
 | `*Patcher` | Modifies ECS / managed game data | `RecipePatcher`, `LocalizationPatcher`, `DescriptionPatcher`, `IconPatcher` |
 | `*Injector` | Injects values into game systems outside ECS | — (LocalizationInjector retired; see LocalizationPatcher) |
-| `*Service` | Static class that performs work | `LocalizationService` |
+| `*Service` | Static class that performs work | `LocalizationService`, `ItemService`, `LocalizationFileService` |
+| `*FileService` | Static service that specifically owns file I/O for a domain | `LocalizationFileService` |
 | `*Queue` | Holds work items done at controlled rate | `SyncQueue` |
 | `*Builder` | Builds complex objects/data into manageable structures | `CookbookConfigBuilder`, `HeartConfigBuilder` |
 | `*Cache` | Stores built data, rebuilt only when values change | `SyncPayloadCache` |
@@ -15,14 +16,15 @@
 | `*Payload` | Envelope of data for sending over network | `ServerSyncPayload`, `ServerEventPayload` |
 | `*Def` | Defines the structure of a single entity | `PrefabDef` |
 | `*Index` | Static collection of values for lookup | `WeaponsIndex`, `HeartPathIndex`, `SoulPathIndex`, `HeartEventIndex` |
-| `*Enum` | Named set of constant values | `EventKind`, `SyncTierEnum` |
+| `*Enum` | Named set of constant values | `SyncTierEnum`, `SyncModeEnum`, `LanguageCodeEnum` |
 | `*Registry` | Runtime lookup table populated dynamically | `HeartModuleRegistry`, `ServerRegistry` |
-| `*Config` | Defines settings and writes config files | `HeartConfig`, `SoulConfig`, `ItemAppearanceConfig` |
+| `*Config` | Defines settings and writes config files | `HeartConfig`, `SoulConfig`, `LilithItemConfig` |
 | `*Logger` | Logging utility for console messages | `HeartLogger`, `SoulLogger` |
 | `*Extensions` | Extension methods for commonly used types | `EntityExtensions` |
-| `*Sender` | Sends information over network | `SyncSender` |
+| `*Sender` | Sends information over network | `SyncSender`, `LocalizationSyncSender` |
+| `*Fetcher` | Fetches remote data asynchronously | `SyncHttpFetcher` |
 | `*Loader` | Reads and merges data for use | `CookbookLoader` |
-| `*System` | Recurring logic systems or ECS processing | `RecipeSystem`, `StationSystem` |
+| `*System` | Recurring logic systems or ECS processing | `RecipeSystem`, `StationSystem`, `PrisonerFeedSystem` |
 | `*Resolver` | Resolves one identifier form to another | `PrefabNameResolver` |
 | `*Downloader` | Fetches remote resources | `IconDownloader` |
 
@@ -38,6 +40,18 @@
   - `[PERFORMANCE]` — documents performance characteristics and O-notation
 - **Project references** use `ProjectReference` in `.csproj`
 - **NuGet packages** are declared per-project (not transitively resolved)
+
+## Enum Location Convention
+
+All shared enums live in `LilithsMind/Data/` — not in `LilithsMind/Network/`. Network/ is for wire DTOs only. Examples: `SyncTierEnum`, `SyncModeEnum`, `LanguageCodeEnum`.
+
+## Config Key Convention
+
+All config files use no spaces in key names (e.g. `ChangesEnabled`, `StackSize`). BepInEx `.cfg` keys also use no spaces.
+
+## Module Config File Convention
+
+All module `.cfg` files live under `BepInEx/config/LilithsHeart/` using `HeartPathIndex.ModuleConfig("ModuleName")`. Not in the module's own config directory. This keeps all LilithsGarden configuration under one root.
 
 ## Design Patterns
 
@@ -59,13 +73,8 @@ All core service classes are static with an `Initialize()` method:
 - **Prefix** — runs before the original method (used for message interception)
 - Single-fire guards (`_initialized` bool) prevent re-entry
 - All patches named `*Patch.cs`
-- **For two overloads with different bodies, use two separate `[HarmonyPatch]`
-  classes with explicit parameter-type arrays — NOT a shared `TargetMethods()`
-  resolver, which mis-applies every postfix in the class to every target.**
-- **Avoid patching the client tooltip-build pipeline in this IL2CPP build.**
-  `FakeTooltip.SetData`/`SetTooltip` crash when patched; the
-  `RefreshGeneralItemTooltip` overloads attach but never fire on inventory
-  hovers. Prefer data-layer repointing (see "Appearance overrides" below).
+- **For two overloads with different bodies, use two separate `[HarmonyPatch]` classes with explicit parameter-type arrays.**
+- **Avoid patching the client tooltip-build pipeline in this IL2CPP build.** `FakeTooltip.SetData`/`SetTooltip` crash when patched; `RefreshGeneralItemTooltip` overloads attach but never fire on inventory hovers. Prefer data-layer repointing.
 
 ### Registry Pattern
 - `HeartModuleRegistry` — modules register themselves by ID for feature discovery
@@ -78,54 +87,107 @@ All core service classes are static with an `Initialize()` method:
 - All `*Data.cs` and `*Payload.cs` are plain objects for JSON serialization
 - No game dependencies in LilithsMind DTOs
 
-## Appearance Overrides — Data-Layer Repointing (names, descriptions, icons)
+### Module Enable/Disable Pattern
+Modules check `ModuleEnabled` immediately after config init in `Load()`:
+```csharp
+CookbookConfig.Initialize(configFile);
+if (!CookbookConfig.ModuleEnabled)
+{
+    HeartLogger.Info(LOG_SOURCE, "Disabled via ModuleEnabled=false. Skipping.");
+    return;
+}
+```
+When disabled: no ECS work, no generator registration, no Heart subscription.
 
-All three item-appearance overrides are applied at the **managed data layer**
-(`ManagedItemData`), never by patching the UI. Any tooltip/inventory builder
-reads `ManagedItemData`, so the game renders our values on its own.
+### Config Generation Pattern
+Modules register their generators with `HeartConfigBuilder` before Heart initializes:
+```csharp
+HeartConfigBuilder.RegisterExampleGenerator(CookbookConfigBuilder.GenerateExampleFiles);
+HeartConfigBuilder.RegisterDebugGenerator(CookbookConfigBuilder.GenerateDebugFiles);
+```
+All example and debug files are stored as embedded JSON resources in `Resources/Examples/` and `Resources/Debug/` subfolders, extracted on demand. Always overwrite — no skip-if-exists.
 
-- **Name** — `ManagedItemData.Name` is a value-type `LocalizationKey`. Mint a
-  fresh `AssetGuid`, write the string to `Localization._LocalizedStrings`, set
-  `Name` to a `LocalizationKey` over the minted guid.
-- **Description** — `ManagedItemData.Description` is a value-type struct
-  (`LocalizedStringBuilderBase`) whose first field is a `LocalizationKey Key`.
-  Same recipe, with a mandatory **struct write-back**: the getter returns a
-  copy, so set `.Key` on a local and assign the whole local back to
-  `item.Description`. Mutating the getter's copy in place does nothing.
+### Embedded Resource Convention
+JSON config templates are embedded resources in each module's DLL:
+- `LilithsHeart/Resources/Examples/Examples_*.json`
+- `LilithsHeart/Resources/Debug/Debug_*.json`
+- `LilithsCookbook/Resources/Examples/Examples_*.json`
+- `LilithsCookbook/Resources/Debug/Debug_*.json`
+Resource name format: `<AssemblyName>.Resources.Examples.<FileName>` or `<AssemblyName>.Resources.Debug.<FileName>`.
+
+## Appearance Overrides — Data-Layer Repointing
+
+All three item-appearance overrides are applied at the **managed data layer** (`ManagedItemData`), never by patching the UI.
+
+- **Name** — `ManagedItemData.Name` is a value-type `LocalizationKey`. Mint a fresh `AssetGuid`, write the string to `Localization._LocalizedStrings`, set `Name` to a `LocalizationKey` over the minted guid.
+- **Description** — `ManagedItemData.Description` is a value-type struct (`LocalizedStringBuilderBase`) whose first field is `LocalizationKey Key`. Same recipe, with a mandatory **struct write-back**: the getter returns a copy, so set `.Key` on a local and assign the whole local back to `item.Description`.
 - **Icon** — `ManagedItemData.Icon` is a `Sprite` reference; assign directly.
 
-Each patcher captures originals and restores them in its clear step before the
-next apply.
+Each patcher captures originals and restores them in its clear step before the next apply.
 
-## Performance Practices (documented inline)
+## Performance Practices
 
 - `[PERFORMANCE]` annotations throughout code with O-notation comments
 - Debug logging short-circuits: `if (HeartConfig.IsDebug)` check before string concat
 - Reflection runs once at startup (GetTypes, GetFields)
 - Dictionaries for all lookups (O(1))
 - Snapshot dispatch in event bus prevents lock contention
-- GetAllEntities noted as ~560K entities — acceptable one-time startup cost
 - Payload serialization runs at most twice at startup (baseline + final)
 - No per-frame ECS queries after initialization
-- Appearance repointing is one-time at apply; steady-state cost is ZERO (no
-  getter patch, no per-frame work — the game resolves minted keys natively)
+- Appearance repointing is one-time at apply — zero steady-state cost
 
 ## Change Documentation
 
-The codebase has extensive inline change tracking using `[CHANGED]` markers:
+The codebase has extensive inline change tracking using `[CHANGED]` markers. Always read them — they explain why code is the way it is.
 
-```
-// [CHANGED] Complete rewrite. Previously read Names/*.json files...
-//           PrefabNameExporter has been deleted.
-//
-// [PERFORMANCE] Reflection runs once at world ready...
-```
+## Client Payload Application Order (FIXED — DO NOT REORDER)
 
-These are critical for understanding code evolution — always read them.
+See `ARCHITECTURE.md` — Payload Application Order section. The 9-step order is fixed and must not change.
+
+> **Note the two clear-step method names differ by patcher.**
+> `LocalizationPatcher` and `IconPatcher` use `ClearPrevious()`;
+> `DescriptionPatcher` uses `Clear()`. Intentional and documented as-is.
+
+## Soul→Heart Communication
+
+All Soul→Heart communication uses the `[[LG:...]]` sentinel pattern via `ChatMessageEvent { MessageType = Local }` in the client ECS world. Heart intercepts via `ServerChatSystemPatch`. VCF is a server-side framework — Soul has no VCF dependency and must never gain one.
+
+Current Soul→Heart sentinels:
+- `[[LG:sync-fallback]]` — HTTP fetch failed, request chunk delivery
+- `[[LG:lang-request:<language>]]` — request localization payload for a language
+
+All new Soul→Heart sentinels must be added to `ServerChatSystemPatch.cs` — the single home for this communication.
+
+## AI Documentation Stewardship
+
+The `.aidevs/` directory is the single source of truth for agent-facing codebase knowledge. Any structural change to the codebase **must** be reflected here.
+
+| Change type | Files to update |
+|---|---|
+| New file, class, or folder added | `CODE_MAP.md` — add entry under correct project/section |
+| File moved or renamed | `CODE_MAP.md` — update path |
+| New project/plugin added | `README.md` — update module table |
+| Architecture or init order changed | `ARCHITECTURE.md` — update sequence diagrams |
+| New naming convention established | `CONVENTIONS.md` — add to naming table |
+| Data flow or payload format changed | `DATA_FLOW.md` — update pipeline diagrams |
+| New domain concept introduced | `GLOSSARY.md` — add term definition |
+| New prefab category added | `PREFAB_INDEX.md` — update |
+
+## Module Contract
+
+A LilithsHeart child module must:
+1. Reference `LilithsHeart.csproj` via `ProjectReference`
+2. Declare `[BepInDependency("audaciousbovine.lilithsheart")]`
+3. In `Load()`:
+   - Check `ModuleEnabled` immediately after config init — return early if false
+   - Register example/debug generators with `HeartConfigBuilder`
+   - Call `HeartModuleRegistry.Register(new HeartModuleData { ... })`
+   - Subscribe to `Heart.OnInitialized`
+4. In `OnHeartInitialized()`: apply ECS changes, call `Heart.Register*()` methods
+5. Fully qualify `MyPluginInfo` as `YourModule.MyPluginInfo` (namespace conflict with Heart)
+6. Communicate with other modules exclusively via `HeartEventBus` — no direct cross-module references
 
 ## EventKind Range Reservation
-
-When adding new events to `ServerEventPayload`, use reserved ranges:
 
 | Range | Module |
 |-------|--------|
@@ -134,74 +196,12 @@ When adding new events to `ServerEventPayload`, use reserved ranges:
 | 200–299 | LilithsBounty |
 | 300–399 | LilithsTreasury |
 | 400–499 | LilithsMachinations |
-
-## AI Documentation Stewardship
-
-The `.aidevs/` directory is the single source of truth for agent-facing codebase knowledge. Any structural change to the codebase **must** be reflected here so future AI agents don't rediscover stale information.
-
-When making changes, update the relevant files:
-
-| Change type | Files to update |
-|---|---|
-| New file, class, or folder added | `CODE_MAP.md` — add entry under correct project/section |
-| File moved or renamed | `CODE_MAP.md` — update path + add rename note |
-| New project/plugin added | `README.md` — update quick-ref table |
-| Architecture or init order changed | `ARCHITECTURE.md` — update sequence diagrams |
-| New naming convention established | `CONVENTIONS.md` — add to naming table |
-| Data flow or payload format changed | `DATA_FLOW.md` — update pipeline diagrams |
-| New domain concept introduced | `GLOSSARY.md` — add term definition |
-| New prefab category added | `PREFAB_INDEX.md` — add to definition files table |
-
-This rule exists because the `.aidevs/` docs are the **only** persistent memory AI agents have across sessions. Without updates here, an AI will re-analyze the entire codebase from scratch on every task.
-
-## Module Contract
-
-A LilithsHeart child module must:
-
-1. Reference `LilithsHeart.csproj` via `ProjectReference`
-2. Declare `[BepInDependency("audaciousbovine.lilithsheart")]`
-3. In `Load()`:
-   - Create config via `HeartPathIndex.ModuleConfig("ModuleName")`
-   - Call `HeartModuleRegistry.Register(new HeartModuleData { ... })`
-   - Subscribe to `Heart.OnInitialized` for ECS-dependent work
-4. In `OnHeartInitialized()`:
-   - Apply ECS changes
-   - Call `Heart.Register*()` methods to queue overrides
-5. Fully qualify `MyPluginInfo` as `YourModule.MyPluginInfo` (namespace conflict with Heart)
-
-## Client Payload Application Order (FIXED — DO NOT REORDER)
-
-`SyncReceiver` applies each tier independently as its `[[LG:end:T:CKSUM]]`
-sentinel arrives (Critical before High before Normal). The disk-cached
-pre-apply path runs the same steps in one shot via `ApplyPayload()`.
-
-Within a payload the order is fixed (9 steps):
-
-1. `LocalizationPatcher.ClearPrevious()` — restore prior repointed display names
-2. `LocalizationPatcher.Apply(payload)` — repoint display names (mint key + inject string + point `ManagedItemData.Name`)
-3. `DescriptionPatcher.Clear()` — restore prior repointed descriptions
-4. `DescriptionPatcher.Build(payload)` — repoint descriptions (mint key + inject string + struct write-back on `ManagedItemData.Description`)
-5. `IconPatcher.ClearPrevious()` — restore original icons
-6. `IconPatcher.Apply(payload)` — sprites into `ManagedItemData.Icon`
-7. `RecipePatcher.Apply(payload.RecipeOverrides)` — recipe ECS data
-8. `RecipePatcher.ApplyStationRecipes(payload.StationRecipeOverrides)` — station buffers
-9. `RecipePatcher.ApplyPlayerRecipes(...)` — player buffer last
-
-Lookup tables (name→PrefabGUID, sprite maps) are built once in
-`NotifyWorldReady()`; the steps above only read them. The fixed ordering
-ensures each patcher's clear step runs before its apply, and that names,
-descriptions, and icons are in place before the crafting UI reads them.
-
-> **Note the two clear-step method names differ by patcher.**
-> `LocalizationPatcher` and `IconPatcher` use `ClearPrevious()`;
-> `DescriptionPatcher` uses `Clear()`. This is intentional and documented as-is.
-
-**Names and descriptions are repointed, not overwritten.** Many vanilla items
-share one localization key by value; overwriting the string at that key changes
-every item sharing it. The retired `LocalizationInjector` also cleared via
-`Localization.LoadDefaultLanguage()`, which reloads `_LocalizedStrings` from
-disk — wiping its own writes on the second apply (renames reverted to raw
-GUIDs). Both `LocalizationPatcher` and `DescriptionPatcher` mint a fresh
-`AssetGuid` per item and point the value-type key (`ManagedItemData.Name`, or
-the `Key` of the `Description` struct) at it. No shared-key contamination, no
-table reload.
+| 500–599 | LilithsAdversaries |
+| 600–699 | LilithsConquest |
+| 700–799 | LilithsMenagerie |
+| 800–899 | LilithsBlessings |
+| 900–999 | LilithsWisdom |
+| 1000–1099 | LilithsNexus |
+| 1100–1199 | LilithsGrimoire |
+| 1200–1299 | LilithsArchitects |
+| 1300–1399 | LilithsMachinations (extended) |

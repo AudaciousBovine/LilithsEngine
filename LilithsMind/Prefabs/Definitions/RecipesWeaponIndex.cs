@@ -35,35 +35,35 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Sword_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeIronSword",
         GuidHash = -2098625697,
         Prefab  = "Recipe_Weapon_Sword_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Sword_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronSword",
         GuidHash = -1052674868,
         Prefab  = "Recipe_Weapon_Sword_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Sword_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverSword",
         GuidHash = 374085302,
         Prefab  = "Recipe_Weapon_Sword_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Sword_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineSword",
         GuidHash = 895742048,
         Prefab  = "Recipe_Weapon_Sword_T08_Sanguine",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Sword_T09_ShadowMatter = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowSword",
         GuidHash = 1363919271,
         Prefab  = "Recipe_Weapon_Sword_T09_ShadowMatter",
     };
@@ -71,63 +71,63 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Axe_T01_Bone = new()
     {
-        Name    = null,
+        Name    = "RecipeBoneAxe",
         GuidHash = -837028877,
         Prefab  = "Recipe_Weapon_Axe_T01_Bone",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Axe_T02_Bone_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeReinforcedBoneAxe",
         GuidHash = 1031414138,
         Prefab  = "Recipe_Weapon_Axe_T02_Bone_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Axe_T03_Copper = new()
     {
-        Name    = null,
+        Name    = "RecipeCopperAxe",
         GuidHash = -1864396632,
         Prefab  = "Recipe_Weapon_Axe_T03_Copper",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Axe_T04_Copper_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessCopperAxe",
         GuidHash = -411123427,
         Prefab  = "Recipe_Weapon_Axe_T04_Copper_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Axe_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeIronAxe",
         GuidHash = 305819079,
         Prefab  = "Recipe_Weapon_Axe_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Axe_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronAxe",
         GuidHash = 690858507,
         Prefab  = "Recipe_Weapon_Axe_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Axe_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverAxe",
         GuidHash = -1896566066,
         Prefab  = "Recipe_Weapon_Axe_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Axe_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineAxe",
         GuidHash = -67490827,
         Prefab  = "Recipe_Weapon_Axe_T08_Sanguine",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Axe_T09_ShadowMatter = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowAxe",
         GuidHash = -998610023,
         Prefab  = "Recipe_Weapon_Axe_T09_ShadowMatter",
     };
@@ -136,28 +136,28 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Claws_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeIronClaws",
         GuidHash = -1520452495,
         Prefab  = "Recipe_Weapon_Claws_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Claws_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronClaws",
         GuidHash = -1690827442,
         Prefab  = "Recipe_Weapon_Claws_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Claws_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverClaws",
         GuidHash = 1020521578,
         Prefab  = "Recipe_Weapon_Claws_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Claws_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineClaws",
         GuidHash = -749910443,
         Prefab  = "Recipe_Weapon_Claws_T08_Sanguine",
     };
@@ -166,63 +166,63 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Crossbow_T01_Bone = new()
     {
-        Name    = null,
+        Name    = "RecipeBoneCrossbow",
         GuidHash = -1384817143,
         Prefab  = "Recipe_Weapon_Crossbow_T01_Bone",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Crossbow_T02_Bone_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeReinforcedBoneCrossbow",
         GuidHash = -1421664082,
         Prefab  = "Recipe_Weapon_Crossbow_T02_Bone_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Crossbow_T03_Copper = new()
     {
-        Name    = null,
+        Name    = "RecipeCopperCrossbow",
         GuidHash = 841082368,
         Prefab  = "Recipe_Weapon_Crossbow_T03_Copper",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Crossbow_T04_Copper_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessCopperCrossbow",
         GuidHash = -283375796,
         Prefab  = "Recipe_Weapon_Crossbow_T04_Copper_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Crossbow_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeIronCrossbow",
         GuidHash = 1268051742,
         Prefab  = "Recipe_Weapon_Crossbow_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Crossbow_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronCrossbow",
         GuidHash = 1341382268,
         Prefab  = "Recipe_Weapon_Crossbow_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Crossbow_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverCrossbow",
         GuidHash = -971743976,
         Prefab  = "Recipe_Weapon_Crossbow_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Crossbow_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineCrossbow",
         GuidHash = -1064000514,
         Prefab  = "Recipe_Weapon_Crossbow_T08_Sanguine",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Crossbow_T09_ShadowMatter = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowCrossbow",
         GuidHash = -178724798,
         Prefab  = "Recipe_Weapon_Crossbow_T09_ShadowMatter",
     };
@@ -231,28 +231,28 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Daggers_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "IronDaggersRecipe",
         GuidHash = 908837210,
         Prefab  = "Recipe_Weapon_Daggers_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Daggers_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "MercilessIronDaggersRecipe",
         GuidHash = -328931595,
         Prefab  = "Recipe_Weapon_Daggers_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Daggers_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "DarkSilverDaggersRecipe",
         GuidHash = 847424089,
         Prefab  = "Recipe_Weapon_Daggers_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Daggers_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "SanguineDaggersRecipe",
         GuidHash = 268825874,
         Prefab  = "Recipe_Weapon_Daggers_T08_Sanguine",
     };
@@ -261,7 +261,7 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_FishingPole_T01 = new()
     {
-        Name    = null,
+        Name    = "RecipeFishingPole",
         GuidHash = 319663209,
         Prefab  = "Recipe_Weapon_FishingPole_T01",
     };
@@ -270,35 +270,35 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_GreatSword_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeIronGreatsword",
         GuidHash = 1731901666,
         Prefab  = "Recipe_Weapon_GreatSword_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_GreatSword_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronGreatsword",
         GuidHash = 648459378,
         Prefab  = "Recipe_Weapon_GreatSword_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_GreatSword_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverGreatsword",
         GuidHash = -2116357114,
         Prefab  = "Recipe_Weapon_GreatSword_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_GreatSword_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineGreatsword",
         GuidHash = 1944286219,
         Prefab  = "Recipe_Weapon_GreatSword_T08_Sanguine",
     };
 
     public static readonly PrefabDef Recipe_Weapon_GreatSword_T09_ShadowMatter = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowGreatsword",
         GuidHash = -1525227854,
         Prefab  = "Recipe_Weapon_GreatSword_T09_ShadowMatter",
     };
@@ -307,49 +307,49 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Longbow_T03_Copper = new()
     {
-        Name    = null,
+        Name    = "RecipeCopperLongbow",
         GuidHash = -514405267,
         Prefab  = "Recipe_Weapon_Longbow_T03_Copper",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Longbow_T04_Copper_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessCopperLongbow",
         GuidHash = 777859879,
         Prefab  = "Recipe_Weapon_Longbow_T04_Copper_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Longbow_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeIronLongbow",
         GuidHash = -80393444,
         Prefab  = "Recipe_Weapon_Longbow_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Longbow_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronLongbow",
         GuidHash = -149592989,
         Prefab  = "Recipe_Weapon_Longbow_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Longbow_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverLongbow",
         GuidHash = -1063439615,
         Prefab  = "Recipe_Weapon_Longbow_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Longbow_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineLongbow",
         GuidHash = -603557479,
         Prefab  = "Recipe_Weapon_Longbow_T08_Sanguine",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Longbow_T09_ShadowMatter = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowLongbow",
         GuidHash = 1378881717,
         Prefab  = "Recipe_Weapon_Longbow_T09_ShadowMatter",
     };
@@ -358,14 +358,14 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_LumberjackAxe_T01_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeLumberjackAxe",
         GuidHash = 2136704250,
         Prefab  = "Recipe_Weapon_LumberjackAxe_T01_Trader",
     };
 
     public static readonly PrefabDef Recipe_Weapon_MinersMace_T01_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeMinerMace",
         GuidHash = -1476908192,
         Prefab  = "Recipe_Weapon_MinersMace_T01_Trader",
     };
@@ -374,63 +374,63 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Mace_T01_Bone = new()
     {
-        Name    = null,
+        Name    = "RecipeBoneMace",
         GuidHash = -1064109772,
         Prefab  = "Recipe_Weapon_Mace_T01_Bone",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Mace_T02_Bone_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeReinforcedBoneMace",
         GuidHash = 1377610318,
         Prefab  = "Recipe_Weapon_Mace_T02_Bone_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Mace_T03_Copper = new()
     {
-        Name    = null,
+        Name    = "RecipeCopperMace",
         GuidHash = -356991727,
         Prefab  = "Recipe_Weapon_Mace_T03_Copper",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Mace_T04_Copper_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessCopperMace",
         GuidHash = 897446828,
         Prefab  = "Recipe_Weapon_Mace_T04_Copper_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Mace_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeIronMace",
         GuidHash = -612459251,
         Prefab  = "Recipe_Weapon_Mace_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Mace_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronMace",
         GuidHash = -1538728965,
         Prefab  = "Recipe_Weapon_Mace_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Mace_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverMace",
         GuidHash = 532951453,
         Prefab  = "Recipe_Weapon_Mace_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Mace_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineMace",
         GuidHash = -1492594940,
         Prefab  = "Recipe_Weapon_Mace_T08_Sanguine",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Mace_T09_ShadowMatter = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowMace",
         GuidHash = -240353582,
         Prefab  = "Recipe_Weapon_Mace_T09_ShadowMatter",
     };
@@ -439,35 +439,35 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Pistols_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeIronPistols",
         GuidHash = 1314793960,
         Prefab  = "Recipe_Weapon_Pistols_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Pistols_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronPistols",
         GuidHash = -1015239074,
         Prefab  = "Recipe_Weapon_Pistols_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Pistols_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverPistols",
         GuidHash = -296690999,
         Prefab  = "Recipe_Weapon_Pistols_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Pistols_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguinePistols",
         GuidHash = 1058461467,
         Prefab  = "Recipe_Weapon_Pistols_T08_Sanguine",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Pistols_T09_ShadowMatter = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowPistols",
         GuidHash = -299780538,
         Prefab  = "Recipe_Weapon_Pistols_T09_ShadowMatter",
     };
@@ -476,63 +476,63 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Reaper_T01_Bone = new()
     {
-        Name    = null,
+        Name    = "RecipeBoneReaper",
         GuidHash = 1678839668,
         Prefab  = "Recipe_Weapon_Reaper_T01_Bone",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Reaper_T02_Bone_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeReinforcedBoneReaper",
         GuidHash = -238493462,
         Prefab  = "Recipe_Weapon_Reaper_T02_Bone_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Reaper_T03_Copper = new()
     {
-        Name    = null,
+        Name    = "RecipeCopperReaper",
         GuidHash = 787254471,
         Prefab  = "Recipe_Weapon_Reaper_T03_Copper",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Reaper_T04_Copper_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessCopperReaper",
         GuidHash = -681071811,
         Prefab  = "Recipe_Weapon_Reaper_T04_Copper_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Reaper_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeIronReaper",
         GuidHash = 1109951557,
         Prefab  = "Recipe_Weapon_Reaper_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Reaper_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronReaper",
         GuidHash = 537685806,
         Prefab  = "Recipe_Weapon_Reaper_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Reaper_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverReaper",
         GuidHash = -1112081437,
         Prefab  = "Recipe_Weapon_Reaper_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Reaper_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineReaper",
         GuidHash = -1816552963,
         Prefab  = "Recipe_Weapon_Reaper_T08_Sanguine",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Reaper_T09_ShadowMatter = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowReaper",
         GuidHash = -884753903,
         Prefab  = "Recipe_Weapon_Reaper_T09_ShadowMatter",
     };
@@ -541,63 +541,63 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Slashers_T01_Bone = new()
     {
-        Name    = null,
+        Name    = "RecipeBoneSlashers",
         GuidHash = -1536889801,
         Prefab  = "Recipe_Weapon_Slashers_T01_Bone",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Slashers_T02_Bone_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeReinforcedBoneSlashers",
         GuidHash = 1679813913,
         Prefab  = "Recipe_Weapon_Slashers_T02_Bone_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Slashers_T03_Copper = new()
     {
-        Name    = null,
+        Name    = "RecipeCopperSlashers",
         GuidHash = -1560601100,
         Prefab  = "Recipe_Weapon_Slashers_T03_Copper",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Slashers_T04_Copper_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessCopperSlashers",
         GuidHash = 396156173,
         Prefab  = "Recipe_Weapon_Slashers_T04_Copper_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Slashers_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeIronSlashers",
         GuidHash = -808348493,
         Prefab  = "Recipe_Weapon_Slashers_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Slashers_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronSlashers",
         GuidHash = 1469893872,
         Prefab  = "Recipe_Weapon_Slashers_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Slashers_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverSlashers",
         GuidHash = -1919160227,
         Prefab  = "Recipe_Weapon_Slashers_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Slashers_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineSlashers",
         GuidHash = 373339628,
         Prefab  = "Recipe_Weapon_Slashers_T08_Sanguine",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Slashers_T09_ShadowMatter = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowSlashers",
         GuidHash = 501702204,
         Prefab  = "Recipe_Weapon_Slashers_T09_ShadowMatter",
     };
@@ -606,63 +606,63 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Spear_T01_Bone = new()
     {
-        Name    = null,
+        Name    = "RecipeBoneSpear",
         GuidHash = 1394854694,
         Prefab  = "Recipe_Weapon_Spear_T01_Bone",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Spear_T02_Bone_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeReinforcedBoneSpear",
         GuidHash = -1328539101,
         Prefab  = "Recipe_Weapon_Spear_T02_Bone_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Spear_T03_Copper = new()
     {
-        Name    = null,
+        Name    = "RecipeCopperSpear",
         GuidHash = -791471134,
         Prefab  = "Recipe_Weapon_Spear_T03_Copper",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Spear_T04_Copper_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessCopperSpear",
         GuidHash = -118222260,
         Prefab  = "Recipe_Weapon_Spear_T04_Copper_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Spear_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeIronSpear",
         GuidHash = 239811022,
         Prefab  = "Recipe_Weapon_Spear_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Spear_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronSpear",
         GuidHash = -499925914,
         Prefab  = "Recipe_Weapon_Spear_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Spear_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverSpear",
         GuidHash = -194303255,
         Prefab  = "Recipe_Weapon_Spear_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Spear_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineSpear",
         GuidHash = -314047482,
         Prefab  = "Recipe_Weapon_Spear_T08_Sanguine",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Spear_T09_ShadowMatter = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowSpear",
         GuidHash = -190896313,
         Prefab  = "Recipe_Weapon_Spear_T09_ShadowMatter",
     };
@@ -671,28 +671,28 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_TwinBlades_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeIronTwinblades",
         GuidHash = -496801516,
         Prefab  = "Recipe_Weapon_TwinBlades_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_TwinBlades_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronTwinblades",
         GuidHash = 1687058710,
         Prefab  = "Recipe_Weapon_TwinBlades_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_TwinBlades_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverTwinblades",
         GuidHash = 895579931,
         Prefab  = "Recipe_Weapon_TwinBlades_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_TwinBlades_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineTwinblades",
         GuidHash = 1259720344,
         Prefab  = "Recipe_Weapon_TwinBlades_T08_Sanguine",
     };
@@ -701,35 +701,35 @@ public static class RecipesWeaponIndex
 
     public static readonly PrefabDef Recipe_Weapon_Whip_T05_Iron = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineTwinblades",
         GuidHash = 688528978,
         Prefab  = "Recipe_Weapon_Whip_T05_Iron",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Whip_T06_Iron_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipeMercilessIronWhip",
         GuidHash = 465080212,
         Prefab  = "Recipe_Weapon_Whip_T06_Iron_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Whip_T07_DarkSilver = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkSilverWhip",
         GuidHash = 1507781061,
         Prefab  = "Recipe_Weapon_Whip_T07_DarkSilver",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Whip_T08_Sanguine = new()
     {
-        Name    = null,
+        Name    = "RecipeSanguineWhip",
         GuidHash = -1968497565,
         Prefab  = "Recipe_Weapon_Whip_T08_Sanguine",
     };
 
     public static readonly PrefabDef Recipe_Weapon_Whip_T09_ShadowMatter = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowWhip",
         GuidHash = -941901707,
         Prefab  = "Recipe_Weapon_Whip_T09_ShadowMatter",
     };

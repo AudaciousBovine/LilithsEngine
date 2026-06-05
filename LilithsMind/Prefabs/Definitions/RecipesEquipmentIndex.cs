@@ -6,14 +6,14 @@ public static class RecipesEquipmentIndex
 
     public static readonly PrefabDef Recipe_Armor_Boots_T01_Bone = new()
     {
-        Name    = "RecipeBoneBoots",
+        Name    = "RecipeBoneguardBoots",
         GuidHash = -61202530,
         Prefab  = "Recipe_Armor_Boots_T01_Bone",
     };
 
     public static readonly PrefabDef Recipe_Armor_Boots_T02_Bone_Reinforced = new()
     {
-        Name    = "RecipeReinforcedBoneBoots",
+        Name    = "RecipePlatedBoneguardBoots",
         GuidHash = 785023263,
         Prefab  = "Recipe_Armor_Boots_T02_Bone_Reinforced",
     };
@@ -183,196 +183,196 @@ public static class RecipesEquipmentIndex
 
     public static readonly PrefabDef Recipe_Armor_Chest_T01_Bone = new()
     {
-        Name    = null,
+        Name    = "RecipeBoneguardChestguard",
         GuidHash = 1961555084,
         Prefab  = "Recipe_Armor_Chest_T01_Bone",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T02_Bone_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipePlatedBoneguardChestguard",
         GuidHash = 1236392443,
         Prefab  = "Recipe_Armor_Chest_T02_Bone_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T03_Cloth = new()
     {
-        Name    = null,
+        Name    = "RecipeNightstalkerVest",
         GuidHash = 1384522986,
         Prefab  = "Recipe_Armor_Chest_T03_Cloth",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T04_Copper_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeMarauderVest",
         GuidHash = -42975513,
         Prefab  = "Recipe_Armor_Chest_T04_Copper_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T04_Copper_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeShadewalkerVest",
         GuidHash = -235084625,
         Prefab  = "Recipe_Armor_Chest_T04_Copper_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T04_Copper_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeWarlockVest",
         GuidHash = 1490955797,
         Prefab  = "Recipe_Armor_Chest_T04_Copper_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T04_Copper_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeGrimRangerVest",
         GuidHash = -850288860,
         Prefab  = "Recipe_Armor_Chest_T04_Copper_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T05_Cotton = new()
     {
-        Name    = null,
+        Name    = "RecipeHollowfangChestguard",
         GuidHash = 724016990,
         Prefab  = "Recipe_Armor_Chest_T05_Cotton",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T06_Iron_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeCrimsonTemplarChestguard",
         GuidHash = 1640689004,
         Prefab  = "Recipe_Armor_Chest_T06_Iron_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T06_Iron_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeDuskwatcherChestguard",
         GuidHash = -921085381,
         Prefab  = "Recipe_Armor_Chest_T06_Iron_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T06_Iron_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkMagusChestguard",
         GuidHash = 969479018,
         Prefab  = "Recipe_Armor_Chest_T06_Iron_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T06_Iron_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeBloodHunterChestguard",
         GuidHash = 917114760,
         Prefab  = "Recipe_Armor_Chest_T06_Iron_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T07_Silk = new()
     {
-        Name    = null,
+        Name    = "RecipeDawnthornChestguard",
         GuidHash = 590293987,
         Prefab  = "Recipe_Armor_Chest_T07_Silk",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T08_DarkSilver_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeGrimKnightChestguard",
         GuidHash = 909405972,
         Prefab  = "Recipe_Armor_Chest_T08_DarkSilver_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T08_DarkSilver_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowmoonChestguard",
         GuidHash = 2080647005,
         Prefab  = "Recipe_Armor_Chest_T08_DarkSilver_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T08_DarkSilver_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeMaleficerChestguard",
         GuidHash = -246992105,
         Prefab  = "Recipe_Armor_Chest_T08_DarkSilver_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T08_DarkSilver_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeDreadPlateChestguard",
         GuidHash = 636393327,
         Prefab  = "Recipe_Armor_Chest_T08_DarkSilver_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T09_Dracula = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasChestguard",
         GuidHash = -530701068,
         Prefab  = "Recipe_Armor_Chest_T09_Dracula",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T09_Dracula_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasGrimChestguard",
         GuidHash = 1130263669,
         Prefab  = "Recipe_Armor_Chest_T09_Dracula_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T09_Dracula_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasShadowChestguard",
         GuidHash = -640317541,
         Prefab  = "Recipe_Armor_Chest_T09_Dracula_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T09_Dracula_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasMaleficerChestguard",
         GuidHash = -1905495055,
         Prefab  = "Recipe_Armor_Chest_T09_Dracula_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T09_Dracula_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasDreadChestguard",
         GuidHash = -510627751,
         Prefab  = "Recipe_Armor_Chest_T09_Dracula_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T0X_BlackfangSultan = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeOpulentNightRaiment",
         GuidHash = 2082549756,
         Prefab  = "Recipe_Armor_Chest_T0X_BlackfangSultan",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T0X_Cosmetic_Dress01 = new()
     {
-        Name    = null,
+        Name    = "RecipeMidnightBallGown",
         GuidHash = -790370630,
         Prefab  = "Recipe_Armor_Chest_T0X_Cosmetic_Dress01",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T0X_Cosmetic_Suit01 = new()
     {
-        Name    = null,
+        Name    = "RecipeMidnightNoblermanSuit",
         GuidHash = 115376160,
         Prefab  = "Recipe_Armor_Chest_T0X_Cosmetic_Suit01",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T0X_PMK = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeAlucardCoat",
         GuidHash = -434051712,
         Prefab  = "Recipe_Armor_Chest_T0X_PMK",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T0X_PMK_02 = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeShanoasGown",
         GuidHash = 639186567,
         Prefab  = "Recipe_Armor_Chest_T0X_PMK_02",
     };
 
     public static readonly PrefabDef Recipe_Armor_Chest_T0X_PMK_03 = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeSomaCruzsCoat",
         GuidHash = 1712328309,
         Prefab  = "Recipe_Armor_Chest_T0X_PMK_03",
     };
@@ -381,168 +381,168 @@ public static class RecipesEquipmentIndex
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T01_Bone = new()
     {
-        Name    = null,
+        Name    = "RecipeBoneguardGloves",
         GuidHash = 1301724296,
         Prefab  = "Recipe_Armor_Gloves_T01_Bone",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T02_Bone_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipePlatedBoneguardGloves",
         GuidHash = -2140040968,
         Prefab  = "Recipe_Armor_Gloves_T02_Bone_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T03_Cloth = new()
     {
-        Name    = null,
+        Name    = "RecipeNightstalkerGloves",
         GuidHash = -1213072175,
         Prefab  = "Recipe_Armor_Gloves_T03_Cloth",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T04_Copper_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeMarauderGloves",
         GuidHash = 928177888,
         Prefab  = "Recipe_Armor_Gloves_T04_Copper_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T04_Copper_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeShadewalkerGloves",
         GuidHash = -1109520881,
         Prefab  = "Recipe_Armor_Gloves_T04_Copper_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T04_Copper_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeWarlockGloves",
         GuidHash = 1404998399,
         Prefab  = "Recipe_Armor_Gloves_T04_Copper_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T04_Copper_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeGrimRangerGloves",
         GuidHash = 872441116,
         Prefab  = "Recipe_Armor_Gloves_T04_Copper_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T05_Cotton = new()
     {
-        Name    = null,
+        Name    = "RecipeHollowfangGloves",
         GuidHash = 1314134803,
         Prefab  = "Recipe_Armor_Gloves_T05_Cotton",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T06_Iron_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeCrimsonTemplarGloves",
         GuidHash = 55560401,
         Prefab  = "Recipe_Armor_Gloves_T06_Iron_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T06_Iron_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeDuskwatcherGloves",
         GuidHash = 550971753,
         Prefab  = "Recipe_Armor_Gloves_T06_Iron_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T06_Iron_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkMagusGloves",
         GuidHash = 2029351741,
         Prefab  = "Recipe_Armor_Gloves_T06_Iron_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T06_Iron_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeBloodHunterGloves",
         GuidHash = 1321683558,
         Prefab  = "Recipe_Armor_Gloves_T06_Iron_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T07_Silk = new()
     {
-        Name    = null,
+        Name    = "RecipeDawnthorneGloves",
         GuidHash = -1221068660,
         Prefab  = "Recipe_Armor_Gloves_T07_Silk",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T08_DarkSilver_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeGrimKnightGloves",
         GuidHash = -693799437,
         Prefab  = "Recipe_Armor_Gloves_T08_DarkSilver_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T08_DarkSilver_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowmoonGloves",
         GuidHash = 894482163,
         Prefab  = "Recipe_Armor_Gloves_T08_DarkSilver_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T08_DarkSilver_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeMaleficerScholarGloves",
         GuidHash = -494730465,
         Prefab  = "Recipe_Armor_Gloves_T08_DarkSilver_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T08_DarkSilver_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeDreadPlateGloves",
         GuidHash = 1193907705,
         Prefab  = "Recipe_Armor_Gloves_T08_DarkSilver_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T09_Dracula = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasGloves",
         GuidHash = 735928485,
         Prefab  = "Recipe_Armor_Gloves_T09_Dracula",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T09_Dracula_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasGrimGloves",
         GuidHash = -1622946659,
         Prefab  = "Recipe_Armor_Gloves_T09_Dracula_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T09_Dracula_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasShadowGloves",
         GuidHash = -338932204,
         Prefab  = "Recipe_Armor_Gloves_T09_Dracula_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T09_Dracula_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasMaleficerGloves",
         GuidHash = -1548502696,
         Prefab  = "Recipe_Armor_Gloves_T09_Dracula_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T09_Dracula_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasDreadGloves",
         GuidHash = 1103938523,
         Prefab  = "Recipe_Armor_Gloves_T09_Dracula_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T0X_BlackfangSultan = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeOpulentNightVambraces",
         GuidHash = -2121295872,
         Prefab  = "Recipe_Armor_Gloves_T0X_BlackfangSultan",
     };
 
     public static readonly PrefabDef Recipe_Armor_Gloves_T0X_PMK = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeAlucardGloves",
         GuidHash = 1318164039,
         Prefab  = "Recipe_Armor_Gloves_T0X_PMK",
     };
@@ -551,189 +551,189 @@ public static class RecipesEquipmentIndex
 
     public static readonly PrefabDef Recipe_Armor_Legs_T01_Bone = new()
     {
-        Name    = null,
+        Name    = "RecipeBoneguardLeggings",
         GuidHash = -1690725169,
         Prefab  = "Recipe_Armor_Legs_T01_Bone",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T02_Bone_Reinforced = new()
     {
-        Name    = null,
+        Name    = "RecipePlatedBoneguardLeggings",
         GuidHash = -270797694,
         Prefab  = "Recipe_Armor_Legs_T02_Bone_Reinforced",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T03_Cloth = new()
     {
-        Name    = null,
+        Name    = "RecipeNightstalkerLeggings",
         GuidHash = 951656438,
         Prefab  = "Recipe_Armor_Legs_T03_Cloth",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T04_Copper_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeMarauderLeggings",
         GuidHash = -1149764556,
         Prefab  = "Recipe_Armor_Legs_T04_Copper_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T04_Copper_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeShadewalkerLeggings",
         GuidHash = -1585906930,
         Prefab  = "Recipe_Armor_Legs_T04_Copper_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T04_Copper_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeWarlockLeggings",
         GuidHash = 1891096609,
         Prefab  = "Recipe_Armor_Legs_T04_Copper_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T04_Copper_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeGrimRangerLeggings",
         GuidHash = -1228356397,
         Prefab  = "Recipe_Armor_Legs_T04_Copper_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T05_Cotton = new()
     {
-        Name    = null,
+        Name    = "RecipeHollowfangLeggings",
         GuidHash = 321376258,
         Prefab  = "Recipe_Armor_Legs_T05_Cotton",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T06_Iron_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeCrimsonTemplarLeggings",
         GuidHash = 1446070886,
         Prefab  = "Recipe_Armor_Legs_T06_Iron_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T06_Iron_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeDuskwatcherLeggings",
         GuidHash = 1989724461,
         Prefab  = "Recipe_Armor_Legs_T06_Iron_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T06_Iron_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeDarkMagusLeggings",
         GuidHash = 1934342576,
         Prefab  = "Recipe_Armor_Legs_T06_Iron_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T06_Iron_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeBloodHunterLeggings",
         GuidHash = 1489561003,
         Prefab  = "Recipe_Armor_Legs_T06_Iron_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T07_Silk = new()
     {
-        Name    = null,
+        Name    = "RecipeDawnthornLeggings",
         GuidHash = -1310297862,
         Prefab  = "Recipe_Armor_Legs_T07_Silk",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T08_DarkSilver_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeGrimKnightLeggings",
         GuidHash = 392270656,
         Prefab  = "Recipe_Armor_Legs_T08_DarkSilver_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T08_DarkSilver_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeShadowmoonLeggings",
         GuidHash = 24363319,
         Prefab  = "Recipe_Armor_Legs_T08_DarkSilver_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T08_DarkSilver_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeMaleficerLeggings",
         GuidHash = 1352971933,
         Prefab  = "Recipe_Armor_Legs_T08_DarkSilver_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T08_DarkSilver_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeDreadPlateLeggings",
         GuidHash = 1912958943,
         Prefab  = "Recipe_Armor_Legs_T08_DarkSilver_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T09_Dracula = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasLeggings",
         GuidHash = 67380899,
         Prefab  = "Recipe_Armor_Legs_T09_Dracula",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T09_Dracula_Brute = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasGrimLeggings",
         GuidHash = 39790654,
         Prefab  = "Recipe_Armor_Legs_T09_Dracula_Brute",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T09_Dracula_Rogue = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasShadowLeggings",
         GuidHash = 1779568881,
         Prefab  = "Recipe_Armor_Legs_T09_Dracula_Rogue",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T09_Dracula_Scholar = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasMaleficerLeggings",
         GuidHash = -195466783,
         Prefab  = "Recipe_Armor_Legs_T09_Dracula_Scholar",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T09_Dracula_Warrior = new()
     {
-        Name    = null,
+        Name    = "RecipeDraculasDreadLeggings",
         GuidHash = -1621263742,
         Prefab  = "Recipe_Armor_Legs_T09_Dracula_Warrior",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T0X_BlackfangSultan = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeOpulentNightLeggings",
         GuidHash = 83251839,
         Prefab  = "Recipe_Armor_Legs_T0X_BlackfangSultan",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T0X_Cosmetic_Suit01 = new()
     {
-        Name    = null,
+        Name    = "RecipeMidnightNoblermanPants",
         GuidHash = -1197884715,
         Prefab  = "Recipe_Armor_Legs_T0X_Cosmetic_Suit01",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T0X_PMK = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeAlucardLeggings",
         GuidHash = 587362253,
         Prefab  = "Recipe_Armor_Legs_T0X_PMK",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T0X_PMK_02 = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeShanoasLeggings",
         GuidHash = -2087888734,
         Prefab  = "Recipe_Armor_Legs_T0X_PMK_02",
     };
 
     public static readonly PrefabDef Recipe_Armor_Legs_T0X_PMK_03 = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeSomaCruzsLeggings",
         GuidHash = 706994576,
         Prefab  = "Recipe_Armor_Legs_T0X_PMK_03",
     };
@@ -742,35 +742,35 @@ public static class RecipesEquipmentIndex
 
     public static readonly PrefabDef Recipe_Bag_New_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeLeatherBag",
         GuidHash = -316487143,
         Prefab  = "Recipe_Bag_New_T02",
     };
 
     public static readonly PrefabDef Recipe_Bag_New_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipeSilverThreadBag",
         GuidHash = -1025651560,
         Prefab  = "Recipe_Bag_New_T03",
     };
 
     public static readonly PrefabDef Recipe_Bag_New_T04 = new()
     {
-        Name    = null,
+        Name    = "RecipeMountainPeakBag",
         GuidHash = 898844948,
         Prefab  = "Recipe_Bag_New_T04",
     };
 
     public static readonly PrefabDef Recipe_Bag_New_T05 = new()
     {
-        Name    = null,
+        Name    = "RecipePristineLeatherBag",
         GuidHash = -828703620,
         Prefab  = "Recipe_Bag_New_T05",
     };
 
     public static readonly PrefabDef Recipe_Bag_New_T06 = new()
     {
-        Name    = null,
+        Name    = "RecipeBatLeatherBag",
         GuidHash = 219921994,
         Prefab  = "Recipe_Bag_New_T06",
     };
@@ -779,98 +779,98 @@ public static class RecipesEquipmentIndex
 
     public static readonly PrefabDef Recipe_Cloak_Main_T01 = new()
     {
-        Name    = null,
+        Name    = "RecipeTravelersWrap",
         GuidHash = -1602222491,
         Prefab  = "Recipe_Cloak_Main_T01",
     };
 
     public static readonly PrefabDef Recipe_Cloak_Main_T02 = new()
     {
-        Name    = null,
+        Name    = "RecipeHuntersCloak",
         GuidHash = 1004984938,
         Prefab  = "Recipe_Cloak_Main_T02",
     };
 
     public static readonly PrefabDef Recipe_Cloak_Main_T03 = new()
     {
-        Name    = null,
+        Name    = "RecipePhantomsVeil",
         GuidHash = 544114772,
         Prefab  = "Recipe_Cloak_Main_T03",
     };
 
     public static readonly PrefabDef Recipe_Cloak_ShroudOfTheForest = new()
     {
-        Name    = null,
+        Name    = "RecipeShroudOfTheForest",
         GuidHash = -1118059274,
         Prefab  = "Recipe_Cloak_ShroudOfTheForest",
     };
 
     public static readonly PrefabDef Recipe_Cloak_T01_DraculasCloak = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeImmortalKingsDrape",
         GuidHash = -71891063,
         Prefab  = "Recipe_Cloak_T01_DraculasCloak",
     };
 
     public static readonly PrefabDef Recipe_Cloak_T01_GloomrotCloak = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeChemicalSoakedDrape",
         GuidHash = 1882617197,
         Prefab  = "Recipe_Cloak_T01_GloomrotCloak",
     };
 
     public static readonly PrefabDef Recipe_Cloak_T01_RazerCloak = new()
     {
-        Name    = null,
+        Name    = "RecipeRazerSerpentWrap",
         GuidHash = -778599774,
         Prefab  = "Recipe_Cloak_T01_RazerCloak",
     };
 
     public static readonly PrefabDef Recipe_Cloak_T02_DraculasCloak = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeImmortalKingsCloak",
         GuidHash = 1801950047,
         Prefab  = "Recipe_Cloak_T02_DraculasCloak",
     };
 
     public static readonly PrefabDef Recipe_Cloak_T02_GloomrotCloak = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeChemicalSoakedCloak",
         GuidHash = 950343746,
         Prefab  = "Recipe_Cloak_T02_GloomrotCloak",
     };
 
     public static readonly PrefabDef Recipe_Cloak_T02_RazerCloak = new()
     {
-        Name    = null,
+        Name    = "RecipeRazerSerpentCloak",
         GuidHash = -2120661831,
         Prefab  = "Recipe_Cloak_T02_RazerCloak",
     };
 
     public static readonly PrefabDef Recipe_Cloak_T03_DraculasCloak = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeImmortalKingsMantle",
         GuidHash = 489696550,
         Prefab  = "Recipe_Cloak_T03_DraculasCloak",
     };
 
     public static readonly PrefabDef Recipe_Cloak_T03_GloomrotCloak = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeChemicalSoakedRegalia",
         GuidHash = 1581753666,
         Prefab  = "Recipe_Cloak_T03_GloomrotCloak",
     };
 
     public static readonly PrefabDef Recipe_Cloak_T03_RazerCloak = new()
     {
-        Name    = null,
+        Name    = "RecipeRazerSerpentMantle",
         GuidHash = -1620745454,
         Prefab  = "Recipe_Cloak_T03_RazerCloak",
     };
 
     public static readonly PrefabDef Recipe_Cloak_T0X_PMK = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeAlucardCloak",
         GuidHash = -682982599,
         Prefab  = "Recipe_Cloak_T0X_PMK",
     };
@@ -879,77 +879,77 @@ public static class RecipesEquipmentIndex
 
     public static readonly PrefabDef Recipe_Headgear_AshfolkHelm_T03_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeAshfolkHelmet",
         GuidHash = -1261638563,
         Prefab  = "Recipe_Headgear_AshfolkHelm_T03_Trader",
     };
 
     public static readonly PrefabDef Recipe_Headgear_BearTrophy_T02_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeBearHead",
         GuidHash = -1897439354,
         Prefab  = "Recipe_Headgear_BearTrophy_T02_Trader",
     };
 
     public static readonly PrefabDef Recipe_Headgear_DeerTrophy_T02_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeDeerHead",
         GuidHash = -383995717,
         Prefab  = "Recipe_Headgear_DeerTrophy_T02_Trader",
     };
 
     public static readonly PrefabDef Recipe_Headgear_NecromancerHat_T01_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeNecromancersMitre",
         GuidHash = 737997561,
         Prefab  = "Recipe_Headgear_NecromancerHat_T01_Trader",
     };
 
     public static readonly PrefabDef Recipe_Headgear_PilgrimHat_T01_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipePilgrimsHat",
         GuidHash = 742875514,
         Prefab  = "Recipe_Headgear_PilgrimHat_T01_Trader",
     };
 
     public static readonly PrefabDef Recipe_Headgear_PopeMitre_T03_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeMitre",
         GuidHash = -2011894921,
         Prefab  = "Recipe_Headgear_PopeMitre_T03_Trader",
     };
 
     public static readonly PrefabDef Recipe_Headgear_T01_Blackfang = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeOpulentNightVisage",
         GuidHash = 704251871,
         Prefab  = "Recipe_Headgear_T01_Blackfang",
     };
 
     public static readonly PrefabDef Recipe_Headgear_T01_DraculasHelmet = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeImmortalKingsGreathelm",
         GuidHash = -32466106,
         Prefab  = "Recipe_Headgear_T01_DraculasHelmet",
     };
 
     public static readonly PrefabDef Recipe_Headgear_T01_GloomrotHead = new()
     {
-        Name    = null,
+        Name    = "DLCRecipePlagueDoctorMask",
         GuidHash = -1119842484,
         Prefab  = "Recipe_Headgear_T01_GloomrotHead",
     };
 
     public static readonly PrefabDef Recipe_Headgear_T01_RazerHood = new()
     {
-        Name    = null,
+        Name    = "RecipeRazerHood",
         GuidHash = 1316743638,
         Prefab  = "Recipe_Headgear_T01_RazerHood",
     };
 
     public static readonly PrefabDef Recipe_Headgear_WolfTrophy_T02_Trader = new()
     {
-        Name    = null,
+        Name    = "TradeRecipeWolfHead",
         GuidHash = -2135052861,
         Prefab  = "Recipe_Headgear_WolfTrophy_T02_Trader",
     };
@@ -958,203 +958,203 @@ public static class RecipesEquipmentIndex
 
     public static readonly PrefabDef Recipe_MagicSource_BloodKey_T01 = new()
     {
-        Name    = null,
+        Name    = "RecipeBloodKey",
         GuidHash = 152004500,
         Prefab  = "Recipe_MagicSource_BloodKey_T01",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T01_BoneRing = new()
     {
-        Name    = null,
+        Name    = "RecipeBoneRing",
         GuidHash = 2112434273,
         Prefab  = "Recipe_MagicSource_General_T01_BoneRing",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T02_BloodRoseRing = new()
     {
-        Name    = null,
+        Name    = "RecipeBloodBoneRing",
         GuidHash = -377694156,
         Prefab  = "Recipe_MagicSource_General_T02_BloodRoseRing",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T03_GravediggerRing = new()
     {
-        Name    = null,
+        Name    = "RecipeGravediggerRing",
         GuidHash = -84929462,
         Prefab  = "Recipe_MagicSource_General_T03_GravediggerRing",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T04_Duskwatcher = new()
     {
-        Name    = null,
+        Name    = "RecipeRingOfTheDuskwatcher",
         GuidHash = -1392969895,
         Prefab  = "Recipe_MagicSource_General_T04_Duskwatcher",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T04_EmberChain = new()
     {
-        Name    = null,
+        Name    = "RecipeRingOfTheDawnrunner",
         GuidHash = 606793986,
         Prefab  = "Recipe_MagicSource_General_T04_EmberChain",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T04_FrozenEye = new()
     {
-        Name    = null,
+        Name    = "RecipeRingOfTheWarlock",
         GuidHash = -1252143324,
         Prefab  = "Recipe_MagicSource_General_T04_FrozenEye",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T04_KnightRing = new()
     {
-        Name    = null,
+        Name    = "RecipeRingOfTheWarrior",
         GuidHash = 134822591,
         Prefab  = "Recipe_MagicSource_General_T04_KnightRing",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T04_MistSignet = new()
     {
-        Name    = null,
+        Name    = "RecipeRingOfTheSpellweaver",
         GuidHash = -1643108625,
         Prefab  = "Recipe_MagicSource_General_T04_MistSignet",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T04_SorcererRing = new()
     {
-        Name    = null,
+        Name    = "RecipeRingOfTheSorcerer",
         GuidHash = -1954484110,
         Prefab  = "Recipe_MagicSource_General_T04_SorcererRing",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T05_Relic = new()
     {
-        Name    = null,
+        Name    = "RecipeScourgestonePendant",
         GuidHash = 464548553,
         Prefab  = "Recipe_MagicSource_General_T05_Relic",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T06_AmethystPendant = new()
     {
-        Name    = null,
+        Name    = "RecipePendantOfTheSorcerer",
         GuidHash = 575942293,
         Prefab  = "Recipe_MagicSource_General_T06_AmethystPendant",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T06_EmeraldNecklace = new()
     {
-        Name    = null,
+        Name    = "RecipePendantOfTheDawnrunner",
         GuidHash = -1789687685,
         Prefab  = "Recipe_MagicSource_General_T06_EmeraldNecklace",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T06_MistStoneNecklace = new()
     {
-        Name    = null,
+        Name    = "RecipePendantOfTheSpellweaver",
         GuidHash = 2113597811,
         Prefab  = "Recipe_MagicSource_General_T06_MistStoneNecklace",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T06_RubyPendant = new()
     {
-        Name    = null,
+        Name    = "RecipePendantOfTheWarrior",
         GuidHash = 1192551289,
         Prefab  = "Recipe_MagicSource_General_T06_RubyPendant",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T06_SapphirePendant = new()
     {
-        Name    = null,
+        Name    = "RecipePendantOfTheWarlock",
         GuidHash = 932186802,
         Prefab  = "Recipe_MagicSource_General_T06_SapphirePendant",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T06_TopazAmulet = new()
     {
-        Name    = null,
+        Name    = "RecipePendantOfTheDuskwatcher",
         GuidHash = 1272778289,
         Prefab  = "Recipe_MagicSource_General_T06_TopazAmulet",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T07_BloodwineAmulet = new()
     {
-        Name    = null,
+        Name    = "RecipeBloodMerlotAmulet",
         GuidHash = 307631810,
         Prefab  = "Recipe_MagicSource_General_T07_BloodwineAmulet",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T08_Beast = new()
     {
-        Name    = null,
+        Name    = "RecipeAmuletOfTheBlademaster",
         GuidHash = -590297568,
         Prefab  = "Recipe_MagicSource_General_T08_Beast",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T08_CrimsonSky = new()
     {
-        Name    = null,
+        Name    = "RecipeAmuletOfTheCrimsonCommander",
         GuidHash = -1485680334,
         Prefab  = "Recipe_MagicSource_General_T08_CrimsonSky",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T08_Delusion = new()
     {
-        Name    = null,
+        Name    = "RecipeAmuletOfTheMasterSpellweaver",
         GuidHash = -321571889,
         Prefab  = "Recipe_MagicSource_General_T08_Delusion",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T08_FrozenCrypt = new()
     {
-        Name    = null,
+        Name    = "RecipeAmuletOfTheArchWarlock",
         GuidHash = -831940419,
         Prefab  = "Recipe_MagicSource_General_T08_FrozenCrypt",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T08_Madness = new()
     {
-        Name    = null,
+        Name    = "RecipeAmuletOfTheUnyieldingCharger",
         GuidHash = 1926933208,
         Prefab  = "Recipe_MagicSource_General_T08_Madness",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T08_WickedProphet = new()
     {
-        Name    = null,
+        Name    = "RecipeAmuletOfTheWickedProphet",
         GuidHash = -715761764,
         Prefab  = "Recipe_MagicSource_General_T08_WickedProphet",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T09_Dracula = new()
     {
-        Name    = null,
+        Name    = "RecipeSoulShardOfDracula",
         GuidHash = -414358988,
         Prefab  = "Recipe_MagicSource_General_T09_Dracula",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T09_Manticore = new()
     {
-        Name    = null,
+        Name    = "RecipeSoulShardOfTheWingedHorror",
         GuidHash = -111826090,
         Prefab  = "Recipe_MagicSource_General_T09_Manticore",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T09_Monster = new()
     {
-        Name    = null,
+        Name    = "RecipeSoulShardOfTheMonster",
         GuidHash = 1791150988,
         Prefab  = "Recipe_MagicSource_General_T09_Monster",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T09_Morgana = new()
     {
-        Name    = null,
+        Name    = "RecipeSoulShardOfTheSerpent",
         GuidHash = 1129993300,
         Prefab  = "Recipe_MagicSource_General_T09_Morgana",
     };
 
     public static readonly PrefabDef Recipe_MagicSource_General_T09_Solarus = new()
     {
-        Name    = null,
+        Name    = "RecipeSoulShardOfSolarus",
         GuidHash = -958598508,
         Prefab  = "Recipe_MagicSource_General_T09_Solarus",
     };
@@ -1163,28 +1163,28 @@ public static class RecipesEquipmentIndex
 
     public static readonly PrefabDef Recipe_Saddle_Basic_T01 = new()
     {
-        Name    = null,
+        Name    = "RecipeVampireHorseSaddle",
         GuidHash = 367529732,
         Prefab  = "Recipe_Saddle_Basic_T01",
     };
 
     public static readonly PrefabDef Recipe_Saddle_Blackfang_DLC_T01 = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeDarkvenomWarSaddle",
         GuidHash = 1477520375,
         Prefab  = "Recipe_Saddle_Blackfang_DLC_T01",
     };
 
     public static readonly PrefabDef Recipe_Saddle_Gloomrot_DLC_T01 = new()
     {
-        Name    = null,
+        Name    = "DLCRecipePlagueChemistsSaddle",
         GuidHash = -2076606690,
         Prefab  = "Recipe_Saddle_Gloomrot_DLC_T01",
     };
 
     public static readonly PrefabDef Recipe_Saddle_ProjectK_DLC_T01 = new()
     {
-        Name    = null,
+        Name    = "DLCRecipeRowdainsSteedSaddle",
         GuidHash = 841431479,
         Prefab  = "Recipe_Saddle_ProjectK_DLC_T01",
     };

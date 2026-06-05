@@ -6,265 +6,200 @@ public static class ItemsMiscIndex
 
     public static readonly PrefabDef FakeItem_AnyFish = new()
     {
-        Name    = null,
+        Name    = "LabelAnyFish",
         GuidHash = 300582272,
         Prefab  = "FakeItem_AnyFish",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef FakeItem_AnyFlower = new()
     {
-        Name    = null,
+        Name    = "LabelAnyFlower",
         GuidHash = -2101941878,
         Prefab  = "FakeItem_AnyFlower",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef FakeItem_AnyGem = new()
     {
-        Name    = null,
+        Name    = "LabelAnyGem",
         GuidHash = 1128027535,
         Prefab  = "FakeItem_AnyGem",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef FakeItem_AnyGem_T01 = new()
     {
-        Name    = null,
+        Name    = "LabelAnyCrudeGem",
         GuidHash = -2039337521,
         Prefab  = "FakeItem_AnyGem_T01",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef FakeItem_AnyGem_T02 = new()
     {
-        Name    = null,
+        Name    = "LabelAnyGem",
         GuidHash = -2099422426,
         Prefab  = "FakeItem_AnyGem_T02",
-        NameKey = null,
-        DescKey = null,
-    };
-
-    public static readonly PrefabDef FakeItem_BloodTracking = new()
-    {
-        Name    = null,
-        GuidHash = -170922187,
-        Prefab  = "FakeItem_BloodTracking",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef FakeItem_FlawlessGem_T03 = new()
     {
-        Name    = null,
+        Name    = "LabelAnyFlawlessGem",
         GuidHash = 1613130430,
         Prefab  = "FakeItem_FlawlessGem_T03",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef FakeItem_RegularGem_T02 = new()
     {
-        Name    = null,
+        Name    = "LabelGem",
         GuidHash = -36717533,
         Prefab  = "FakeItem_RegularGem_T02",
-        NameKey = null,
-        DescKey = null,
     };
 
     // ── Dummy Items ───────────────────────────────────────────────────────────
 
     public static readonly PrefabDef Item_Dummy_Banshee = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnBanshee",
         GuidHash = -1513937321,
         Prefab  = "Item_Dummy_Banshee",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_Ghoul = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnGhoul",
         GuidHash = 2042311455,
         Prefab  = "Item_Dummy_Ghoul",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_GiantRat = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnGiantRat",
         GuidHash = 213967097,
         Prefab  = "Item_Dummy_GiantRat",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_Mosquito = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnMosquito",
         GuidHash = 961990006,
         Prefab  = "Item_Dummy_Mosquito",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_Mutant = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnMutant",
         GuidHash = -338333923,
         Prefab  = "Item_Dummy_Mutant",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_Necromancer = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnSkeletonPriest",
         GuidHash = 1252366498,
         Prefab  = "Item_Dummy_Necromancer",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_NetherDemon_T01_BloodSoul = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnLesserBloodSoul",
         GuidHash = 1395316286,
         Prefab  = "Item_Dummy_NetherDemon_T01_BloodSoul",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_NetherDemon_T01_Knowledge = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnBloodHarpy",
         GuidHash = 215017089,
         Prefab  = "Item_Dummy_NetherDemon_T01_Knowledge",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_NetherDemon_T01_Minerals = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnBloodElemental",
         GuidHash = -2141642225,
         Prefab  = "Item_Dummy_NetherDemon_T01_Minerals",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_NetherDemon_T01_Seeds = new()
     {
-        Name    = null,
+        Name    = "LabelBloodTreant",
         GuidHash = -112151309,
         Prefab  = "Item_Dummy_NetherDemon_T01_Seeds",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_NetherDemon_T01_Weapons = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnBloodGuardian",
         GuidHash = 886819019,
         Prefab  = "Item_Dummy_NetherDemon_T01_Weapons",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_NetherDemon_T02_Alchemy = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnBloodCorpsePile",
         GuidHash = 34841965,
         Prefab  = "Item_Dummy_NetherDemon_T02_Alchemy",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_NetherDemon_T02_BloodSoul = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnPrimalBloodSoul",
         GuidHash = -107137497,
         Prefab  = "Item_Dummy_NetherDemon_T02_BloodSoul",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_NetherDemon_T02_Knowledge = new()
     {
-        Name    = null,
+        Name    = "LabelBloodWitch",
         GuidHash = 1452779821,
         Prefab  = "Item_Dummy_NetherDemon_T02_Knowledge",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_NetherDemon_T02_Minerals = new()
     {
-        Name    = null,
+        Name    = "LabelBloodGolem",
         GuidHash = -364321170,
         Prefab  = "Item_Dummy_NetherDemon_T02_Minerals",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_NetherDemon_T02_Weapons = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnBloodGargoyle",
         GuidHash = -1199531707,
         Prefab  = "Item_Dummy_NetherDemon_T02_Weapons",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_PutridRat = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnNibbles",
         GuidHash = 927039475,
         Prefab  = "Item_Dummy_PutridRat",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_Rat = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnRat",
         GuidHash = 2029158532,
         Prefab  = "Item_Dummy_Rat",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_Silkworm = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnSilkworm",
         GuidHash = 930747930,
         Prefab  = "Item_Dummy_Silkworm",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_Skeleton = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnSkeleton",
         GuidHash = -836889492,
         Prefab  = "Item_Dummy_Skeleton",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Dummy_Spiderling = new()
     {
-        Name    = null,
+        Name    = "LabelSpawnSpiderling",
         GuidHash = 2015299972,
         Prefab  = "Item_Dummy_Spiderling",
-        NameKey = null,
-        DescKey = null,
     };
 
     // ── Stygian Shard ─────────────────────────────────────────────────────────
@@ -274,298 +209,232 @@ public static class ItemsMiscIndex
         Name    = "PrimalStygianShard",
         GuidHash = 28358550,
         Prefab  = "Item_NetherShard_T03",
-        NameKey = null,
-        DescKey = null,
     };
 
     // ── Unused / Miscellaneous ────────────────────────────────────────────────
 
     public static readonly PrefabDef Item_Ingredient_IronBody = new()
     {
-        Name    = null,
+        Name    = "IronBody",
         GuidHash = 988417522,
         Prefab  = "Item_Ingredient_IronBody",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Kit_Base = new()
     {
-        Name    = null,
+        Name    = "UnusedScroll",
         GuidHash = 1413130999,
         Prefab  = "Item_Ingredient_Kit_Base",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Kit_Blacksmith_T02 = new()
     {
-        Name    = null,
+        Name    = "UnusedGrindstone",
         GuidHash = -167936394,
         Prefab  = "Item_Ingredient_Kit_Blacksmith_T02",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Kit_Blacksmith_T03 = new()
     {
-        Name    = null,
+        Name    = "UnusedCopperBody",
         GuidHash = -580716317,
         Prefab  = "Item_Ingredient_Kit_Blacksmith_T03",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Kit_Blacksmith_T04 = new()
     {
-        Name    = null,
+        Name    = "UnusedArtifact",
         GuidHash = -1838793646,
         Prefab  = "Item_Ingredient_Kit_Blacksmith_T04",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Kit_Magic_T04 = new()
     {
-        Name    = null,
+        Name    = "ExceptionalMagicComponent",
         GuidHash = 1488205677,
         Prefab  = "Item_Ingredient_Kit_Magic_T04",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Kit_Tailoring_T04 = new()
     {
-        Name    = null,
+        Name    = "ExceptionalTailoringComponent",
         GuidHash = 828271620,
         Prefab  = "Item_Ingredient_Kit_Tailoring_T04",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_CastleUpkeep_Fake = new()
     {
-        Name    = null,
+        Name    = "CastleUpkeep",
         GuidHash = 421203343,
         Prefab  = "Item_Ingredient_CastleUpkeep_Fake",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Chitin = new()
     {
-        Name    = null,
+        Name    = "Chitin",
         GuidHash = -953253466,
         Prefab  = "Item_Ingredient_Chitin",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_ClayMold = new()
     {
-        Name    = null,
+        Name    = "ClayMold",
         GuidHash = -1257026088,
         Prefab  = "Item_Ingredient_ClayMold",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Gemstone = new()
     {
-        Name    = null,
+        Name    = "UnusedGrindstone2",
         GuidHash = 2115367516,
         Prefab  = "Item_Ingredient_Gemstone",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_MapZone_Fish = new()
     {
-        Name    = null,
+        Name    = "UnusedFish",
         GuidHash = 193249843,
         Prefab  = "Item_Ingredient_MapZone_Fish",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_MapZone_GemVein_T02 = new()
     {
-        Name    = null,
+        Name    = "UnusedGemShard",
         GuidHash = 889298519,
         Prefab  = "Item_Ingredient_MapZone_GemVein_T02",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_MapZone_GemVein_T03 = new()
     {
-        Name    = null,
+        Name    = "UnusedGemstone",
         GuidHash = 301051123,
         Prefab  = "Item_Ingredient_MapZone_GemVein_T03",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_MapZone_Plants = new()
     {
-        Name    = null,
+        Name    = "UnusedFlower",
         GuidHash = 968796494,
         Prefab  = "Item_Ingredient_MapZone_Plants",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_MapZone_Potions = new()
     {
-        Name    = null,
+        Name    = "UnusedPotion",
         GuidHash = -1617671082,
         Prefab  = "Item_Ingredient_MapZone_Potions",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_MapZone_Tesla = new()
     {
-        Name    = null,
+        Name    = "UnusedElectricity",
         GuidHash = -77555820,
         Prefab  = "Item_Ingredient_MapZone_Tesla",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_MapZone_Vendor = new()
     {
-        Name    = null,
+        Name    = "UnusedBag",
         GuidHash = -696770536,
         Prefab  = "Item_Ingredient_MapZone_Vendor",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Mineral_GoldOre = new()
     {
-        Name    = null,
+        Name    = "GoldOre",
         GuidHash = 660533034,
         Prefab  = "Item_Ingredient_Mineral_GoldOre",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Plant_RadiantFiber = new()
     {
-        Name    = null,
+        Name    = "RadiantFiber",
         GuidHash = -182923609,
         Prefab  = "Item_Ingredient_Plant_RadiantFiber",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Plant_Thistle = new()
     {
-        Name    = null,
+        Name    = "Thistle",
         GuidHash = -598100816,
         Prefab  = "Item_Ingredient_Plant_Thistle",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Resonator = new()
     {
-        Name    = null,
+        Name    = "Resonator",
         GuidHash = -1629804427,
         Prefab  = "Item_Ingredient_Resonator",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Thread_Imperial = new()
     {
-        Name    = null,
+        Name    = "ImperialThread",
         GuidHash = -898917584,
         Prefab  = "Item_Ingredient_Thread_Imperial",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Witchdust = new()
     {
-        Name    = null,
+        Name    = "Witchdust",
         GuidHash = -223452038,
         Prefab  = "Item_Ingredient_Witchdust",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Vampiricdust = new()
     {
-        Name    = null,
+        Name    = "VampiricDust",
         GuidHash = 805157024,
         Prefab  = "Item_Ingredient_Vampiricdust",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Coal = new()
     {
-        Name    = null,
+        Name    = "Coal",
         GuidHash = -1932461974,
         Prefab  = "Item_Ingredient_Coal",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Crystal = new()
     {
-        Name    = null,
+        Name    = "Crystal",
         GuidHash = -257494203,
         Prefab  = "Item_Ingredient_Crystal",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Fish_TheFish = new()
     {
-        Name    = null,
+        Name    = "TheFish",
         GuidHash = 176401052,
         Prefab  = "Item_Ingredient_Fish_TheFish",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_DemonFragment = new()
     {
-        Name    = null,
+        Name    = "DemonFragment",
         GuidHash = -77477508,
         Prefab  = "Item_Ingredient_DemonFragment",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Scales = new()
     {
-        Name    = null,
+        Name    = "UnusedScales",
         GuidHash = -1199259626,
         Prefab  = "Item_Ingredient_Scales",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Gem_Base = new()
     {
-        Name    = null,
+        Name    = "UnusedPlant",
         GuidHash = -656822228,
         Prefab  = "Item_Ingredient_Gem_Base",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Document = new()
     {
-        Name    = null,
+        Name    = "UnusedBlueThing",
         GuidHash = 1334469825,
         Prefab  = "Item_Ingredient_Document",
-        NameKey = null,
-        DescKey = null,
     };
 
     // ── Perfect Gems ──────────────────────────────────────────────────────────
@@ -575,8 +444,6 @@ public static class ItemsMiscIndex
         Name    = "PerfectAmethyst",
         GuidHash = -106283194,
         Prefab  = "Item_Ingredient_Gem_Amethyst_T04",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Gem_Emerald_T04 = new()
@@ -584,8 +451,6 @@ public static class ItemsMiscIndex
         Name    = "PerfectEmerald",
         GuidHash = 1354115931,
         Prefab  = "Item_Ingredient_Gem_Emerald_T04",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Gem_Miststone_T04 = new()
@@ -593,8 +458,6 @@ public static class ItemsMiscIndex
         Name    = "PerfectMiststone",
         GuidHash = 750542699,
         Prefab  = "Item_Ingredient_Gem_Miststone_T04",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Gem_Ruby_T04 = new()
@@ -602,8 +465,6 @@ public static class ItemsMiscIndex
         Name    = "PerfectRuby",
         GuidHash = 188653143,
         Prefab  = "Item_Ingredient_Gem_Ruby_T04",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Gem_Sapphire_T04 = new()
@@ -611,8 +472,6 @@ public static class ItemsMiscIndex
         Name    = "PerfectSapphire",
         GuidHash = -2020212226,
         Prefab  = "Item_Ingredient_Gem_Sapphire_T04",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Ingredient_Gem_Topaz_T04 = new()
@@ -620,54 +479,42 @@ public static class ItemsMiscIndex
         Name    = "PerfectTopaz",
         GuidHash = -1983566585,
         Prefab  = "Item_Ingredient_Gem_Topaz_T04",
-        NameKey = null,
-        DescKey = null,
     };
 
     // ── Relics ────────────────────────────────────────────────────────────────
 
     public static readonly PrefabDef Item_Building_Relic_Behemoth = new()
     {
-        Name    = null,
+        Name    = "UnusedBehemothSoul",
         GuidHash = 1247086852,
         Prefab  = "Item_Building_Relic_Behemoth",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Building_Relic_Manticore = new()
     {
-        Name    = null,
+        Name    = "UnusedWingedHorrorSoul",
         GuidHash = -222860772,
         Prefab  = "Item_Building_Relic_Manticore",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Building_Relic_Monster = new()
     {
-        Name    = null,
+        Name    = "UnusedMonsterSoul",
         GuidHash = -1619308732,
         Prefab  = "Item_Building_Relic_Monster",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Building_Relic_Paladin = new()
     {
-        Name    = null,
+        Name    = "UnusedSolarusSoul",
         GuidHash = 2019195024,
         Prefab  = "Item_Building_Relic_Paladin",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Building_Plants_Thistle_Seed = new()
     {
-        Name    = null,
+        Name    = "UnusedCactus",
         GuidHash = -1370210913,
         Prefab  = "Item_Building_Plants_Thistle_Seed",
-        NameKey = null,
-        DescKey = null,
     };
 }

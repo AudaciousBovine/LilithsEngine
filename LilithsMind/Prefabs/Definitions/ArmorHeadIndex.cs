@@ -178,8 +178,6 @@ public static class ArmorHeadIndex
         Name    = "RustedHelmet",
         GuidHash = 1364460757,
         Prefab  = "Item_Headgear_RustedHelmet",
-        NameKey = null,
-        DescKey = null,
     };
 
     public static readonly PrefabDef Item_Headgear_RustedMilitiaHelmet = new()
@@ -280,8 +278,6 @@ public static class ArmorHeadIndex
         Name    = "OpulentNightVisage",
         GuidHash = 1729289046,
         Prefab  = "Item_Headgear_BlackfangSultan",
-        NameKey = null,
-        DescKey = null,
     };
 
     // DLC: Dracula's Relics
@@ -300,8 +296,6 @@ public static class ArmorHeadIndex
         Name    = "PlagueDoctorMask",
         GuidHash = -262204844,
         Prefab  = "Item_Headgear_Plaguemaster",
-        NameKey = null,
-        DescKey = null,
     };
 
     // ── Unused ────────────────────────────────────────────────────────────────
@@ -311,7 +305,5 @@ public static class ArmorHeadIndex
         Name    = "HeadgearBase",
         GuidHash = -1905547794,
         Prefab  = "Item_Armor_Headgear_Base",
-        NameKey = null,
-        DescKey = null,
     };
 }

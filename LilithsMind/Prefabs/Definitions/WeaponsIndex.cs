@@ -112,13 +112,6 @@ public static partial class WeaponsIndex
         DescKey = null,
     };
 
-    public static readonly PrefabDef Item_Weapon_Sword_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = 1564801426,  Prefab = "Item_Weapon_Sword_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Sword_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = 1908755405,  Prefab = "Item_Weapon_Sword_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Sword_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = 220001518,   Prefab = "Item_Weapon_Sword_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Sword_Legendary_T08_Shattered = new() { Name = null, GuidHash = 1048769481,  Prefab = "Item_Weapon_Sword_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Sword_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = -830893351,  Prefab = "Item_Weapon_Sword_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Sword_Legendary_T06_Shattered = new() { Name = null, GuidHash = -1421775051, Prefab = "Item_Weapon_Sword_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-
     // ── Axes ──────────────────────────────────────────────────────────────────
 
     public static readonly PrefabDef Item_Weapon_Axe_T01_Bone = new()
@@ -238,13 +231,6 @@ public static partial class WeaponsIndex
         DescKey = null,
     };
 
-    public static readonly PrefabDef Item_Weapon_Axe_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = 163122449,   Prefab = "Item_Weapon_Axe_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Axe_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = 1570017693,  Prefab = "Item_Weapon_Axe_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Axe_Legendary_T06_Shattered = new() { Name = null, GuidHash = -2147445292, Prefab = "Item_Weapon_Axe_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Axe_Legendary_T08_Shattered = new() { Name = null, GuidHash = 442700150,   Prefab = "Item_Weapon_Axe_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Axe_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = -1024626758, Prefab = "Item_Weapon_Axe_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Axe_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = 2099198078,  Prefab = "Item_Weapon_Axe_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
-
     // ── Maces ─────────────────────────────────────────────────────────────────
 
     public static readonly PrefabDef Item_Weapon_Mace_T01_Bone = new()
@@ -267,7 +253,7 @@ public static partial class WeaponsIndex
 
     public static readonly PrefabDef Item_Weapon_Mace_T02_Miners = new()
     {
-        Name    = "MinersMace",
+        Name    = "MinerMace",
         GuidHash = -687294429,
         Prefab  = "Item_Weapon_Mace_T02_Miners",
         NameKey = null,
@@ -363,13 +349,6 @@ public static partial class WeaponsIndex
         NameKey = null,
         DescKey = null,
     };
-
-    public static readonly PrefabDef Item_Weapon_Mace_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = 264593098,   Prefab = "Item_Weapon_Mace_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Mace_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = -2048346225, Prefab = "Item_Weapon_Mace_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Mace_Legendary_T06_Shattered = new() { Name = null, GuidHash = 1963988265,  Prefab = "Item_Weapon_Mace_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Mace_Legendary_T08_Shattered = new() { Name = null, GuidHash = -1810734832, Prefab = "Item_Weapon_Mace_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Mace_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = -1845443712, Prefab = "Item_Weapon_Mace_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Mace_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = -915028618,  Prefab = "Item_Weapon_Mace_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
 
     // ── Spears ────────────────────────────────────────────────────────────────
 
@@ -480,13 +459,6 @@ public static partial class WeaponsIndex
         NameKey = null,
         DescKey = null,
     };
-
-    public static readonly PrefabDef Item_Weapon_Spear_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = -1854790299, Prefab = "Item_Weapon_Spear_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Spear_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = 912809090,   Prefab = "Item_Weapon_Spear_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Spear_Legendary_T06_Shattered = new() { Name = null, GuidHash = 2142983740,  Prefab = "Item_Weapon_Spear_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Spear_Legendary_T08_Shattered = new() { Name = null, GuidHash = 1717016192,  Prefab = "Item_Weapon_Spear_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Spear_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = -958110636,  Prefab = "Item_Weapon_Spear_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Spear_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = 124616797,   Prefab = "Item_Weapon_Spear_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
 
     // ── Reapers ───────────────────────────────────────────────────────────────
 
@@ -607,13 +579,6 @@ public static partial class WeaponsIndex
         DescKey = null,
     };
 
-    public static readonly PrefabDef Item_Weapon_Reaper_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = -576626587,  Prefab = "Item_Weapon_Reaper_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Reaper_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = -383870009,  Prefab = "Item_Weapon_Reaper_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Reaper_Legendary_T06_Shattered = new() { Name = null, GuidHash = -413259500,  Prefab = "Item_Weapon_Reaper_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Reaper_Legendary_T08_Shattered = new() { Name = null, GuidHash = 886814985,   Prefab = "Item_Weapon_Reaper_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Reaper_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = -2136716453, Prefab = "Item_Weapon_Reaper_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Reaper_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = 1801132968,  Prefab = "Item_Weapon_Reaper_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
-
     // ── Slashers ──────────────────────────────────────────────────────────────
 
     public static readonly PrefabDef Item_Weapon_Slashers_T01_Bone = new()
@@ -733,13 +698,6 @@ public static partial class WeaponsIndex
         DescKey = null,
     };
 
-    public static readonly PrefabDef Item_Weapon_Slashers_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = 658426701,   Prefab = "Item_Weapon_Slashers_Legendary_NameGenerator_T06",      NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Slashers_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = 1954207008,  Prefab = "Item_Weapon_Slashers_Unique_T08_Variation01_Shattered",  NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Slashers_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = 810808231,   Prefab = "Item_Weapon_Slashers_Legendary_NameGenerator_T08",      NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Slashers_Legendary_T06_Shattered = new() { Name = null, GuidHash = 3759455,      Prefab = "Item_Weapon_Slashers_Legendary_T06_Shattered",          NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Slashers_Legendary_T08_Shattered = new() { Name = null, GuidHash = 1271087499,  Prefab = "Item_Weapon_Slashers_Legendary_T08_Shattered",          NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Slashers_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = -1390536751, Prefab = "Item_Weapon_Slashers_Legendary_T08_Trader_Template",    NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Slashers_Unique_T08_Variation02_Shattered = new() { Name = null, GuidHash = -1930402723, Prefab = "Item_Weapon_Slashers_Unique_T08_Variation02_Shattered", NameKey = null, DescKey = null };
     public static readonly PrefabDef Item_Weapon_Crossbow_T01_Bone = new()
     {
         Name    = "BoneCrossbow",
@@ -847,14 +805,7 @@ public static partial class WeaponsIndex
         NameKey = null,
         DescKey = null,
     };
- 
-    public static readonly PrefabDef Item_Weapon_Crossbow_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = 1958482379,  Prefab = "Item_Weapon_Crossbow_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Crossbow_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = 1716435762,  Prefab = "Item_Weapon_Crossbow_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Crossbow_Legendary_T06_Shattered = new() { Name = null, GuidHash = 572026243,   Prefab = "Item_Weapon_Crossbow_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Crossbow_Legendary_T08_Shattered = new() { Name = null, GuidHash = 2061238391,  Prefab = "Item_Weapon_Crossbow_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Crossbow_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = 517296275,   Prefab = "Item_Weapon_Crossbow_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Crossbow_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = 781586362,   Prefab = "Item_Weapon_Crossbow_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
- 
+
     // ── Longbows ──────────────────────────────────────────────────────────────
  
     public static readonly PrefabDef Item_Weapon_Longbow_T03_Copper = new()
@@ -946,14 +897,7 @@ public static partial class WeaponsIndex
         NameKey = null,
         DescKey = null,
     };
- 
-    public static readonly PrefabDef Item_Weapon_Longbow_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = -726074700, Prefab = "Item_Weapon_Longbow_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Longbow_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = 288292636,  Prefab = "Item_Weapon_Longbow_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Longbow_Legendary_T06_Shattered = new() { Name = null, GuidHash = 649637190,  Prefab = "Item_Weapon_Longbow_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Longbow_Legendary_T08_Shattered = new() { Name = null, GuidHash = 285875674,  Prefab = "Item_Weapon_Longbow_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Longbow_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = 19130904,   Prefab = "Item_Weapon_Longbow_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Longbow_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = 1102277512, Prefab = "Item_Weapon_Longbow_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
- 
+
     // ── Claws ─────────────────────────────────────────────────────────────────
  
     public static readonly PrefabDef Item_Weapon_Claws_T05_Iron = new()
@@ -1018,14 +962,7 @@ public static partial class WeaponsIndex
         NameKey = null,
         DescKey = null,
     };
- 
-    public static readonly PrefabDef Item_Weapon_Claws_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = -444900575,  Prefab = "Item_Weapon_Claws_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Claws_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = -1774269887, Prefab = "Item_Weapon_Claws_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Claws_Legendary_T06_Shattered = new() { Name = null, GuidHash = -1746159915, Prefab = "Item_Weapon_Claws_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Claws_Legendary_T08_Shattered = new() { Name = null, GuidHash = -655493979,  Prefab = "Item_Weapon_Claws_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Claws_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = 1401940772,  Prefab = "Item_Weapon_Claws_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Claws_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = -1024379681, Prefab = "Item_Weapon_Claws_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
- 
+
     // ── Daggers ───────────────────────────────────────────────────────────────
  
     public static readonly PrefabDef Item_Weapon_Daggers_T05_Iron = new()
@@ -1099,14 +1036,7 @@ public static partial class WeaponsIndex
         NameKey = null,
         DescKey = null,
     };
- 
-    public static readonly PrefabDef Item_Weapon_Daggers_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = -816018167,  Prefab = "Item_Weapon_Daggers_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Daggers_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = -1566606969, Prefab = "Item_Weapon_Daggers_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Daggers_Legendary_T06_Shattered = new() { Name = null, GuidHash = -1075670534, Prefab = "Item_Weapon_Daggers_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Daggers_Legendary_T08_Shattered = new() { Name = null, GuidHash = -2137269775, Prefab = "Item_Weapon_Daggers_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Daggers_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = 1719144622,  Prefab = "Item_Weapon_Daggers_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Daggers_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = -1233207977, Prefab = "Item_Weapon_Daggers_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
- 
+
     // ── Greatswords ───────────────────────────────────────────────────────────
  
     public static readonly PrefabDef Item_Weapon_GreatSword_T05_Iron = new()
@@ -1180,14 +1110,7 @@ public static partial class WeaponsIndex
         NameKey = null,
         DescKey = null,
     };
- 
-    public static readonly PrefabDef Item_Weapon_GreatSword_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = -437176953,  Prefab = "Item_Weapon_GreatSword_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_GreatSword_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = -256643998,  Prefab = "Item_Weapon_GreatSword_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_GreatSword_Legendary_T06_Shattered = new() { Name = null, GuidHash = 747911021,   Prefab = "Item_Weapon_GreatSword_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_GreatSword_Legendary_T08_Shattered = new() { Name = null, GuidHash = -1638796801, Prefab = "Item_Weapon_GreatSword_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_GreatSword_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = -1743584975, Prefab = "Item_Weapon_GreatSword_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_GreatSword_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = 1272855317,  Prefab = "Item_Weapon_GreatSword_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
- 
+
     // ── Pistols ───────────────────────────────────────────────────────────────
  
     public static readonly PrefabDef Item_Weapon_Pistols_T05_Iron = new()
@@ -1261,14 +1184,7 @@ public static partial class WeaponsIndex
         NameKey = null,
         DescKey = null,
     };
- 
-    public static readonly PrefabDef Item_Weapon_Pistols_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = 1333624152,  Prefab = "Item_Weapon_Pistols_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Pistols_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = -1843989041, Prefab = "Item_Weapon_Pistols_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Pistols_Legendary_T06_Shattered = new() { Name = null, GuidHash = -1038642372, Prefab = "Item_Weapon_Pistols_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Pistols_Legendary_T08_Shattered = new() { Name = null, GuidHash = 1040125618,  Prefab = "Item_Weapon_Pistols_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Pistols_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = -1502177717, Prefab = "Item_Weapon_Pistols_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Pistols_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = 1630030026,  Prefab = "Item_Weapon_Pistols_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
- 
+
     // ── Twinblades ────────────────────────────────────────────────────────────
  
     public static readonly PrefabDef Item_Weapon_TwinBlades_T05_Iron = new()
@@ -1343,13 +1259,6 @@ public static partial class WeaponsIndex
         DescKey = null,
     };
  
-    public static readonly PrefabDef Item_Weapon_TwinBlades_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = 1835208468,  Prefab = "Item_Weapon_TwinBlades_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_TwinBlades_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = 2023500574,  Prefab = "Item_Weapon_TwinBlades_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_TwinBlades_Legendary_T06_Shattered = new() { Name = null, GuidHash = 1579758125,  Prefab = "Item_Weapon_TwinBlades_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_TwinBlades_Legendary_T08_Shattered = new() { Name = null, GuidHash = 1479621167,  Prefab = "Item_Weapon_TwinBlades_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_TwinBlades_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = -228881628,  Prefab = "Item_Weapon_TwinBlades_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_TwinBlades_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = -1397287045, Prefab = "Item_Weapon_TwinBlades_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
- 
     // ── Whips ─────────────────────────────────────────────────────────────────
  
     public static readonly PrefabDef Item_Weapon_Whip_T05_Iron = new()
@@ -1423,14 +1332,7 @@ public static partial class WeaponsIndex
         NameKey = null,
         DescKey = null,
     };
- 
-    public static readonly PrefabDef Item_Weapon_Whip_Legendary_NameGenerator_T06 = new() { Name = null, GuidHash = -882837429,  Prefab = "Item_Weapon_Whip_Legendary_NameGenerator_T06",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Whip_Legendary_NameGenerator_T08 = new() { Name = null, GuidHash = 1838862498,  Prefab = "Item_Weapon_Whip_Legendary_NameGenerator_T08",     NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Whip_Legendary_T06_Shattered = new() { Name = null, GuidHash = -1222824286, Prefab = "Item_Weapon_Whip_Legendary_T06_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Whip_Legendary_T08_Shattered = new() { Name = null, GuidHash = 1490846791,  Prefab = "Item_Weapon_Whip_Legendary_T08_Shattered",         NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Whip_Legendary_T08_Trader_Template = new() { Name = null, GuidHash = 1340494453,  Prefab = "Item_Weapon_Whip_Legendary_T08_Trader_Template",   NameKey = null, DescKey = null };
-    public static readonly PrefabDef Item_Weapon_Whip_Unique_T08_Variation01_Shattered = new() { Name = null, GuidHash = 950358400,   Prefab = "Item_Weapon_Whip_Unique_T08_Variation01_Shattered", NameKey = null, DescKey = null };
- 
+
     // ── Fishing Poles ─────────────────────────────────────────────────────────
  
     public static readonly PrefabDef Item_Weapon_FishingPole_T01 = new()
@@ -1444,7 +1346,7 @@ public static partial class WeaponsIndex
  
     public static readonly PrefabDef Item_Weapon_FishingPole_Debug = new()
     {
-        Name    = null,
+        Name    = "Recipe",
         GuidHash = -1766408331,
         Prefab  = "Item_Weapon_FishingPole_Debug",
         NameKey = null,

@@ -89,10 +89,10 @@ public static class CookbookConfigBuilder
     public static void GenerateExampleFiles()
     {
         HeartLogger.Info(LOG_SOURCE, "Generating Cookbook example files...");
-        Extract("Examples_Recipe.json",      RecipeExamplesPath);
-        Extract("Examples_PrisonerFeed.json", PrisonerFeedExamplesPath);
-        Extract("Examples_PrisonerFed.json",  PrisonerFedExamplesPath);
-        Extract("Examples_CookbookItem.json", CookbookItemExamplesPath);
+        Extract("Examples.Examples_Recipe.json",      RecipeExamplesPath);
+        Extract("Examples.Examples_PrisonerFeed.json", PrisonerFeedExamplesPath);
+        Extract("Examples.Examples_PrisonerFed.json",  PrisonerFedExamplesPath);
+        Extract("Examples.Examples_CookbookItem.json", CookbookItemExamplesPath);
         HeartLogger.Info(LOG_SOURCE, "Cookbook example files generated.");
     }
 
@@ -104,10 +104,10 @@ public static class CookbookConfigBuilder
     public static void GenerateDebugFiles()
     {
         HeartLogger.Info(LOG_SOURCE, "Generating Cookbook debug files...");
-        Extract("Debug_Recipe.json",          RecipeDebugPath);
-        Extract("Debug_PrisonerFeed.json",    PrisonerFeedDebugPath);
-        Extract("Debug_PrisonerFed.json",     PrisonerFedDebugPath);
-        Extract("Debug_CookbookItem.json",    CookbookItemDebugPath);
+        Extract("Debug.Debug_Recipe.json",          RecipeDebugPath);
+        Extract("Debug.Debug_PrisonerFeed.json",    PrisonerFeedDebugPath);
+        Extract("Debug.Debug_PrisonerFed.json",     PrisonerFedDebugPath);
+        Extract("Debug.Debug_CookbookItem.json",    CookbookItemDebugPath);
         HeartLogger.Info(LOG_SOURCE, "Cookbook debug files generated.");
     }
 

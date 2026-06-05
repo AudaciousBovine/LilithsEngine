@@ -10,24 +10,30 @@ The `ServerSyncPayload` class in `LilithsMind/Network/ServerSyncPayload.cs` is t
 ServerSyncPayload
 ├── ServerIdentity: string                              — Sanitized server name (folder key)
 ├── PayloadHash: string                                 — First 8 hex chars of SHA256 (change detection)
+├── ServerLanguage: string                              — Language code of ItemAppearanceOverrides content
+│                                                         (default "English"; matches LanguageCodeEnum name)
 ├── ItemAppearanceOverrides: Dictionary<string, LilithItemData>
-│     Key: prefab Name or Prefab string
+│     Key: prefab Name alias, Prefab string, or GuidHash integer string
 │     Value: { DisplayName?, DescriptionText?, Icon? }
+│            — StackSize and ChangesEnabled are filtered out before sending (server-only)
 │            DisplayName     → repointed client-side (LocalizationPatcher)
 │            DescriptionText → repointed client-side (DescriptionPatcher)
 │            Icon is self-describing:
-│              "vitae.png"              → local PNG in Icons/ folder
+│              "vitae.png"              → local PNG in Icons/ folder (recursive search)
 │              "Icon_BloodOrb"         → in-game sprite name
-│              "https://example.com/x" → URL download + cache
+│              "https://example.com/x" → URL download + cache to Icons/ root
 ├── RecipeOverrides: Dictionary<string, LilithRecipeData>
-│     Key: recipe prefab name
-│     Value: { CraftDuration, Requirements, Outputs, ... }
 ├── StationRecipeOverrides: Dictionary<string, LilithStationData>
-│     Key: station prefab name
-│     Value: { RecipesToAdd: string[], RecipesToRemove: string[] }
 ├── PlayerRecipesToAdd: List<string>
 └── PlayerRecipesToRemove: List<string>
 ```
+
+### Admin Config Key Resolution
+
+Config file keys are resolved by `PrefabNameResolver.TryResolve()` in order:
+1. **Admin alias / compiled Name** — e.g. `"BloodEssence"`, `"BoneSword"`
+2. **Raw prefab string** — e.g. `"Item_BloodEssence_T01"`
+3. **Raw GuidHash integer** — e.g. `"-1595790789"` (signed int, useful for unlisted items)
 
 ### Admin Config File Format
 
@@ -36,24 +42,69 @@ All fields optional — omit any you don't want to change.
 
 ```json
 {
-  "_readme": "Keys are prefab Name or Prefab string. All fields optional.",
-  "Item_BloodEssence_T01": {
+  "_readme": "Keys can be Name alias, prefab string, or GuidHash integer.",
+  "BloodEssence": {
     "DisplayName": "Vitae",
     "DescriptionText": "Concentrated life force, harvested from the living.",
-    "Icon": "vitae.png"
+    "Icon": "vitae.png",
+    "ChangesEnabled": true,
+    "StackSize": 500
   },
-  "Item_Weapon_Sword_T01_Bone": {
-    "DisplayName": "Bone Cleaver"
+  "Item_Ingredient_Gem_Ruby_T01": {
+    "DisplayName": "Bloodstone",
+    "Icon": "Icon_BloodOrb"
+  },
+  "-1595790789": {
+    "DisplayName": "Mystery Item"
   }
 }
 ```
 
-Files load in full-path alphabetical order. Later files win per-field (not per-entry) — one file can set `DisplayName`, another can set `Icon` for the same item.
+Files load in full-path alphabetical order. Later files win per-field (not per-entry) — one file can set `DisplayName`, another sets `StackSize` for the same item and both apply. `ChangesEnabled` gates only functional fields (StackSize); appearance fields always apply when non-null.
 
-> **Field rename:** the appearance field formerly called `Tooltip` is now
-> `DescriptionText` (in the `LilithItemData` DTO and the JSON key). There is
-> no back-compat shim for the old `Tooltip` key — no live servers existed at the
-> time of the rename.
+---
+
+## Config Generation System
+
+```
+HeartConfig flags trigger generation on next world boot:
+
+GenerateHeartExamples:
+  └─ Extract Resources/Examples/Examples_Item.json → Items/Examples_Item.json
+
+GenerateAllModuleExamples:
+  └─ Extract Resources/Examples/Examples_Item.json → Items/Examples_Item.json
+  └─ Call each registered module's GenerateExampleFiles()
+       └─ CookbookConfigBuilder.GenerateExampleFiles():
+             Extract → Recipes/Examples_Recipe.json
+             Extract → Recipes/Examples_PrisonerFeed.json
+             Extract → Recipes/Examples_PrisonerFed.json
+             Extract → Items/Examples_CookbookItem.json
+
+GenerateDebugConfigs:
+  └─ Extract Resources/Debug/Debug_Item.json → Items/Debug_Item.json
+  └─ Call each registered module's GenerateDebugFiles()
+       └─ CookbookConfigBuilder.GenerateDebugFiles():
+             Extract → Recipes/Debug_Recipe.json
+             Extract → Recipes/Debug_PrisonerFeed.json
+             Extract → Recipes/Debug_PrisonerFed.json
+             Extract → Items/Debug_CookbookItem.json
+
+GenerateNameAliasConfigs:
+  └─ PrefabNameResolver.GenerateAliasFiles()
+       └─ Dumps Aliases/<IndexClassName>.json for each *Index class
+          Values are compiled Name defaults — admins edit to set per-server aliases
+
+GenerateCookbookExamples (CookbookConfig):
+  └─ CookbookConfigBuilder.GenerateExampleFiles() (same as above, standalone)
+
+GenerateCookbookDebugConfigs (CookbookConfig):
+  └─ CookbookConfigBuilder.GenerateDebugFiles() (same as above, standalone)
+```
+
+All generation files always overwrite. Flags reset to false after generation.
+Example files: `ChangesEnabled=false` — safe to load, no changes applied.
+Debug files: `ChangesEnabled=true` — obviously different values for verification.
 
 ---
 
@@ -61,41 +112,63 @@ Files load in full-path alphabetical order. Later files win per-field (not per-e
 
 ```
 Heart.OnInitialize():
-  1. LocalizationService.Initialize()
-       └── Scans all registered directories recursively for *.json
-           Heart registers ItemsDir; modules register their own dirs
-           Merges into ItemAppearanceConfig.Overrides (per-field merge)
+  1. PrefabNameResolver.Initialize()
+       ├─ Phase 1: Reflects LilithsMind → _nameToGuid, _prefabToGuid,
+       │           _guidToName, _hashToGuid, _entriesByIndexClass
+       └─ Phase 2: Loads Aliases/*.json → admin name overrides (per-server)
 
-  2. Build baseline TierBlobData[] (empty overrides)
+  2. HeartConfigBuilder.RunIfRequested()
+       └─ Extracts embedded JSON resources if generation flags set
 
-  3. Fire OnInitialized → modules apply changes + register overrides
-       └── CookbookPlugin: RecipeSystem + StationSystem apply changes
-           Heart.RegisterRecipeOverrides() / RegisterStationRecipeChanges()
+  3. ItemService.Initialize()
+       └─ Scans Items/ recursively for *.json
+           Parses DisplayName, DescriptionText, Icon, ChangesEnabled, StackSize
+           → LilithItemConfig.AddOverride() (per-field merge, alpha order)
 
-  4. Rebuild TierBlobData[] with accumulated overrides
+  4. LocalizationService.Initialize()    — diagnostic only (logs entry counts)
+     InterfaceService.Initialize()        — diagnostic only (logs entry counts)
+
+  5. LocalizationFileService.Initialize()
+       └─ Scans Localization/<LanguageCode>/ subdirs
+           Builds per-language {name → {DisplayName?, DescriptionText?}} maps
+
+  6. Build baseline TierBlobData[] (empty overrides)
+
+  7. Fire OnInitialized → CookbookPlugin:
+       ├─ CookbookLoader.LoadRecipes() / LoadPrisonerFeed()
+       ├─ RecipeSystem.ApplyChanges()      → Heart.RegisterRecipeOverrides()
+       ├─ StationSystem.ApplyChanges()     → Heart.RegisterStationRecipeChanges()
+       │     (two-pass: prefab entities first, then live entities after RegisterGameData())
+       └─ ItemFunctionService.ApplyOverrides()
+             └─ Patches ItemData.MaxAmount for all ChangesEnabled=true StackSize entries
+
+  8. Rebuild TierBlobData[] with accumulated overrides
 
 SyncPayloadCache.Rebuild():
-  Per tier: JSON → GZip compress → base64 encode → split into 440-char chunks
-
-  Critical  → { ServerIdentity, PayloadHash, ItemAppearanceOverrides }
-  High      → { ServerIdentity, PayloadHash, RecipeOverrides, StationRecipeOverrides }
-               (only built if non-empty)
-  Normal    → { ServerIdentity, PayloadHash, PlayerRecipesToAdd, PlayerRecipesToRemove }
-               (only built if non-empty)
-  Low       → reserved for future modules (Machinations, Grimoire)
-  Background → reserved for large data sets (Menagerie, Bounty)
-
-  Each tier: Checksum = SHA256(base64 TEXT)[..8], uppercase hex
-  Cached as TierBlobData[] — immutable until next Rebuild()
+  ├─ Filter appearance payload: only entries with non-null DisplayName/DescriptionText/Icon
+  │  (StackSize and ChangesEnabled excluded — server-only fields)
+  ├─ Populate ServerLanguage from HeartConfig.DefaultLanguage
+  │
+  ├─ Per tier: JSON → GZip compress → base64 encode → split into 440-char chunks
+  │
+  │  Critical  → { ServerIdentity, ServerLanguage, PayloadHash, ItemAppearanceOverrides }
+  │  High      → { ServerIdentity, PayloadHash, RecipeOverrides, StationRecipeOverrides }
+  │               (only built if non-empty)
+  │  Normal    → { ServerIdentity, PayloadHash, PlayerRecipesToAdd, PlayerRecipesToRemove }
+  │               (only built if non-empty)
+  │  Low       → reserved (Machinations, Grimoire)
+  │  Background→ reserved (Menagerie, Bounty)
+  │
+  └─ If SyncMode == HttpServer: SyncHttpServer.UpdatePayload(fullPayload)
 ```
 
 ---
 
-## Transport Protocol (Tiered Chat-Based)
+## Transport Protocol
+
+### ChunkPush (default)
 
 ```
-No Unity Netcode in IL2CPP → ChatMessageServerEvent with ServerChatMessageType.System
-
 Connect event:
   ClientConnectPatch → SyncSender.EnqueueSyncTiers(userEntity, characterEntity, userIndex)
     └── For each TierBlobData (ordered Critical→Background):
@@ -108,144 +181,131 @@ Connect event:
 
 Per-frame drain (SchedulerPatch on ServerBootstrapSystem.OnUpdate):
   SyncQueue.Drain() — creates at most ChunksPerFrame(10) ECS entities per frame
-    └── SyncSender.SendQueuedChunk() creates one ChatMessageServerEvent entity:
-          ChatMessageServerEvent { MessageType = System, MessageText = chunk }
-          + SendEventToUser { UserIndex = int }  ← routes to correct client
-
-Benefit: connect-frame spike eliminated — cost spread across frames
-Typical: 5KB appearance payload → ~12 chunks after GZip+base64 → 2 frames at 10/frame
 ```
 
-> **Encoder note (must match on the receiver):** the WHOLE blob is
-> `JSON → GZip → Convert.ToBase64String` (base64'd ONCE), and only THEN sliced
-> into 440-char chunks. The checksum is `SHA256` over the **base64 text**
-> (uppercase, first 8 hex), not over the gzip bytes. The receiver therefore
-> concatenates the chunk strings FIRST, verifies the checksum on that base64
-> text, then does a single base64-decode followed by gunzip.
+> **Encoder note:** the WHOLE blob is `JSON → GZip → Convert.ToBase64String`
+> (base64'd ONCE), then sliced into 440-char chunks. Checksum = SHA256 over the
+> base64 TEXT (uppercase, first 8 hex). Receiver concatenates chunks FIRST,
+> verifies checksum on base64 text, then base64-decode → gunzip.
+
+### HttpServer
+
+```
+Heart startup: SyncHttpServer.Start() on HeartConfig.HttpPort (default 7902)
+  └─ Background thread HttpListener serves GET /sync → payload JSON
+
+Connect: SyncSender.SendRedirect(url, fallback)
+  └─ [[LG:sync-url:http://<ip>:<port>/sync:<1|0>]]
+
+Soul receipt: SyncReceiver.HandleRedirect(message)
+  ├─ Parse URL + fallback flag (split from END — URL may contain colons)
+  └─ SyncHttpFetcher.Fetch(url, onSuccess, onFailure)
+        ├─ 10s timeout UnityWebRequest
+        ├─ Success → apply + cache
+        └─ Failure + fallback=1 → SendFallbackSentinel()
+              └─ ChatMessageEvent { MessageType = Local } in client ECS world
+                    └─ ServerChatSystemPatch intercepts [[LG:sync-fallback]]
+                          └─ SyncSender.EnqueueSyncTiers() for that client
+```
+
+### StaticUrl
+
+Identical to HttpServer Soul-side fetch path. URL comes from `HeartConfig.StaticSyncUrl`. Heart hosts nothing.
 
 ---
 
 ## Receive Pipeline (Client Side)
 
 ```
-ClientChatSystemPatch.Prefix (per-frame, prefix so entities destroyed before UI)
-  └── For each ChatMessageServerEvent where MessageType == System:
-        SyncReceiver.TryHandleMessage(text)
-          ├── [[LG:begin:T:N:CKSUM]] → init tier accumulator, store expected count + checksum
-          ├── [[LG:T:NNNN]]<data>   → append chunk string to tier accumulator
-          ├── [[LG:end:T:CKSUM]]    → ProcessTier()
-          │     ├── Concat chunk strings → SHA256-verify the base64 text
-          │     ├── Convert.FromBase64String → GZip decompress → JSON string
-          │     ├── Deserialize tier-specific payload
-          │     ├── Merge into disk-cache accumulator keyed by PayloadHash
-          │     ├── WriteToDiskIfChanged() — SHA256 hash comparison
-          │     └── ApplyTier() — applies that tier IMMEDIATELY (no waiting for others)
-          └── If consumed → DestroyEntity (never shown in chat UI)
+ClientChatSystemPatch.Prefix (per-frame):
+  └── SyncReceiver.TryHandleMessage(text)
+        ├── [[LG:sync-url:<url>:<fallback>]]   → HandleRedirect()
+        │     └─ SyncHttpFetcher or SendFallbackSentinel
+        ├── [[LG:lang-unavailable:<lang>]]      → log warning, stay on default
+        ├── [[LG:begin:T:N:CKSUM]]              → init tier accumulator
+        ├── [[LG:T:NNNN]]<data>                 → append chunk to accumulator
+        └── [[LG:end:T:CKSUM]]                  → HandleEnd()
+              ├─ Concat chunks → SHA256-verify base64 text
+              ├─ Convert.FromBase64String → GZip decompress → JSON
+              ├─ Deserialize tier-specific payload
+              ├─ Check ServerLanguage vs PreferredLanguage (Critical tier only)
+              │    └─ If different → SendChatMessage([[LG:lang-request:<lang>]])
+              ├─ if localization payload → WriteLocalizationToDisk()
+              │    else → MergeAndCache() → WriteToDisk()
+              └─ ApplyTier() (or queue if world not ready)
 ```
-
-Per-tier application (each tier carries only its slice of the payload):
-
-```
-Tier Critical (0) → ItemAppearanceOverrides → name, description, icon repoint
-Tier High     (1) → Recipe + StationRecipe overrides
-Tier Normal   (2) → player recipe add/remove
-```
-
-If the client world is not ready when a tier arrives, the deserialized payload
-is held in `_pendingTierPayloads` and applied in `NotifyWorldReady()`.
 
 ---
 
 ## Payload Application Order (FIXED — DO NOT REORDER)
 
 ```
-ApplyPayload(ServerSyncPayload):   // also the per-tier apply path
-  1. LocalizationPatcher.ClearPrevious()
-       └── Restore each previously repointed item's original Name (LocalizationKey)
+ApplyTier(ServerSyncPayload):
 
-  2. LocalizationPatcher.Apply(payload)
-       └── For each ItemAppearanceOverrides entry with non-null DisplayName:
-             a. Resolve prefab name → PrefabGUID (LilithsMind reflection)
-             b. Capture current ManagedItemData.Name for restore
-             c. Mint fresh AssetGuid = AssetGuid.FromString(Guid.NewGuid())
-             d. Localization._LocalizedStrings[mintedGuid] = DisplayName
-             e. ManagedItemData.Name = new LocalizationKey(mintedGuid)
-           NO LoadDefaultLanguage — minted keys are never wiped.
+  Critical slice (ItemAppearanceOverrides non-empty):
+    1. LocalizationPatcher.ClearPrevious()
+    2. LocalizationPatcher.Apply(payload)
+         └─ For each DisplayName: mint AssetGuid → inject string →
+            ManagedItemData.Name = new LocalizationKey(guid)
+    3. DescriptionPatcher.Clear()
+    4. DescriptionPatcher.Build(payload)
+         └─ For each DescriptionText: mint AssetGuid → inject string →
+            var d = item.Description; d.Key = new LocalizationKey(guid);
+            item.Description = d;  ← MANDATORY struct write-back
+    5. IconPatcher.ClearPrevious()
+    6. IconPatcher.Apply(payload)
+         └─ Resolution: (1) https:// → IconDownloader
+                        (2) local PNG → _localFiles recursive lookup
+                        (3) in-game sprite → _gameSprites
 
-  3. DescriptionPatcher.Clear()
-       └── Restore each previously repointed item's original Description struct
-           (item.Description = capturedOriginalStruct)
+  High slice (RecipeOverrides or StationRecipeOverrides non-empty):
+    7. RecipePatcher.Apply(...)
+    8. RecipePatcher.ApplyStationRecipes(...)
 
-  4. DescriptionPatcher.Build(payload)
-       └── For each ItemAppearanceOverrides entry with non-null DescriptionText:
-             a. Resolve prefab name → PrefabGUID (LilithsMind reflection)
-             b. Capture current ManagedItemData.Description struct for restore
-             c. Mint fresh AssetGuid = AssetGuid.FromString(Guid.NewGuid())
-             d. Localization._LocalizedStrings[mintedGuid] = DescriptionText
-             e. var d = item.Description;          // STRUCT COPY (value type)
-                d.Key = new LocalizationKey(mintedGuid);
-                item.Description = d;              // WRITE THE WHOLE STRUCT BACK
-           The write-back in (e) is mandatory — see "Why the description
-           override is data-layer" below.
-
-  5. IconPatcher.ClearPrevious()
-       └── Restore original ManagedItemData.Icon for all previously patched items
-
-  6. IconPatcher.Apply(payload)
-       └── For each ItemAppearanceOverrides entry with non-null Icon:
-             Resolution order:
-               a. Local PNG → Icons/ recursive scan, filename match
-               b. In-game sprite → Resources.FindObjectsOfTypeAll<Sprite>()
-               c. https:// URL → IconDownloader (async, callback on complete)
-             → ManagedItemData.Icon = resolvedSprite
-
-  7. RecipePatcher.Apply(payload.RecipeOverrides)
-  8. RecipePatcher.ApplyStationRecipes(payload.StationRecipeOverrides)
-  9. RecipePatcher.ApplyPlayerRecipes(payload.PlayerRecipesToAdd, ...)
+  Normal slice (PlayerRecipesToAdd/Remove non-empty):
+    9. RecipePatcher.ApplyPlayerRecipes(...)
 ```
 
-### Why repoint instead of overwrite (names AND descriptions)
+### Why repoint instead of overwrite
 
-Many vanilla items share one localization key by value (e.g. every sword shares
-one tooltip key). Overwriting the string at that key changes every item sharing
-it. Worse, the retired LocalizationInjector cleared via
-`Localization.LoadDefaultLanguage()`, which reloads `_LocalizedStrings` from
-disk — so when it ran a second time (cached pre-apply + server payload), it
-wiped the keys it had just written and renames reverted to raw GUIDs on screen.
+Many vanilla items share one localization key by value. Overwriting the string at that key changes every item sharing it. Both `LocalizationPatcher` and `DescriptionPatcher` mint a fresh `AssetGuid` per item — unique, so no sharing. Neither reloads the localization table.
 
-Both `LocalizationPatcher` (names) and `DescriptionPatcher` (descriptions) mint
-a brand-new `AssetGuid` per item (unique, so no sharing), write the new string
-there, and point the item's value-type localization key at it. Neither reloads
-the table. No shared-key contamination.
+### Why description override is data-layer
 
-### Why the description override is data-layer (and not a UI patch)
+`ManagedItemData.Description` is a value-type struct (`LocalizedStringBuilderBase`) — its getter returns a copy. Patching tooltip-build UI methods was attempted and failed in this IL2CPP build (every target either crashed or never fired on hover). The data-layer repoint sidesteps the UI entirely.
 
-`ManagedItemData.Description` is a `ProjectM.UI.LocalizedStringBuilderBase`,
-which is a **value-type struct** (`[StructLayout(LayoutKind.Explicit)]`) whose
-first field is `[FieldOffset(0)] public LocalizationKey Key;`. The tooltip body
-resolves from that `Key` via the struct's `Build(EntityManager, Entity)`. So a
-description is just a `LocalizationKey` — the same kind of value as `Name`.
+---
 
-The repoint requires writing the WHOLE struct back. The getter returns a *copy*
-(value semantics), so mutating `item.Description.Key` in place is discarded.
-The fix: read the struct into a local, set `.Key`, assign the local back to
-`item.Description`. (An earlier "Description doesn't persist" conclusion was a
-false negative caused by mutating the discarded copy.)
+## Multi-Language Localization Flow
 
-A long investigation first tried to override the description by Harmony-patching
-the client tooltip-build pipeline. Every attempt failed in this IL2CPP build,
-and the conclusion is recorded here so it is not repeated:
+```
+Server (Heart):
+  Localization/
+      Spanish/   *.json  — { "BloodEssence": { "DisplayName": "Vitae (ES)", ... } }
+      French/    *.json
 
-| Target | Result |
-|--------|--------|
-| `SomeReusableSubMenuThings.RefreshGeneralItemTooltip` (Entity, PrefabGUID) | attached, never fired on inventory/hotbar hover |
-| `RefreshGeneralItemTooltip` (ItemGridSelectionEntry) | attached, never fired on hover |
-| `FakeTooltip.SetData` | crashed client on invocation (inlined/unpatchable) |
-| `FakeTooltip.SetTooltip` (public 20-param, has descriptionOverride) | attached, crashed client on hover for ANY item, prefix and postfix alike |
+  LocalizationFileService.Initialize() → loads per-language maps
+  HeartConfig.DefaultLanguage → populates ServerSyncPayload.ServerLanguage
 
-Pattern: the tooltip-build methods that fire on hover crash when patched; the
-ones that do not crash never fire. The data-layer repoint sidesteps the UI
-entirely — the game resolves the minted key on its own.
+Client (Soul):
+  SoulConfig.PreferredLanguage = Spanish
+
+  On Critical tier receipt:
+    ServerLanguage="English", PreferredLanguage="Spanish"
+    └─ SyncReceiver sends [[LG:lang-request:Spanish]]
+          └─ ServerChatSystemPatch → LocalizationSyncSender.HandleRequest()
+                ├─ LocalizationFileService.HasLanguage("Spanish") = true
+                ├─ BuildLocalizationPayload() → ServerSyncPayload (DisplayName+DescriptionText only)
+                └─ EnqueueLocalizationPayload() → chunks via SyncQueue
+
+  Soul receives localization payload:
+    └─ WriteLocalizationToDisk() → LilithsGarden/localization_Spanish.json
+    └─ ApplyTier() → overwrites DisplayName/DescriptionText from Spanish overrides
+
+  On reconnect:
+    └─ TryPreApplyCachedLocalization() reads localization_Spanish.json
+    └─ ApplyTier() before UI builds
+```
 
 ---
 
@@ -254,16 +314,12 @@ entirely — the game resolves the minted key on its own.
 ```
 ClientInitPatch detects world ready
   → SyncReceiver.NotifyWorldReady(connectionString)
-    → LocalizationPatcher.BuildNameMap()         — LilithsMind reflection (name→PrefabGUID)
-    → DescriptionPatcher.BuildMap()              — LilithsMind reflection (name/prefab→PrefabGUID)
-    → RecipePatcher.BuildNameMap()               — PrefabCollectionSystem
-    → IconPatcher.BuildSpriteMaps()              — Resources + Icons/ scan
-    → ServerRegistry.Load()                      — reads servers.json
-    → ServerRegistry.TryGetFolderName(connectionString)
-    → Read sync.json from disk
-    → Deserialize
-    → ApplyPayload()  — BEFORE CharacterHUD builds
-    → Later: server payload arrives → ApplyPayload() again (idempotent if hash unchanged)
+    → Build all patcher lookup tables
+    → TryPreApplyCachedSync(connectionString)
+          └─ Read sync.json → ApplyTier() BEFORE CharacterHUD builds
+    → TryPreApplyCachedLocalization(connectionString)
+          └─ Read localization_<PreferredLanguage>.json → ApplyTier()
+    → Apply any pending tier payloads that arrived before world was ready
 ```
 
 ---
@@ -272,30 +328,52 @@ ClientInitPatch detects world ready
 
 ```
 BepInEx/config/LilithsHeart/
-  ├── LilithsHeart.cfg               — DebugLogging, ServerName
-  ├── LilithsCookbook.cfg            — GenerateAllRecipes
-  ├── Items/                         — *.json item appearance overrides (recursive)
-  │     Currencies/
-  │     Weapons/
-  │     example.json
+  ├── LilithsHeart.cfg               — ServerName, ChunksPerFrame, DefaultLanguage,
+  │                                    SyncMode, HttpPort, StaticSyncUrl,
+  │                                    SyncFallbackToChunks, DebugLogging,
+  │                                    GenerateHeartExamples, GenerateAllModuleExamples,
+  │                                    GenerateDebugConfigs, GenerateNameAliasConfigs
+  ├── LilithsCookbook.cfg            — ModuleEnabled, GenerateAllRecipes,
+  │                                    GenerateCookbookExamples, GenerateCookbookDebugConfigs
+  ├── Aliases/                       — per-server prefab name alias overrides
+  │     WeaponsIndex.json            — "Item_Weapon_Sword_T01_Bone": "BoneSword"
+  │     StationsIndex.json
+  │     ...
+  ├── Items/                         — *.json item overrides (recursive)
+  │     Examples_Item.json           — generated on demand
+  │     Debug_Item.json              — generated on demand
+  │     Examples_CookbookItem.json   — generated on demand
+  │     Debug_CookbookItem.json      — generated on demand
+  │     my-items.json                — admin-authored
   ├── Recipes/                       — *.json recipe config (LilithsCookbook)
-  ├── Stations/                      — *.json station config (LilithsCookbook)
-  ├── MainQuest/                     — *.json quest text (LilithsMachinations, future)
-  └── Spells/                        — *.json spell names/tooltips (LilithsGrimoire, future)
+  │     Examples_Recipe.json
+  │     Debug_Recipe.json
+  │     Examples_PrisonerFeed.json
+  │     Debug_PrisonerFeed.json
+  │     Examples_PrisonerFed.json
+  │     Debug_PrisonerFed.json
+  │     AllRecipes.json              — generated on demand (ECS dump)
+  └── Localization/                  — per-language item name/description overrides
+        Spanish/
+            items-es.json
+        French/
+            items-fr.json
 ```
 
 ## Config File Layout (Client)
 
 ```
 BepInEx/config/LilithsSoul/
-  ├── LilithsSoul.cfg                — DebugLogging
-  ├── servers.json                   — connection string → folder name mapping
+  ├── LilithsSoul.cfg                — DebugLogging, PreferredLanguage
+  ├── servers.json                   — connection string → server identity mapping
   ├── Icons/                         — PNG icons + URL download cache (recursive)
   │     vitae.png
   │     Weapons/
   │         bone-sword.png
   └── <ServerIdentity>/
-        sync.json                    — cached ServerSyncPayload per server
+        sync.json                    — cached ServerSyncPayload (all tiers merged)
+        localization_Spanish.json    — cached localization payload for Spanish
+        localization_French.json     — cached localization payload for French
 ```
 
 ---
@@ -309,11 +387,4 @@ ServerEventPayload {
     Kind: EventKind  (int, see range reservation)
     Data: string     (JSON-serialized event-specific data)
 }
-
-EventKind Range Reservation:
-  0-99     Core
-  100-199  LilithsCookbook
-  200-299  LilithsBounty
-  300-399  LilithsTreasury
-  400-499  LilithsMachinations
 ```

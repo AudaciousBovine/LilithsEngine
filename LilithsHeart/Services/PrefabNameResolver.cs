@@ -41,6 +41,11 @@
 //            GenerateAliasFiles() added for the dump-on-demand path.
 //            Both called from Initialize() after Phase 1 completes.
 //
+//  [CHANGED] _hashToGuid added — allows configs to use raw GuidHash
+//            integers (e.g. "-1595790789") as keys in addition to
+//            prefab strings and Name aliases. TryResolve() checks
+//            all three in order: alias/Name → prefab string → hash.
+//
 //  [PERFORMANCE] Phase 1 reflection runs once at world ready — O(n).
 //                Phase 2 file I/O runs once — O(alias files × entries).
 //                All lookups remain O(1) dictionary reads.
@@ -66,6 +71,11 @@ public static class PrefabNameResolver
     static readonly Dictionary<string, PrefabGUID> _nameToGuid   = new();
     static readonly Dictionary<string, PrefabGUID> _prefabToGuid = new();
     static readonly Dictionary<int, string>         _guidToName   = new();
+
+    // [CHANGED] Raw GuidHash → PrefabGUID lookup.
+    // Allows configs to use the raw integer hash as a key.
+    // GuidHash values are signed ints and may be negative.
+    static readonly Dictionary<int, PrefabGUID> _hashToGuid = new();
 
     // Tracks the compiled Name for each GUID so Phase 2 can remove
     // the old name from _nameToGuid before inserting the admin alias.
@@ -110,20 +120,37 @@ public static class PrefabNameResolver
     // ── Forward lookup (name → GUID) ─────────────────────────
 
     /// <summary>
-    /// Resolves a name string to a PrefabGUID.
-    /// Checks admin alias / compiled Name first (_nameToGuid),
-    /// then raw prefab string (_prefabToGuid).
+    /// Resolves a config key string to a PrefabGUID.
+    /// Resolution order:
+    ///   1. Admin alias or compiled Name  (_nameToGuid)
+    ///   2. Raw prefab string             (_prefabToGuid)
+    ///   3. Raw GuidHash integer string   (_hashToGuid)
+    ///
+    /// [CHANGED] Third lookup path added — admins can now use the
+    ///           raw GuidHash integer (e.g. "-1595790789") as a key
+    ///           in any config file, useful for items not yet defined
+    ///           in LilithsMind.
     /// </summary>
     public static bool TryResolve(string name, out PrefabGUID guid)
     {
+        // 1. Alias / compiled Name
         if (_nameToGuid.TryGetValue(name, out guid))
             return true;
 
+        // 2. Raw prefab string
         if (_prefabToGuid.TryGetValue(name, out guid))
             return true;
 
+        // 3. Raw GuidHash integer string
+        // [CHANGED] GuidHash values are signed ints — use int.TryParse.
+        if (int.TryParse(name, out int hash) &&
+            _hashToGuid.TryGetValue(hash, out guid))
+            return true;
+
         guid = Empty;
-        HeartLogger.Warning(LOG_SOURCE, $"Could not resolve prefab name: '{name}'");
+        HeartLogger.Warning(LOG_SOURCE,
+            $"Could not resolve prefab name: '{name}' " +
+            "(tried alias, prefab string, and GuidHash)");
         return false;
     }
 
@@ -187,6 +214,9 @@ public static class PrefabNameResolver
 
                 _guidToName[def.GuidHash]   = def.Name ?? def.Prefab;
                 _compiledName[def.GuidHash] = def.Name;
+
+                // [CHANGED] Also register by raw GuidHash for direct integer lookup.
+                _hashToGuid[def.GuidHash] = guid;
 
                 indexEntries.Add((def.GuidHash, def.Prefab, def.Name));
                 total++;
@@ -321,8 +351,6 @@ public static class PrefabNameResolver
 
             try
             {
-                // Build output: prefab string → current Name (admin edits the value).
-                // Null Name means the entry has no alias yet — admin can add one.
                 var output = new Dictionary<string, object>(StringComparer.Ordinal)
                 {
                     ["_readme"] =

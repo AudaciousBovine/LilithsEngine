@@ -2,7 +2,7 @@
 
 > **Agent-agnostic reference.** These docs are designed to be consumed by any AI coding agent (OpenCode, Claude, Codex, Kiro, Cursor, etc.). They describe the codebase structure, conventions, and data flow without assuming any particular tool or workflow.
 
-A modular **V Rising** mod suite that allows server administrators to customize recipes, crafting stations, item names, tooltips, and a wide range of server-side systems without directly editing game files.
+A modular **V Rising** mod suite that allows server administrators to customize recipes, crafting stations, item names, tooltips, icons, stack sizes, and a wide range of server-side systems without directly editing game files.
 
 ## Active Modules
 
@@ -11,7 +11,7 @@ A modular **V Rising** mod suite that allows server administrators to customize 
 | **Mind** | `LilithsMind` | Shared library — pure C#, zero game dependencies | none |
 | **Heart** | `LilithsHeart` | Server plugin — ECS access, module registration, sync sending | Mind |
 | **Soul** | `LilithsSoul` | Client plugin — chat interception, UI panels, localization injection | Mind |
-| **Cookbook** | `LilithsCookbook` | Server plugin — recipe and crafting station configuration | Heart + Mind |
+| **Cookbook** | `LilithsCookbook` | Server plugin — recipe, station, prisoner feed, and item function configuration | Heart + Mind |
 
 ## Planned Modules
 
@@ -68,29 +68,45 @@ These modules are designed but not yet implemented. Each is a standalone server-
 ```
 BepInEx Load
   ├─ HeartPlugin.Load()       — config, Harmony patches
-  ├─ CookbookPlugin.Load()    — config, register module, subscribe
+  ├─ CookbookPlugin.Load()    — config, register generators, subscribe to Heart
   └─ SoulPlugin.Load()        — config, Harmony patches
 
 World Ready (WarEventRegistrySystem)
   ├─ Heart.OnInitialize()
-  │   ├─ PrefabNameResolver init
-  │   ├─ ItemAppearanceConfig init
-  │   ├─ Build empty sync payload
-  │   ├─ Fire OnInitialized → Cookbook applies changes
-  │   ├─ Rebuild payload with overrides
+  │   ├─ PrefabNameResolver.Initialize()   — compiled defaults + alias overrides
+  │   ├─ HeartConfigBuilder.RunIfRequested() — example/debug file generation
+  │   ├─ ItemService.Initialize()          — loads Items/*.json → LilithItemConfig
+  │   ├─ LocalizationService.Initialize()  — apply-layer diagnostic
+  │   ├─ InterfaceService.Initialize()     — apply-layer diagnostic
+  │   ├─ LocalizationFileService.Initialize() — loads Localization/<lang>/*.json
+  │   ├─ Build baseline sync payload
+  │   ├─ Fire OnInitialized → Cookbook applies ECS changes
+  │   ├─ Rebuild payload with all overrides
   │   └─ Publish OnWorldReady
   └─ Soul.ClientInitPatch
-      ├─ Build localization + recipe lookup tables
+      ├─ Build lookup tables (name→GUID, sprites, recipes)
       ├─ TryPreApplyCachedSync (from disk)
-      └─ Apply pending payload if arrived early
+      ├─ TryPreApplyCachedLocalization (from disk)
+      └─ Apply pending payloads if arrived early
 
 Client Connects (ServerBootstrapSystem)
-  └─ ClientConnectPatch → SyncSender sends chunked payload
-        (or: SyncHttpFetcher fetches direct from Heart's HTTP endpoint)
+  └─ ClientConnectPatch → branches on SyncMode:
+       ChunkPush  → SyncSender.EnqueueSyncTiers() (tiered chunks via chat)
+       HttpServer → SyncSender.SendRedirect() ([[LG:sync-url:<url>:<fallback>]])
+       StaticUrl  → SyncSender.SendRedirect() (configured static URL)
 
 Client Chat Receive (ClientChatSystem)
-  └─ ClientChatSystemPatch → SyncReceiver accumulates chunks
-      └─ On [[LG:end]]: deserialize, cache to disk, ApplyPayload
+  └─ ClientChatSystemPatch → SyncReceiver.TryHandleMessage()
+      ├─ [[LG:sync-url:...]]    → SyncHttpFetcher.Fetch() (HTTP fetch)
+      ├─ [[LG:lang-unavailable:...]] → log warning, stay on default language
+      ├─ [[LG:begin:T:N:CKSUM]] → init tier accumulator
+      ├─ [[LG:T:NNNN]]<data>    → accumulate chunk
+      └─ [[LG:end:T:CKSUM]]     → verify, decompress, apply tier, cache to disk
+
+Server Chat Receive (ServerBootstrapSystem)
+  └─ ServerChatSystemPatch → handles Soul→Heart sentinels:
+      ├─ [[LG:sync-fallback]]   → enqueue chunk delivery for that client
+      └─ [[LG:lang-request:X]]  → send localization payload for language X
 ```
 
 ## How to Use These Docs
