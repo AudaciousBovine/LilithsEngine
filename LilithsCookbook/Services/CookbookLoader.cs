@@ -20,19 +20,21 @@
 //            This keeps one item = one file ergonomics for admins
 //            while giving us two typed containers internally.
 //
-//  [CHANGED] JsonStringEnumConverter added to _readOptions so that
-//            enum fields (e.g. PrisonerFeedTypeEnum.Type) are
-//            deserialized from their string names ("FeedPrisoner",
-//            "AffectWithToxic", "DealDamageToPrisoner") rather than
-//            integer values. Without this System.Text.Json throws
-//            on any string enum value in the JSON.
+//  [CHANGED] JsonStringEnumConverter moved from global _readOptions
+//            to a [JsonConverter] attribute on PrisonerFeedEntryData.Type
+//            directly (in CookbookPrisonerFeedData.cs).
+//            A global JsonStringEnumConverter in System.Text.Json on
+//            .NET 6 can silently null out nullable value-type fields
+//            (float?, bool?, int?) during deserialization of complex
+//            objects — causing CraftDuration, AlwaysUnlocked etc. to
+//            always deserialize as null despite being present in JSON.
+//            Per-field attribution scopes the converter correctly.
 //
 //  [PERFORMANCE] All files read once at startup. O(files) I/O,
 //                O(entries) merge. No per-frame cost.
 // ============================================================
 
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using LilithsHeart.Foundation;
 using LilithsCookbook.Data;
 
@@ -42,14 +44,12 @@ public static class CookbookLoader
 {
     private const string LOG_SOURCE = "LilithsCookbook.CookbookLoader";
 
+    // [CHANGED] No JsonStringEnumConverter here — moved to a [JsonConverter]
+    // attribute on PrisonerFeedEntryData.Type to avoid silently nulling out
+    // nullable value-type fields across the whole object graph.
     static readonly JsonSerializerOptions _readOptions = new()
     {
         PropertyNameCaseInsensitive = true,
-        // [CHANGED] Required for PrisonerFeedTypeEnum and any future enum
-        // fields — allows JSON string values like "FeedPrisoner" to
-        // deserialize correctly. Without this System.Text.Json only
-        // accepts integer representations of enum values.
-        Converters = { new JsonStringEnumConverter() }
     };
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -73,21 +73,15 @@ public static class CookbookLoader
 
         foreach (var file in GetJsonFiles(recipesDir))
         {
-            // Deserialize the combined file wrapper — both blocks are optional.
-            // [PERFORMANCE] Single JsonSerializer.Deserialize per file — no
-            //               double-parse. PropertyNameCaseInsensitive so admins
-            //               can use any casing in their JSON keys.
             var incoming = Deserialize<CookbookRecipeFile>(file);
             if (incoming == null) continue;
 
-            // Merge recipe entries.
             if (incoming.Recipes != null)
             {
                 foreach (var (key, value) in incoming.Recipes)
                     mergedRecipes.Recipes[key] = value;
             }
 
-            // Merge prisoner feeding entries.
             if (incoming.PrisonerFeeding != null)
             {
                 foreach (var (key, value) in incoming.PrisonerFeeding)
@@ -113,8 +107,6 @@ public static class CookbookLoader
             return Enumerable.Empty<string>();
         }
 
-        // Sort alphabetically — later files win on key collision, so sort order
-        // determines override priority. Consistent across OS file systems.
         return Directory.GetFiles(directory, "*.json", SearchOption.AllDirectories)
                         .OrderBy(f => f, StringComparer.Ordinal);
     }
@@ -139,17 +131,6 @@ public static class CookbookLoader
 /// <summary>
 /// Wrapper that allows a single *.json file to contain both recipe overrides
 /// and prisoner feeding config under separate top-level keys.
-/// Admins can populate one or both blocks in each file.
-///
-/// Example file layout:
-/// {
-///   "Recipes": {
-///     "Recipe_Weapon_Sword_T01_Bone": { "ChangesEnabled": true, ... }
-///   },
-///   "PrisonerFeeding": {
-///     "FakeItem_FeedPrisoner_SageFish": { "ChangesEnabled": true, "Type": "FeedPrisoner", ... }
-///   }
-/// }
 /// </summary>
 file class CookbookRecipeFile
 {

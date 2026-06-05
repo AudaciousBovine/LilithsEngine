@@ -23,6 +23,16 @@
 //            initialization sequence after RecipeSystem. Stubbed
 //            until ECS component names are verified.
 //
+//  [CHANGED] RecipeSystem.ApplyMapValues() now called LAST in the
+//            init sequence — after StationSystem. Both RecipeSystem
+//            and StationSystem call RegisterRecipes()/RegisterGameData()
+//            which rebuild RecipeHashLookupMap from baked data, wiping
+//            any earlier scalar-field writes (CraftDuration, etc.).
+//            Writing the map last ensures custom durations survive and
+//            the crafting completion system reads the intended values.
+//            This was the root cause of the "24 hour timer" bug on
+//            recipes moved into player crafting.
+//
 //  All MyPluginInfo references fully qualified as
 //  LilithsCookbook.MyPluginInfo to avoid namespace conflict with
 //  LilithsHeart.MyPluginInfo (both in scope via ProjectReference).
@@ -139,11 +149,15 @@ public class CookbookPlugin : BasePlugin
             CookbookLoader.LoadRecipes(CookbookConfigBuilder.RecipesDir);
 
         // Apply recipe changes to ECS + register overrides for Soul sync.
+        // (entity writes + buffers + RegisterRecipes + Soul override registration)
         RecipeSystem.ApplyChanges();
 
         // [CHANGED] StationSystem.ApplyChanges() no longer receives StationData.
         //           It reads CookbookPlugin.RecipeData and derives station
         //           membership from each entry's Stations list.
+        //           NOTE: StationSystem calls RegisterRecipes() + RegisterGameData()
+        //           which rebuild RecipeHashLookupMap — so the map scalar writes
+        //           must happen AFTER this (see ApplyMapValues below).
         StationSystem.ApplyChanges();
 
         // [CHANGED] ItemFunctionService applies StackSize overrides
@@ -154,5 +168,14 @@ public class CookbookPlugin : BasePlugin
         //           Currently stubbed — will log what it would do until
         //           ECS component names are confirmed.
         PrisonerFeedSystem.ApplyChanges();
+
+        // [CHANGED] FINAL step — write recipe scalar fields (CraftDuration,
+        //           AlwaysUnlocked, etc.) to RecipeHashLookupMap LAST, after
+        //           every RegisterRecipes()/RegisterGameData() call from both
+        //           RecipeSystem and StationSystem. The crafting completion
+        //           system reads CraftDuration from this map; writing it last
+        //           ensures custom durations survive and are not reset to vanilla
+        //           (the root cause of the 24-hour timer bug).
+        RecipeSystem.ApplyMapValues();
     }
 }

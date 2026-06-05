@@ -48,9 +48,19 @@
 //            behaviour component. No PrisonerFeedRecipeData component
 //            exists — the feed recipe is standard RecipeData.
 //
+//  [CHANGED] PrisonerFeedEntryData.Type now carries a [JsonConverter]
+//            attribute so System.Text.Json deserializes it from its
+//            string name ("FeedPrisoner" etc.) without needing a global
+//            JsonStringEnumConverter in CookbookLoader._readOptions.
+//            A global converter on .NET 6 silently nulls out nullable
+//            value-type fields (float?, bool?, int?) in surrounding
+//            objects — scoping it per-field avoids that regression.
+//
 //  [PERFORMANCE] Plain DTOs — no ECS types, no Unity dependencies.
 //                Deserialized once at startup by CookbookLoader.
 // ============================================================
+
+using System.Text.Json.Serialization;
 
 namespace LilithsCookbook.Data;
 
@@ -87,11 +97,18 @@ public class PrisonerFeedEntryData
 
     /// <summary>
     /// Discriminator — determines which ECS component to patch.
-    ///   FeedPrisoner       → ProjectM.FeedPrisoner
-    ///   AffectWithToxic    → ProjectM.AffectPrisonerWithToxic
+    ///   FeedPrisoner         → ProjectM.FeedPrisoner
+    ///   AffectWithToxic      → ProjectM.AffectPrisonerWithToxic
     ///   DealDamageToPrisoner → ProjectM.DealDamageToPrisoner
     /// Must match the component actually present on the FakeItem prefab.
+    ///
+    /// [CHANGED] [JsonConverter] applied here rather than registering
+    ///           JsonStringEnumConverter globally in CookbookLoader.
+    ///           Global registration on .NET 6 silently nulls out
+    ///           nullable value-type fields (float?, bool?, int?) in
+    ///           surrounding deserialized objects.
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public PrisonerFeedTypeEnum Type { get; set; } = PrisonerFeedTypeEnum.FeedPrisoner;
 
     // ── FeedPrisoner fields (ProjectM.FeedPrisoner) ───────────────────────────

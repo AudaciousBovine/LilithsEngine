@@ -395,6 +395,7 @@ public static class RecipePatcher
         {
             var recipeData = em.GetComponentData<RecipeData>(recipeEntity);
             recipeData.CraftDuration = data.CraftDuration;
+            SoulLogger.Info(LOG_SOURCE, $"[{recipeName}] CraftDuration from payload: {data.CraftDuration}");
             em.SetComponentData(recipeEntity, recipeData);
         }
 

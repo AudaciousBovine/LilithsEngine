@@ -15,12 +15,34 @@ namespace LilithsCookbook.Systems;
 //  prefab entities and RecipeHashLookupMap, then registers
 //  overrides with Heart for Soul client sync.
 //
-//  Why RecipeHashLookupMap must be written directly:
+//  Why RecipeHashLookupMap must be written LAST:
 //  ──────────────────────────────────────────────────
-//  The map is populated from baked scene data at startup and is
-//  NOT updated by RegisterRecipes() from live entity components.
-//  The crafting system reads CraftDuration and other scalar fields
-//  from the map — not the entity — so both must be kept in sync.
+//  Both RecipeSystem and StationSystem call RegisterRecipes()
+//  (and StationSystem also calls RegisterGameData()). Each
+//  RegisterRecipes() REBUILDS RecipeHashLookupMap from baked
+//  scene data, wiping any scalar-field writes (CraftDuration,
+//  AlwaysUnlocked, etc.) made before it.
+//
+//  The crafting COMPLETION system reads CraftDuration from the
+//  map — not the entity. So if the map is reset after our write,
+//  completion uses the vanilla duration (often 86400s = 24h for
+//  recipes that are workstation-only in vanilla). The entity
+//  component write still drives the initial countdown display,
+//  which is why the timer LOOKS correct but completion fails.
+//
+//  [CHANGED] Map writes split into a separate ApplyMapValues()
+//            method, called by CookbookPlugin AFTER StationSystem
+//            has finished all its RegisterRecipes()/RegisterGameData()
+//            calls. This guarantees the map scalar writes are the
+//            final ECS mutation and are never reset.
+//
+//            ApplyChanges() now does:
+//              • entity component writes (survive registration)
+//              • buffer writes (requirements, outputs, etc.)
+//              • RegisterRecipes()
+//              • Soul override registration
+//            ApplyMapValues() (called last, post-StationSystem) does:
+//              • RecipeHashLookupMap scalar field writes only
 //
 //  [CHANGED] BuildSoulOverride() builds Requirements and Outputs
 //            as Dictionary<string, int> (prefab name → amount)
@@ -33,8 +55,8 @@ namespace LilithsCookbook.Systems;
 //
 //  [CHANGED] RecipeEntry → RecipeEntryData to follow naming convention.
 //
-//  [PERFORMANCE] ApplyChanges() runs once at startup. All ECS
-//                writes and map updates are one-time costs.
+//  [PERFORMANCE] ApplyChanges() and ApplyMapValues() each run once
+//                at startup. All ECS writes are one-time costs.
 // ============================================================
 public static class RecipeSystem
 {
@@ -52,8 +74,6 @@ public static class RecipeSystem
 
         int changed = 0;
 
-        // [PERFORMANCE] Dict pre-sized to config count — avoids
-        // rehashing during the apply loop.
         var soulOverrides = new Dictionary<string, LilithRecipeData>(config.Recipes.Count);
 
         foreach (var (recipeName, entry) in config.Recipes)
@@ -72,13 +92,15 @@ public static class RecipeSystem
                 continue;
             }
 
+            // Entity component writes — survive RegisterRecipes(), drive the
+            // initial countdown display. Map writes happen later in ApplyMapValues().
             if (entry.CraftDuration.HasValue       ||
                 entry.AlwaysUnlocked.HasValue       ||
                 entry.HideInStation.HasValue        ||
                 entry.IgnoreServerSettings.HasValue ||
                 entry.HudSortingOrder.HasValue)
             {
-                ApplyRecipeData(recipeEntity, entry, guid);
+                ApplyRecipeEntityOnly(recipeEntity, entry);
             }
 
             if (entry.Requirements != null)
@@ -101,42 +123,105 @@ public static class RecipeSystem
 
             changed++;
 
-            soulOverrides[recipeName] = BuildSoulOverride(recipeEntity);
+            soulOverrides[recipeName] = BuildSoulOverride(recipeEntity, entry);
         }
 
-        if (changed > 0)
-        {
-            Heart.GameDataSystem.RegisterRecipes();
-            HeartLogger.Info(LOG_SOURCE, $"LilithsCookbook applied changes to {changed} recipe(s).");
-
-            Heart.RegisterRecipeOverrides(soulOverrides);
-            HeartLogger.Info(LOG_SOURCE,
-                $"Registered {soulOverrides.Count} recipe override(s) with Heart for Soul sync.");
-        }
-        else
+        if (changed == 0)
         {
             HeartLogger.Info(LOG_SOURCE, "No recipes had ChangesEnabled = true, skipping registration.");
+            return;
         }
+
+        Heart.GameDataSystem.RegisterRecipes();
+        HeartLogger.Info(LOG_SOURCE, $"LilithsCookbook applied changes to {changed} recipe(s).");
+
+        Heart.RegisterRecipeOverrides(soulOverrides);
+        HeartLogger.Info(LOG_SOURCE,
+            $"Registered {soulOverrides.Count} recipe override(s) with Heart for Soul sync.");
+    }
+
+    /// <summary>
+    /// [CHANGED] Writes scalar RecipeData fields to RecipeHashLookupMap.
+    /// MUST be called AFTER StationSystem.ApplyChanges() completes — its
+    /// RegisterRecipes()/RegisterGameData() calls rebuild the map from baked
+    /// data and would otherwise wipe these writes. This is the final ECS
+    /// mutation in the Cookbook init sequence.
+    ///
+    /// The crafting completion system reads CraftDuration from this map, so
+    /// these writes are what actually make custom durations take effect at
+    /// completion time (the entity write only drives the countdown display).
+    ///
+    /// [PERFORMANCE] One map read + one map write per changed recipe.
+    ///               Runs once at startup only.
+    /// </summary>
+    public static void ApplyMapValues()
+    {
+        var config = CookbookPlugin.RecipeData;
+        if (config == null || config.Recipes.Count == 0) return;
+
+        var map = Heart.GameDataSystem.RecipeHashLookupMap;
+        int applied = 0;
+
+        foreach (var (recipeName, entry) in config.Recipes)
+        {
+            if (!entry.ChangesEnabled) continue;
+
+            bool hasScalar =
+                entry.CraftDuration.HasValue       ||
+                entry.AlwaysUnlocked.HasValue       ||
+                entry.HideInStation.HasValue        ||
+                entry.IgnoreServerSettings.HasValue ||
+                entry.HudSortingOrder.HasValue;
+
+            if (!hasScalar) continue;
+
+            if (!PrefabNameResolver.TryResolve(recipeName, out PrefabGUID guid))
+                continue;
+
+            if (map.TryGetValue(guid, out var mapEntry))
+            {
+                if (entry.CraftDuration.HasValue)       mapEntry.CraftDuration        = entry.CraftDuration.Value;
+                if (entry.AlwaysUnlocked.HasValue)       mapEntry.AlwaysUnlocked       = entry.AlwaysUnlocked.Value;
+                if (entry.HideInStation.HasValue)        mapEntry.HideInStation        = entry.HideInStation.Value;
+                if (entry.IgnoreServerSettings.HasValue) mapEntry.IgnoreServerSettings = entry.IgnoreServerSettings.Value;
+                if (entry.HudSortingOrder.HasValue)      mapEntry.HudSortingOrder      = entry.HudSortingOrder.Value;
+                map[guid] = mapEntry;
+                applied++;
+
+                HeartLogger.Debug(LOG_SOURCE,
+                    $"[Final] RecipeHashLookupMap '{guid._Value}': " +
+                    $"CraftDuration={mapEntry.CraftDuration} AlwaysUnlocked={mapEntry.AlwaysUnlocked}");
+            }
+            else
+            {
+                HeartLogger.Warning(LOG_SOURCE,
+                    $"[Final] Recipe GUID {guid._Value} not found in RecipeHashLookupMap — " +
+                    "scalar fields may not apply.");
+            }
+        }
+
+        HeartLogger.Info(LOG_SOURCE,
+            $"Final RecipeHashLookupMap pass applied scalar fields to {applied} recipe(s).");
     }
 
     // ── Soul override builder ─────────────────────────────────
 
     /// <summary>
-    /// Builds a LilithRecipeData by reading the current ECS entity state
-    /// after all changes have been applied. Reading from ECS rather than the
-    /// config entry ensures the override reflects what was actually committed.
-    ///
-    /// [PERFORMANCE] Called once per changed recipe at startup only.
+    /// Builds a LilithRecipeData for Soul sync. CraftDuration is taken from
+    /// the config entry (not the entity) since the map/entity may be in flux
+    /// during the multi-system init sequence — the config is the source of truth.
     /// </summary>
-    static LilithRecipeData BuildSoulOverride(Entity recipeEntity)
+    static LilithRecipeData BuildSoulOverride(Entity recipeEntity, RecipeEntryData entry)
     {
         var result = new LilithRecipeData();
 
-        if (recipeEntity.TryGetComponent<RecipeData>(out var recipeData))
+        // [CHANGED] Prefer the config value so Soul always receives the intended
+        // duration regardless of ECS map/entity state during init.
+        if (entry.CraftDuration.HasValue)
+            result.CraftDuration = entry.CraftDuration.Value;
+        else if (recipeEntity.TryGetComponent<RecipeData>(out var recipeData))
             result.CraftDuration = recipeData.CraftDuration;
 
-        // Build Requirements as Dictionary<string, int>.
-        // RecipeRequirementBuffer is a V Rising ECS type — not renamed.
         if (recipeEntity.TryGetBuffer<RecipeRequirementBuffer>(out var reqBuffer))
         {
             result.Requirements = new Dictionary<string, int>(reqBuffer.Length);
@@ -144,15 +229,11 @@ public static class RecipeSystem
             {
                 var req = reqBuffer[i];
                 PrefabNameResolver.TryResolveName(req.Guid, out string itemName);
-                var key = string.IsNullOrEmpty(itemName)
-                    ? req.Guid._Value.ToString()
-                    : itemName;
-                result.Requirements[key] = req.Amount;
+                result.Requirements[string.IsNullOrEmpty(itemName)
+                    ? req.Guid._Value.ToString() : itemName] = req.Amount;
             }
         }
 
-        // Build Outputs as Dictionary<string, int>.
-        // RecipeOutputBuffer is a V Rising ECS type — not renamed.
         if (recipeEntity.TryGetBuffer<RecipeOutputBuffer>(out var outBuffer))
         {
             result.Outputs = new Dictionary<string, int>(outBuffer.Length);
@@ -160,10 +241,8 @@ public static class RecipeSystem
             {
                 var output = outBuffer[i];
                 PrefabNameResolver.TryResolveName(output.Guid, out string itemName);
-                var key = string.IsNullOrEmpty(itemName)
-                    ? output.Guid._Value.ToString()
-                    : itemName;
-                result.Outputs[key] = output.Amount;
+                result.Outputs[string.IsNullOrEmpty(itemName)
+                    ? output.Guid._Value.ToString() : itemName] = output.Amount;
             }
         }
 
@@ -173,11 +252,11 @@ public static class RecipeSystem
     // ── Per-field apply ───────────────────────────────────────
 
     /// <summary>
-    /// Applies scalar RecipeData fields to both the prefab entity component
-    /// and directly into RecipeHashLookupMap.
-    /// [PERFORMANCE] One map read + one map write per changed recipe at startup only.
+    /// Writes scalar RecipeData fields to the prefab entity component ONLY.
+    /// Map writes are handled separately by ApplyMapValues() after all
+    /// registration calls (including StationSystem's) have completed.
     /// </summary>
-    static void ApplyRecipeData(Entity recipeEntity, RecipeEntryData entry, PrefabGUID guid)
+    static void ApplyRecipeEntityOnly(Entity recipeEntity, RecipeEntryData entry)
     {
         var data = recipeEntity.Read<RecipeData>();
 
@@ -188,30 +267,8 @@ public static class RecipeSystem
         if (entry.HudSortingOrder.HasValue)      data.HudSortingOrder      = entry.HudSortingOrder.Value;
 
         recipeEntity.Write(data);
-
-        var map = Heart.GameDataSystem.RecipeHashLookupMap;
-        if (map.TryGetValue(guid, out var mapEntry))
-        {
-            if (entry.CraftDuration.HasValue)       mapEntry.CraftDuration        = entry.CraftDuration.Value;
-            if (entry.AlwaysUnlocked.HasValue)       mapEntry.AlwaysUnlocked       = entry.AlwaysUnlocked.Value;
-            if (entry.HideInStation.HasValue)        mapEntry.HideInStation        = entry.HideInStation.Value;
-            if (entry.IgnoreServerSettings.HasValue) mapEntry.IgnoreServerSettings = entry.IgnoreServerSettings.Value;
-            if (entry.HudSortingOrder.HasValue)      mapEntry.HudSortingOrder      = entry.HudSortingOrder.Value;
-            map[guid] = mapEntry;
-
-            HeartLogger.Debug(LOG_SOURCE,
-                $"Updated RecipeHashLookupMap for '{guid._Value}': " +
-                $"CraftDuration={mapEntry.CraftDuration}");
-        }
-        else
-        {
-            HeartLogger.Warning(LOG_SOURCE,
-                $"Recipe GUID {guid._Value} not found in RecipeHashLookupMap — scalar fields may not apply.");
-        }
     }
 
-    // [CHANGED] Parameter type: List<CookbookItemData> — our config DTO.
-    //           Buffer type: RecipeRequirementBuffer — V Rising ECS type, unchanged.
     static void ApplyRequirements(Entity recipeEntity, List<CookbookItemData> requirements, string recipeName)
     {
         if (!recipeEntity.TryGetBuffer<RecipeRequirementBuffer>(out var buffer))
@@ -232,8 +289,6 @@ public static class RecipeSystem
         }
     }
 
-    // [CHANGED] Parameter type: List<CookbookItemData> — our config DTO.
-    //           Buffer type: RecipeOutputBuffer — V Rising ECS type, unchanged.
     static void ApplyOutputs(Entity recipeEntity, List<CookbookItemData> outputs, string recipeName)
     {
         if (!recipeEntity.TryGetBuffer<RecipeOutputBuffer>(out var buffer))
@@ -278,14 +333,10 @@ public static class RecipeSystem
         applyAction(recipeEntity, list, recipeName);
     }
 
-    // [CHANGED] Type checks updated to List<CookbookItemData> for repair costs
-    //           and unit outputs. ECS buffer types are V Rising types — unchanged.
     static void RemoveBuffer<T>(Entity recipeEntity, string recipeName) where T : class
     {
         if (typeof(T) == typeof(List<CookbookItemData>))
         {
-            // Ambiguous — could be repair costs or unit outputs.
-            // Check which buffer exists and remove it.
             if (recipeEntity.Has<ItemRepairBuffer>())
             {
                 recipeEntity.Remove<ItemRepairBuffer>();
@@ -315,8 +366,6 @@ public static class RecipeSystem
         }
     }
 
-    // [CHANGED] Parameter type: List<CookbookItemData> — consolidated from RecipeRepairCost.
-    //           Buffer type: ItemRepairBuffer — V Rising ECS type, unchanged.
     static void ApplyRepairCosts(Entity recipeEntity, List<CookbookItemData> repairCosts, string recipeName)
     {
         if (!recipeEntity.TryGetBuffer<ItemRepairBuffer>(out var buffer))
@@ -337,9 +386,6 @@ public static class RecipeSystem
         }
     }
 
-    // [CHANGED] Parameter type: List<CookbookItemData> — consolidated from RecipeUnitOutput.
-    //           'Unit' field renamed to 'Item' in CookbookItemData.
-    //           Buffer type: RecipeOutputUnitBuffer — V Rising ECS type, unchanged.
     static void ApplyUnitOutputs(Entity recipeEntity, List<CookbookItemData> unitOutputs, string recipeName)
     {
         if (!recipeEntity.TryGetBuffer<RecipeOutputUnitBuffer>(out var buffer))
