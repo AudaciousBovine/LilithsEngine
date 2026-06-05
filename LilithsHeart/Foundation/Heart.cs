@@ -252,6 +252,6 @@ public static class Heart
     static string ResolveServerIdentity()
     {
         var name = HeartConfig.ServerName.Value;
-        return string.IsNullOrWhiteSpace(name) ? "LilithsGarden" : name;
+        return string.IsNullOrWhiteSpace(name) ? "LilithsEngine" : name;
     }
 }

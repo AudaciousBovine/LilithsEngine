@@ -299,7 +299,7 @@ Client (Soul):
                 └─ EnqueueLocalizationPayload() → chunks via SyncQueue
 
   Soul receives localization payload:
-    └─ WriteLocalizationToDisk() → LilithsGarden/localization_Spanish.json
+    └─ WriteLocalizationToDisk() → LilithsEngine/localization_Spanish.json
     └─ ApplyTier() → overwrites DisplayName/DescriptionText from Spanish overrides
 
   On reconnect:

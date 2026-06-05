@@ -15,7 +15,7 @@ using LilithsSoul.Foundation;
 //
 //  File format:
 //  {
-//    "127.0.0.1:9876": "LilithsGarden",
+//    "127.0.0.1:9876": "LilithsEngine",
 //    "myserver.com:9876": "BloodcraftServer"
 //  }
 //

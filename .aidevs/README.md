@@ -1,4 +1,4 @@
-# LilithsGarden — AI Agent Index
+# LilithsEngine — AI Agent Index
 
 > **Agent-agnostic reference.** These docs are designed to be consumed by any AI coding agent (OpenCode, Claude, Codex, Kiro, Cursor, etc.). They describe the codebase structure, conventions, and data flow without assuming any particular tool or workflow.
 

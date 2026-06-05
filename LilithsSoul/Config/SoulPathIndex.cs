@@ -57,16 +57,16 @@ public static class SoulPathIndex
 
     /// <summary>
     /// Returns the directory for a specific server's cached data.
-    /// e.g. SoulPathIndex.ServerDir("LilithsGarden")
-    ///      → BepInEx/config/LilithsSoul/LilithsGarden/
+    /// e.g. SoulPathIndex.ServerDir("LilithsEngine")
+    ///      → BepInEx/config/LilithsSoul/LilithsEngine/
     /// </summary>
     public static string ServerDir(string serverIdentity)
         => Path.Combine(Root, serverIdentity);
 
     /// <summary>
     /// Returns the path to the cached sync payload for a specific server.
-    /// e.g. SoulPathIndex.SyncFile("LilithsGarden")
-    ///      → BepInEx/config/LilithsSoul/LilithsGarden/sync.json
+    /// e.g. SoulPathIndex.SyncFile("LilithsEngine")
+    ///      → BepInEx/config/LilithsSoul/LilithsEngine/sync.json
     /// </summary>
     public static string SyncFile(string serverIdentity)
         => Path.Combine(ServerDir(serverIdentity), "sync.json");
@@ -74,8 +74,8 @@ public static class SoulPathIndex
     /// <summary>
     /// Returns the path to the cached localization payload for a specific
     /// server and language.
-    /// e.g. SoulPathIndex.LocalizationFile("LilithsGarden", "Spanish")
-    ///      → BepInEx/config/LilithsSoul/LilithsGarden/localization_Spanish.json
+    /// e.g. SoulPathIndex.LocalizationFile("LilithsEngine", "Spanish")
+    ///      → BepInEx/config/LilithsSoul/LilithsEngine/localization_Spanish.json
     ///
     /// [CHANGED] Added for multi-language localization support.
     /// Pre-applied on reconnect after sync.json before the UI builds.

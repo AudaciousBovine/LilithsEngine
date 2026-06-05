@@ -4,7 +4,7 @@
 
 | File | Purpose |
 |------|---------| 
-| `LilithsGarden.sln` | Visual Studio solution referencing 4 projects |
+| `LilithsEngine.sln` | Visual Studio solution referencing 4 projects |
 | `Directory.Build.props` | Shared MSBuild properties (net6.0, C# 12, nullable, VRising.Unhollowed.Client) |
 | `global.json` | Pins .NET SDK to 8.0.421 |
 | `README.md` | Project description + naming conventions |

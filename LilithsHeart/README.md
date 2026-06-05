@@ -1,6 +1,11 @@
 # LilithsHeart
 Core server mod that supports the function of all Lilith Modules and communicates with client(LilithsSoul).
 
+## Dependencies
+- BepinEx
+- VampireCommandFramework
+- LilithsMind
+
 ## Current Features
 - Item Name, Description, and Icon overrides
 - Multi language support for overrides

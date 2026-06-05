@@ -10,7 +10,7 @@ using LilithsSoul.Network;
 //  ClientChatSystemPatch — LilithsSoul
 //
 //  Intercepts incoming server messages on the client to extract
-//  LilithsGarden sync payload chunks before they reach the UI.
+//  LilithsEngine sync payload chunks before they reach the UI.
 //
 //  Hook target: ClientChatSystem.OnUpdate (prefix)
 //  ──────────────────────────────────────────────

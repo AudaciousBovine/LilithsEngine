@@ -79,7 +79,7 @@ public static class SyncHttpServer
             _thread = new Thread(ServeLoop)
             {
                 IsBackground = true,
-                Name         = "LilithsGarden.SyncHttpServer",
+                Name         = "LilithsEngine.SyncHttpServer",
             };
             _thread.Start();
 

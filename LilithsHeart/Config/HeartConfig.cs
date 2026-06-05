@@ -63,10 +63,10 @@ public static class HeartConfig
         ServerName = config.Bind(
             section:      "1) General",
             key:          "ServerName",
-            defaultValue: "LilithsGarden",
+            defaultValue: "LilithsEngine",
             description:  "Unique name for this server. Used by Soul clients to cache " +
                           "server-specific configs. Change this if you run multiple " +
-                          "LilithsGarden servers."
+                          "LilithsEngine servers."
         );
 
         _chunksPerFrame = config.Bind(

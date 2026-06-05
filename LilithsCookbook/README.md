@@ -1,6 +1,10 @@
 # LilithsCookbook
 Server module giving admins control over crafting, refining and prisoner feeding
 
+## Dependencies
+- BepinEx
+- LilithsHeart
+
 ## Current Features
 - Edit crafting and refining Input Requirements
 - Edit crafting and refining Outputs

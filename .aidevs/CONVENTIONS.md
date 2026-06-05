@@ -51,7 +51,7 @@ All config files use no spaces in key names (e.g. `ChangesEnabled`, `StackSize`)
 
 ## Module Config File Convention
 
-All module `.cfg` files live under `BepInEx/config/LilithsHeart/` using `HeartPathIndex.ModuleConfig("ModuleName")`. Not in the module's own config directory. This keeps all LilithsGarden configuration under one root.
+All module `.cfg` files live under `BepInEx/config/LilithsHeart/` using `HeartPathIndex.ModuleConfig("ModuleName")`. Not in the module's own config directory. This keeps all LilithsEngine configuration under one root.
 
 ## Design Patterns
 

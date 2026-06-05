@@ -1,7 +1,7 @@
 # Modules — Planned Module Design Reference
 
 This document captures the design intent, feature scope, technical approach, and
-inter-module relationships for all planned LilithsGarden modules. It is the
+inter-module relationships for all planned LilithsEngine modules. It is the
 authoritative reference for what each module is supposed to do before implementation begins.
 
 > **Status key:** All modules below are PLANNED — not yet implemented.

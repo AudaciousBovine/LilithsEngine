@@ -160,7 +160,7 @@ public static class SyncReceiver
     // ── Called from ClientChatSystemPatch ────────────────────
 
     /// <summary>
-    /// Inspects an incoming system message. If it is a LilithsGarden
+    /// Inspects an incoming system message. If it is a LilithsEngine
     /// sentinel/chunk, handles it and returns true (consumed).
     /// Returns false for unrelated messages.
     /// </summary>

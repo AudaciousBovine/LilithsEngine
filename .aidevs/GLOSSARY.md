@@ -4,7 +4,7 @@
 
 | Term | Definition |
 |------|------------|
-| **LilithsGarden** | The overall mod suite name. Thematic naming: Heart (server core), Soul (client core), Mind (shared knowledge), Cookbook (recipe module). |
+| **LilithsEngine** | The overall mod suite name. Thematic naming: Heart (server core), Soul (client core), Mind (shared knowledge), Cookbook (recipe module). |
 | **Heart** | `LilithsHeart` — server-side plugin that manages ECS access, module registration, and sync payload delivery. |
 | **Soul** | `LilithsSoul` — client-side plugin that intercepts chat messages, patches local ECS entities, injects localization, and renders custom UI panels. |
 | **Mind** | `LilithsMind` — shared C# library with zero game dependencies. Holds prefab definitions, network DTOs, and shared enums. |
