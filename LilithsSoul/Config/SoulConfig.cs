@@ -4,16 +4,22 @@
 //
 //  BepInEx config bindings for the Soul core.
 //
-//  [CHANGED] PreferredLanguage added — Soul compares this against
-//            ServerSyncPayload.ServerLanguage on connect. If they
-//            differ, Soul sends [[LG:lang-request:<language>]] to
-//            Heart to request a localization payload for the
-//            preferred language.
+//  [CHANGED] PreferredLanguage default changed from English to System.
+//            System is a Soul-only sentinel — SystemLanguageResolver
+//            reads Localization.CurrentLanguage from the running
+//            V Rising client and maps it to a concrete language at
+//            connect time. Players with no config file get automatic
+//            language detection out of the box.
+//
+//            Players who want to override their game language (e.g.
+//            play in English but receive Spanish item names) can set
+//            this to any real LanguageCodeEnum value. If the server
+//            has not configured that language, Soul stays on the
+//            server default and logs a warning.
 // ============================================================
 
 using BepInEx.Configuration;
-using LilithsMind.Data;    // SyncModeEnum, SyncTierEnum, LanguageCodeEnum
-using LilithsMind.Network;
+using LilithsMind.Data;
 using LilithsSoul.Foundation;
 
 namespace LilithsSoul.Config;
@@ -38,20 +44,25 @@ public static class SoulConfig
                           "Useful during development, disable in production."
         );
 
-        // [CHANGED] PreferredLanguage — if this differs from the server's
-        //           DefaultLanguage, Soul will request a localization payload
-        //           for this language after receiving the main sync payload.
-        //           If the server has not configured this language, Soul stays
-        //           on the server default and logs a warning.
+        // [CHANGED] Default changed from English → System.
+        //           System instructs Soul to detect the language the
+        //           V Rising client is currently running in, via
+        //           Localization.CurrentLanguage. No manual config needed.
+        //
+        //           Set to a specific language (e.g. Spanish) to override
+        //           your game language for server item names/descriptions.
+        //           If the server has not configured that language, Soul
+        //           stays on the server default and logs a warning.
         _preferredLanguage = config.Bind(
             section:      "2) Localization",
             key:          "PreferredLanguage",
-            defaultValue: LanguageCodeEnum.English,
+            defaultValue: LanguageCodeEnum.System,
             description:  "Your preferred language for item names and descriptions. " +
-                          "If this differs from the server's default language and the " +
-                          "server has configured overrides for your language, they will " +
-                          "be applied automatically on connect. " +
-                          "If unavailable, the server's default language is used."
+                          "System (default) automatically detects the language your " +
+                          "V Rising client is running in. Set to a specific language " +
+                          "to override — e.g. Spanish, French, SChinese. " +
+                          "If the server has not configured the requested language, " +
+                          "the server's default language is used instead."
         );
 
         SoulLogger.Info(LOG_SOURCE,

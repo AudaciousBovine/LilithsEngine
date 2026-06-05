@@ -22,6 +22,7 @@ public static class StationsIndex
     {
         Name    = "PlayerCrafting",
         GuidHash = 1420623103,
+        Prefab  = "User",
     };
 
     public static readonly PrefabDef TM_CraftingStation_SimpleCraftingBench = new()

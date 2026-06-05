@@ -115,6 +115,12 @@ using LilithsSoul.Services;
 //            patched or never fired on hover (see DATA_FLOW "Why the
 //            description override is data-layer"). There is no ItemDescriptionPatch.
 //
+//  [CHANGED] LanguageCodeEnum.System support added — when PreferredLanguage
+//            is System, SystemLanguageResolver.Resolve() reads
+//            Localization.CurrentLanguage from the running V Rising client
+//            and maps it to a concrete language name before any comparison
+//            or lang-request sentinel is sent. System is never sent on the wire.
+//
 //  [PERFORMANCE] Per-message: a few StartsWith checks on the hot chat path
 //                — negligible outside connect. Decode (GZip + Base64 + JSON)
 //                and SHA256 run once per tier per connect. Disk I/O once
@@ -420,10 +426,18 @@ public static class SyncReceiver
 
         // [CHANGED] If this is the Critical tier and the server language differs
         //           from our preferred language, request the localization payload.
+        //           If PreferredLanguage is System, resolve the actual game language
+        //           via SystemLanguageResolver before comparing — System is never
+        //           sent on the wire.
         if (tier == (int)SyncTierEnum.Critical &&
             !string.IsNullOrEmpty(payload.ServerLanguage))
         {
-            var preferredLang = SoulConfig.PreferredLanguage.ToString();
+            // [CHANGED] Resolve System sentinel to the game's active language.
+            //           For any explicit language setting this is a no-op ToString().
+            var preferredLang = SoulConfig.PreferredLanguage == LanguageCodeEnum.System
+                ? SystemLanguageResolver.Resolve()
+                : SoulConfig.PreferredLanguage.ToString();
+
             if (!string.Equals(preferredLang, payload.ServerLanguage, StringComparison.OrdinalIgnoreCase))
             {
                 SoulLogger.Info(LOG_SOURCE,
@@ -437,7 +451,12 @@ public static class SyncReceiver
         // [CHANGED] If this is a localization payload (ServerLanguage set and
         //           matches preferred), cache to its own file and apply without
         //           merging into the main sync.json accumulator.
-        var preferred = SoulConfig.PreferredLanguage.ToString();
+        //           Resolve System sentinel here too — must use the same concrete
+        //           language name as the lang-request sent above.
+        var preferred = SoulConfig.PreferredLanguage == LanguageCodeEnum.System
+            ? SystemLanguageResolver.Resolve()
+            : SoulConfig.PreferredLanguage.ToString();
+
         bool isLocalizationPayload =
             !string.IsNullOrEmpty(payload.ServerLanguage) &&
             !string.Equals(payload.ServerLanguage, "English", StringComparison.OrdinalIgnoreCase) &&
@@ -691,6 +710,8 @@ public static class SyncReceiver
     /// <summary>
     /// Pre-applies the cached localization payload for the preferred language
     /// if available on disk. Called from NotifyWorldReady after sync.json.
+    /// [CHANGED] Resolves LanguageCodeEnum.System via SystemLanguageResolver
+    ///           so the correct per-language cache file is loaded on reconnect.
     /// </summary>
     static void TryPreApplyCachedLocalization(string connectionString)
     {
@@ -698,7 +719,12 @@ public static class SyncReceiver
 
         if (!ServerRegistry.TryGetFolderName(connectionString, out var folderName)) return;
 
-        var preferred  = SoulConfig.PreferredLanguage.ToString();
+        // [CHANGED] Resolve System sentinel — must use the concrete language name
+        //           to construct the correct cache file path.
+        var preferred = SoulConfig.PreferredLanguage == LanguageCodeEnum.System
+            ? SystemLanguageResolver.Resolve()
+            : SoulConfig.PreferredLanguage.ToString();
+
         var localFile  = SoulPathIndex.LocalizationFile(folderName, preferred);
 
         if (!File.Exists(localFile)) return;

@@ -4,6 +4,7 @@ using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using LilithsSoul.Config;
 using LilithsSoul.Foundation;
+using LilithsSoul.Services;
 
 // ============================================================
 //  SoulPlugin — LilithsSoul
@@ -63,6 +64,7 @@ public class SoulPlugin : BasePlugin
     public override bool Unload()
     {
         _harmony?.UnpatchSelf();
+        SystemLanguageResolver.Reset();
         SoulLogger.Info("LilithsSoul", "LilithsSoul unloaded.");
         return true;
     }
