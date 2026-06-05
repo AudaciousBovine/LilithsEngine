@@ -20,11 +20,19 @@
 //            This keeps one item = one file ergonomics for admins
 //            while giving us two typed containers internally.
 //
+//  [CHANGED] JsonStringEnumConverter added to _readOptions so that
+//            enum fields (e.g. PrisonerFeedTypeEnum.Type) are
+//            deserialized from their string names ("FeedPrisoner",
+//            "AffectWithToxic", "DealDamageToPrisoner") rather than
+//            integer values. Without this System.Text.Json throws
+//            on any string enum value in the JSON.
+//
 //  [PERFORMANCE] All files read once at startup. O(files) I/O,
 //                O(entries) merge. No per-frame cost.
 // ============================================================
 
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using LilithsHeart.Foundation;
 using LilithsCookbook.Data;
 
@@ -36,7 +44,12 @@ public static class CookbookLoader
 
     static readonly JsonSerializerOptions _readOptions = new()
     {
-        PropertyNameCaseInsensitive = true
+        PropertyNameCaseInsensitive = true,
+        // [CHANGED] Required for PrisonerFeedTypeEnum and any future enum
+        // fields — allows JSON string values like "FeedPrisoner" to
+        // deserialize correctly. Without this System.Text.Json only
+        // accepts integer representations of enum values.
+        Converters = { new JsonStringEnumConverter() }
     };
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -134,12 +147,12 @@ public static class CookbookLoader
 ///     "Recipe_Weapon_Sword_T01_Bone": { "ChangesEnabled": true, ... }
 ///   },
 ///   "PrisonerFeeding": {
-///     "Item_Food_Gruel": { "ChangesEnabled": true, "HealthChange": 15 }
+///     "FakeItem_FeedPrisoner_SageFish": { "ChangesEnabled": true, "Type": "FeedPrisoner", ... }
 ///   }
 /// }
 /// </summary>
 file class CookbookRecipeFile
 {
-    public Dictionary<string, RecipeEntryData>?      Recipes         { get; set; }
+    public Dictionary<string, RecipeEntryData>?       Recipes         { get; set; }
     public Dictionary<string, PrisonerFeedEntryData>? PrisonerFeeding { get; set; }
 }

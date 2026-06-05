@@ -7,7 +7,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_FeedPrisoner_BloodSnapper = new()
     {
-        Name    = "FedBloodSnapper",
+        Name    = "FeedBloodSnapper",
         GuidHash = 526090146,
         Prefab  = "FakeItem_FeedPrisoner_BloodSnapper",
         NameKey = null,
@@ -16,7 +16,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_FeedPrisoner_Corrupted = new()
     {
-        Name    = "FedCorruptedFish",
+        Name    = "FeedCorruptedFish",
         GuidHash = 714743556,
         Prefab  = "FakeItem_FeedPrisoner_Corrupted",
         NameKey = null,
@@ -25,7 +25,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_FeedPrisoner_FatGoby = new()
     {
-        Name    = "FedFatGoby",
+        Name    = "FeedFatGoby",
         GuidHash = -811840389,
         Prefab  = "FakeItem_FeedPrisoner_FatGoby",
         NameKey = null,
@@ -34,7 +34,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_FeedPrisoner_FierceStinger = new()
     {
-        Name    = "FedFierceStinger",
+        Name    = "FeedFierceStinger",
         GuidHash = -114411609,
         Prefab  = "FakeItem_FeedPrisoner_FierceStinger",
         NameKey = null,
@@ -43,7 +43,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_FeedPrisoner_GoldenRiverBass = new()
     {
-        Name    = "FedGoldenRiverBass",
+        Name    = "FeedGoldenRiverBass",
         GuidHash = -684874624,
         Prefab  = "FakeItem_FeedPrisoner_GoldenRiverBass",
         NameKey = null,
@@ -52,7 +52,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_FeedPrisoner_IrradiantGruel = new()
     {
-        Name    = "FedGruel",
+        Name    = "FeedIrradiantGruel",
         GuidHash = -1798608844,
         Prefab  = "FakeItem_FeedPrisoner_IrradiantGruel",
         NameKey = null,
@@ -61,7 +61,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_FeedPrisoner_RainbowTrout = new()
     {
-        Name    = "FedRainbowTrout",
+        Name    = "FeedRainbowTrout",
         GuidHash = 1814558673,
         Prefab  = "FakeItem_FeedPrisoner_RainbowTrout",
         NameKey = null,
@@ -70,7 +70,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_FeedPrisoner_Rat = new()
     {
-        Name    = "FedRat",
+        Name    = "FeedRat",
         GuidHash = 1110550218,
         Prefab  = "FakeItem_FeedPrisoner_Rat",
         NameKey = null,
@@ -79,7 +79,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_FeedPrisoner_SageFish = new()
     {
-        Name    = "FedSageFish",
+        Name    = "FeedSageFish",
         GuidHash = 172410251,
         Prefab  = "FakeItem_FeedPrisoner_SageFish",
         NameKey = null,
@@ -88,7 +88,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_FeedPrisoner_SwampDweller = new()
     {
-        Name    = "FedSwampDweller",
+        Name    = "FeedSwampDweller",
         GuidHash = -314251399,
         Prefab  = "FakeItem_FeedPrisoner_SwampDweller",
         NameKey = null,
@@ -97,7 +97,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_FeedPrisoner_TwilightSnapper = new()
     {
-        Name    = "FedTwilightSnapper",
+        Name    = "FeedTwilightSnapper",
         GuidHash = -1205777419,
         Prefab  = "FakeItem_FeedPrisoner_TwilightSnapper",
         NameKey = null,
@@ -106,7 +106,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_Prisoner_ExtractedBloodPotion = new()
     {
-        Name    = "ExtractedBloodPotion",
+        Name    = "ExtractBloodPotion",
         GuidHash = -1871776321,
         Prefab  = "FakeItem_Prisoner_ExtractedBloodPotion",
         NameKey = null,
@@ -115,7 +115,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_Prisoner_ExtractedBloodwine = new()
     {
-        Name    = "ExtractedBloodwine",
+        Name    = "ExtractBloodwine",
         GuidHash = -1624770558,
         Prefab  = "FakeItem_Prisoner_ExtractedBloodwine",
         NameKey = null,
@@ -124,7 +124,7 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef FakeItem_Prisoner_ExtractEssence = new()
     {
-        Name    = "ExtractedEssence",
+        Name    = "ExtractBloodEssence",
         GuidHash = -911541799,
         Prefab  = "FakeItem_Prisoner_ExtractEssence",
         NameKey = null,
@@ -137,98 +137,98 @@ public static class PrisonerFeedIndex
 
     public static readonly PrefabDef Recipe_Misc_ExtractEssencePrisoner = new()
     {
-        Name    = "ExtractEssence",
+        Name    = "RecipeExtractBloodEssence",
         GuidHash = 1716338316,
         Prefab  = "Recipe_Misc_ExtractEssencePrisoner",
     };
 
     public static readonly PrefabDef Recipe_Consumable_PrisonPotion = new()
     {
-        Name    = "ExtractBloodPotion",
+        Name    = "RecipeExtractBloodPotion",
         GuidHash = 1839006118,
         Prefab  = "Recipe_Consumable_PrisonPotion",
     };
 
     public static readonly PrefabDef Recipe_Consumable_PrisonPotion_Bloodwine = new()
     {
-        Name    = "ExtractBloodMerlot",
+        Name    = "RecipeExtractBloodMerlot",
         GuidHash = 1930190516,
         Prefab  = "Recipe_Consumable_PrisonPotion_Bloodwine",
     };
 
     public static readonly PrefabDef Recipe_Misc_FeedPrisoner_Fish_BloodSnapper = new()
     {
-        Name    = "FeedBloodSnapper",
+        Name    = "RecipeFeedBloodSnapper",
         GuidHash = 956953141,
         Prefab  = "Recipe_Misc_FeedPrisoner_Fish_BloodSnapper",
     };
 
     public static readonly PrefabDef Recipe_Misc_FeedPrisoner_Fish_Corrupted = new()
     {
-        Name    = "FeedCorruptedFish",
+        Name    = "RecipeFeedCorruptedFish",
         GuidHash = 493259323,
         Prefab  = "Recipe_Misc_FeedPrisoner_Fish_Corrupted",
     };
 
     public static readonly PrefabDef Recipe_Misc_FeedPrisoner_Fish_FatGoby = new()
     {
-        Name    = "FeedFatGoby",
+        Name    = "RecipeFeedFatGoby",
         GuidHash = -2047246570,
         Prefab  = "Recipe_Misc_FeedPrisoner_Fish_FatGoby",
     };
 
     public static readonly PrefabDef Recipe_Misc_FeedPrisoner_Fish_FierceStinger = new()
     {
-        Name    = "FeedFierceStinger",
+        Name    = "RecipeFeedFierceStinger",
         GuidHash = -37587809,
         Prefab  = "Recipe_Misc_FeedPrisoner_Fish_FierceStinger",
     };
 
     public static readonly PrefabDef Recipe_Misc_FeedPrisoner_Fish_GoldenRiverBass = new()
     {
-        Name    = "FeedGoldenRiverBass",
+        Name    = "RecipeFeedGoldenRiverBass",
         GuidHash = 1816434122,
         Prefab  = "Recipe_Misc_FeedPrisoner_Fish_GoldenRiverBass",
     };
 
     public static readonly PrefabDef Recipe_Misc_FeedPrisoner_Fish_RainbowTrout = new()
     {
-        Name    = "FeedRainbowTrout",
+        Name    = "RecipeFeedRainbowTrout",
         GuidHash = -1206171767,
         Prefab  = "Recipe_Misc_FeedPrisoner_Fish_RainbowTrout",
     };
 
     public static readonly PrefabDef Recipe_Misc_FeedPrisoner_Fish_SageFish = new()
     {
-        Name    = "FeedSageFish",
+        Name    = "RecipeFeedSageFish",
         GuidHash = 1800570390,
         Prefab  = "Recipe_Misc_FeedPrisoner_Fish_SageFish",
     };
 
     public static readonly PrefabDef Recipe_Misc_FeedPrisoner_Fish_SwampDweller = new()
     {
-        Name    = "FeedSwampDweller",
+        Name    = "RecipeFeedSwampDweller",
         GuidHash = -460272822,
         Prefab  = "Recipe_Misc_FeedPrisoner_Fish_SwampDweller",
     };
 
     public static readonly PrefabDef Recipe_Misc_FeedPrisoner_Fish_TwilightSnapper = new()
     {
-        Name    = "FeedTwilightSnapper",
+        Name    = "RecipeFeedTwilightSnapper",
         GuidHash = -252411567,
         Prefab  = "Recipe_Misc_FeedPrisoner_Fish_TwilightSnapper",
     };
 
     public static readonly PrefabDef Recipe_Misc_FeedPrisoner_IrradiantGruel = new()
     {
-        Name    = "FeedGruel",
+        Name    = "RecipeFeedIrradiantGruel",
         GuidHash = -279936313,
         Prefab  = "Recipe_Misc_FeedPrisoner_IrradiantGruel",
     };
 
     public static readonly PrefabDef Recipe_Misc_FeedPrisoner_Rat = new()
     {
-        Name    = "FeedRat",
+        Name    = "RecipeFeedRat",
         GuidHash = 1469101010,
         Prefab  = "Recipe_Misc_FeedPrisoner_Rat",
     };

@@ -45,6 +45,15 @@ using LilithsSoul.Foundation; // SoulLogger, Soul
 //    Clear restores each item's captured original Description struct;
 //    Build re-captures (now-vanilla) originals, mints, and repoints.
 //
+//  [CHANGED] RepointDescription() now passes description text through
+//            ColorTranslator.Translate() before injecting into
+//            _LocalizedStrings. V Rising named colour tags
+//            (e.g. <teal1>, </c>) are converted to Unity rich text
+//            (<color=#...>, </color>) at inject time so they render
+//            correctly — injected strings bypass V Rising's tag
+//            processing layer but Unity's render layer handles
+//            rich text natively.
+//
 //  [PERFORMANCE] Per description: one dict write + one struct write-back —
 //                O(1), one-time at apply. Steady state ZERO (no getter patch,
 //                no per-frame work; the tooltip resolves our key natively).
@@ -223,7 +232,12 @@ public static class DescriptionPatcher
         _previousDescriptions.TryAdd(guidHash, item.Description);
 
         var g = Mint();                 // fresh AssetGuid, unique by construction
-        table[g] = newText;             // inject our text at the minted key
+
+        // [CHANGED] Translate V Rising named colour tags (e.g. <teal1>, </c>)
+        // to Unity rich text (<color=#...>, </color>) before injecting.
+        // Injected strings bypass V Rising's tag processing layer but Unity's
+        // render layer handles rich text natively.
+        table[g] = ColorTranslator.Translate(newText); // inject translated string
 
         // CRITICAL: get the struct copy, set its Key, WRITE THE WHOLE STRUCT
         // BACK. Mutating the copy alone would be discarded (value semantics) —

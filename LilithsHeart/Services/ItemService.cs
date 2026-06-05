@@ -20,14 +20,27 @@
 //            pass — all go into the same LilithItemData entry via
 //            LilithItemConfig.AddOverride().
 //
+//  [CHANGED] Raw GuidHash integer keys are now normalized to their
+//            canonical Name/Prefab string at load time via
+//            PrefabNameResolver. Downstream patchers
+//            (LocalizationPatcher, DescriptionPatcher, IconPatcher)
+//            look up entries by Name/Prefab string — storing the raw
+//            integer meant GuidHash-keyed entries were silently ignored.
+//            Normalization happens at LoadFile() so LilithItemConfig
+//            is always keyed consistently regardless of what the admin
+//            used in the JSON file.
+//
 //  [PERFORMANCE] All file I/O runs once at world ready.
 //                No per-frame cost. O(files) I/O, O(entries) merge.
+//                GuidHash normalization is one PrefabNameResolver lookup
+//                per integer key — O(1), only at startup.
 // ============================================================
 
 using System.Text.Json;
 using LilithsMind.Data;
 using LilithsHeart.Config;
 using LilithsHeart.Foundation;
+using LilithsHeart.Services;
 
 namespace LilithsHeart.Services;
 
@@ -105,8 +118,8 @@ public static class ItemService
 
         LilithItemConfig.MarkLoaded();
 
-        int total      = LilithItemConfig.Overrides.Count;
-        int withStack  = LilithItemConfig.Overrides.Count(kvp => kvp.Value.StackSize.HasValue);
+        int total     = LilithItemConfig.Overrides.Count;
+        int withStack = LilithItemConfig.Overrides.Count(kvp => kvp.Value.StackSize.HasValue);
 
         HeartLogger.Info(LOG_SOURCE,
             $"Loaded {total} item override(s) from {files.Length} file(s) — " +
@@ -130,10 +143,37 @@ public static class ItemService
 
             int count = 0;
 
-            foreach (var (key, element) in raw)
+            foreach (var (rawKey, element) in raw)
             {
                 // Skip non-object values (e.g. _readme, _comment strings).
                 if (element.ValueKind != JsonValueKind.Object) continue;
+
+                // [CHANGED] Normalize raw GuidHash integer keys to canonical
+                // Name/Prefab strings before storing. Downstream patchers
+                // (LocalizationPatcher, DescriptionPatcher, IconPatcher) look
+                // up entries by Name/Prefab string — a raw integer key would
+                // never match and the entry would be silently ignored.
+                // PrefabNameResolver.TryResolveName() returns the canonical name
+                // for a given GuidHash. If resolution fails, log and skip.
+                var key = rawKey;
+                if (int.TryParse(rawKey, out int hash))
+                {
+                    if (PrefabNameResolver.TryResolve(rawKey, out var guid) &&
+                        PrefabNameResolver.TryResolveName(guid, out var resolvedName))
+                    {
+                        HeartLogger.Debug(LOG_SOURCE,
+                            $"Resolved GuidHash key '{rawKey}' → '{resolvedName}'.");
+                        key = resolvedName;
+                    }
+                    else
+                    {
+                        HeartLogger.Warning(LOG_SOURCE,
+                            $"Could not resolve GuidHash key '{rawKey}' in " +
+                            $"'{Path.GetFileName(filePath)}' — skipping entry. " +
+                            "Add a definition to LilithsMind or use the prefab string instead.");
+                        continue;
+                    }
+                }
 
                 string? displayName     = null;
                 string? descriptionText = null;

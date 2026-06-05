@@ -49,6 +49,15 @@ using LilithsSoul.Foundation;
 //  assigning it does not persist (confirmed). Tooltips require a
 //  Harmony patch on the tooltip-build path and are a separate task.
 //
+//  [CHANGED] RepointName() now passes display names through
+//            ColorTranslator.Translate() before injecting into
+//            _LocalizedStrings. V Rising named colour tags
+//            (e.g. <teal1>, </c>) are converted to Unity rich text
+//            (<color=#...>, </color>) at inject time so they render
+//            correctly — injected strings bypass V Rising's tag
+//            processing layer but Unity's render layer handles
+//            rich text natively.
+//
 //  [PERFORMANCE] Per name: one dict write + one value-type field
 //                assignment — O(1), microseconds, one-time at apply.
 //                Steady state ZERO: once set, name lookup is identical
@@ -250,7 +259,13 @@ public static class LocalizationPatcher
         _previousNames.TryAdd(guidHash, item.Name);   // capture vanilla (first wins)
 
         var g = Mint();                                // fresh, unique by construction
-        table[g] = newName;                            // inject string at the minted key
+
+        // [CHANGED] Translate V Rising named colour tags (e.g. <teal1>, </c>)
+        // to Unity rich text (<color=#...>, </color>) before injecting.
+        // Injected strings bypass V Rising's tag processing layer but Unity's
+        // render layer handles rich text natively.
+        table[g] = ColorTranslator.Translate(newName); // inject translated string
+
         item.Name = MakeKey(g);                        // repoint via public value-type setter
     }
 

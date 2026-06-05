@@ -39,10 +39,15 @@
 //  None=[Prefab] query exclusion ineffective. GetAllEntities()
 //  with direct prefab-entity identity exclusion is required.
 //
+//  [CHANGED] BuildStationInventory() guards against two classes of invalid
+//            entity in _PrefabGuidToEntityMap: deferred ECB entities (negative
+//            Index, skipped via Index < 0) and cross-world entities (positive
+//            Index exceeding this world's capacity, caught via try/catch around
+//            HasBuffer calls). Both throw on any ECS call including Exists().
+//
 //  [PERFORMANCE] All ECS operations run once at startup only.
-//                The diff-build pass is O(recipes × stations) at
-//                startup — negligible for config-scale input.
-//                Single GetAllEntities() scan covers all stations.
+//                The diff-build pass is O(recipes × stations) at startup.
+//                try/catch has no cost on the non-throwing path.
 // ============================================================
 
 using ProjectM;
@@ -262,17 +267,44 @@ public static class StationSystem
     /// currently in that station's recipe buffer (Workstation or Refinement).
     /// Used by BuildStationDiff to find existing recipe membership.
     ///
+    /// [CHANGED] Guards against two categories of invalid entity in the map:
+    ///           (1) Deferred ECB entities — negative Index, caught by Index < 0.
+    ///           (2) Cross-world entities  — positive Index exceeding this world's
+    ///               capacity, caught by a try/catch around HasBuffer calls.
+    ///           Both forms throw ArgumentException on any ECS call. Exists() is
+    ///           not usable as a guard — it calls ValidateEntity internally and
+    ///           throws on both categories itself.
+    ///
     /// [PERFORMANCE] O(stations × recipes per station) — runs once at startup.
-    ///               Iterates PrefabGuidToEntityMap, which is pre-built by the game.
+    ///               try/catch has no overhead on the non-throwing path.
+    ///               Throwing entities are a small minority — startup only.
     /// </summary>
     static Dictionary<string, HashSet<int>> BuildStationInventory()
     {
         var inventory = new Dictionary<string, HashSet<int>>(StringComparer.Ordinal);
+        var em        = Heart.EntityManager;
         var prefabMap = Heart.PrefabCollectionSystem._PrefabGuidToEntityMap;
+
+        int skipped = 0;
 
         foreach (var kvp in prefabMap)
         {
             var entity = kvp.Value;
+
+            // [CHANGED] _PrefabGuidToEntityMap can contain invalid entities in two
+            // forms that both throw on any ECS call:
+            //   1. Deferred ECB entities   — negative Index (not yet played back)
+            //   2. Cross-world entities    — positive Index larger than this world's
+            //                               entity capacity (from another ECS world)
+            // Index < 0 catches case 1. For case 2 we wrap ECS calls in try/catch
+            // since there is no safe pre-validation short of catching the exception.
+            // [PERFORMANCE] try/catch has no overhead on the happy path (no exception).
+            //               Entities that throw are a small minority — startup only.
+            if (entity.Index < 0)
+            {
+                skipped++;
+                continue;
+            }
 
             // Try to get a human-readable name for this station.
             if (!PrefabNameResolver.TryResolveName(kvp.Key, out string stationName))
@@ -280,24 +312,39 @@ public static class StationSystem
 
             HashSet<int>? recipes = null;
 
-            if (entity.Has<WorkstationRecipesBuffer>())
+            try
             {
-                var buffer = entity.ReadBuffer<WorkstationRecipesBuffer>();
-                recipes = new HashSet<int>(buffer.Length);
-                for (int i = 0; i < buffer.Length; i++)
-                    recipes.Add(buffer[i].RecipeGuid._Value);
+                if (em.HasBuffer<WorkstationRecipesBuffer>(entity))
+                {
+                    var buffer = entity.ReadBuffer<WorkstationRecipesBuffer>();
+                    recipes = new HashSet<int>(buffer.Length);
+                    for (int i = 0; i < buffer.Length; i++)
+                        recipes.Add(buffer[i].RecipeGuid._Value);
+                }
+                else if (em.HasBuffer<RefinementstationRecipesBuffer>(entity))
+                {
+                    var buffer = entity.ReadBuffer<RefinementstationRecipesBuffer>();
+                    recipes = new HashSet<int>(buffer.Length);
+                    for (int i = 0; i < buffer.Length; i++)
+                        recipes.Add(buffer[i].RecipeGuid._Value);
+                }
             }
-            else if (entity.Has<RefinementstationRecipesBuffer>())
+            catch
             {
-                var buffer = entity.ReadBuffer<RefinementstationRecipesBuffer>();
-                recipes = new HashSet<int>(buffer.Length);
-                for (int i = 0; i < buffer.Length; i++)
-                    recipes.Add(buffer[i].RecipeGuid._Value);
+                // Entity belongs to a different world or has a corrupted index.
+                // Skip it silently — it cannot be a valid station prefab entity.
+                skipped++;
+                continue;
             }
 
             if (recipes != null)
                 inventory[stationName] = recipes;
         }
+
+        if (skipped > 0)
+            HeartLogger.Debug(LOG_SOURCE,
+                $"BuildStationInventory skipped {skipped} invalid/cross-world entity(s) " +
+                "in _PrefabGuidToEntityMap.");
 
         return inventory;
     }
