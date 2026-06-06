@@ -58,12 +58,6 @@ Things can break in early testing so always create new servers or create backups
 > ***Cassapica***, ***Proximo***, ***Lays***, ***Lucas***, ***Ruymber***  
 > ***And Everyone Else That Supports My Endeavors and Deal With My Chaos!***  
 
-
-
-
-
-
-
 ## Hopeful Additions
 ### LilithsCookbook
 - Add/Edit more crafting stations
