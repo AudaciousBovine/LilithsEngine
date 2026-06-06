@@ -209,20 +209,20 @@ Core server mod that supports the function of all Lilith Modules and communicate
 > ### Example Config
 ```
 {
-  "Item_BloodEssence_T01": "BloodEssence",
-  "Item_BloodEssence_T02_Greater": "GreaterBloodEssence",
-  "Item_BloodEssence_T03_Primal": "PrimalBloodEssence"
+  "862477668": "BloodEssence",
+  "271594022": "GreaterBloodEssence",
+  "1566989408": "PrimalBloodEssence"
 }
 ```
 
 > ### Explanations
 
 `"ItemYouAreEditing":`
-- Accepts only PrefabString (Will add PrefabGUID support)
+- Accepts only PrefabGUID
 - Put your Alias after in quotes ""
         - Reccommend not using spaces for clarity
         - Aliases must be unique and cannot be shared across prefabs
-        - All Liliths configs accept aliases for in place of PrefabGUID/String
+        - All Liliths configs accept aliases in place of PrefabGUID/String
 
 </details>
 

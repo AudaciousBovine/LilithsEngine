@@ -1,56 +1,3 @@
-// ============================================================
-//  PrefabNameResolver — LilithsHeart
-//  LilithsHeart/Services/PrefabNameResolver.cs
-//
-//  Resolves prefab names to PrefabGUIDs and vice versa.
-//
-//  Two-phase initialization:
-//  ──────────────────────────
-//  Phase 1 — compiled defaults (unchanged):
-//    Scans LilithsMind's assembly for all static PrefabDef fields.
-//    Builds _nameToGuid, _prefabToGuid, _guidToName from the
-//    Name/Prefab/GuidHash fields on each definition.
-//
-//  Phase 2 — admin alias overrides (new):
-//    Scans Aliases/*.json after compiled defaults are loaded.
-//    Each file is named after its index class (e.g. WeaponsIndex.json)
-//    and maps prefab string → custom alias name:
-//      { "Item_Weapon_Sword_T01_Bone": "BoneCleaver" }
-//    For each valid entry:
-//      • The old compiled Name is removed from _nameToGuid
-//      • The new admin alias is inserted into _nameToGuid
-//      • _guidToName is updated to return the admin alias
-//      • _prefabToGuid is always preserved — the prefab string
-//        fallback cannot be overridden (safety net)
-//    Per-server: Aliases/ lives on the server under
-//    BepInEx/config/LilithsHeart/Aliases/ — each server has
-//    its own independent set of aliases. Soul never sees them.
-//
-//  GenerateAliasFiles() — triggered by GenerateNameAliasConfigs:
-//    Dumps one JSON file per *Index class to Aliases/.
-//    Each file contains the current compiled Name values so
-//    admins have a starting point to edit. Always overwrites.
-//
-//  Safety rules for alias loading:
-//    • Alias must not be null or whitespace
-//    • Alias must not collide with an existing _prefabToGuid key
-//      (reserved namespace — raw prefab strings always resolve)
-//    • If invalid, the entry is logged and skipped
-//
-//  [CHANGED] Phase 2 alias loading added via LoadAliasOverrides().
-//            GenerateAliasFiles() added for the dump-on-demand path.
-//            Both called from Initialize() after Phase 1 completes.
-//
-//  [CHANGED] _hashToGuid added — allows configs to use raw GuidHash
-//            integers (e.g. "-1595790789") as keys in addition to
-//            prefab strings and Name aliases. TryResolve() checks
-//            all three in order: alias/Name → prefab string → hash.
-//
-//  [PERFORMANCE] Phase 1 reflection runs once at world ready — O(n).
-//                Phase 2 file I/O runs once — O(alias files × entries).
-//                All lookups remain O(1) dictionary reads.
-// ============================================================
-
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -234,6 +181,24 @@ public static class PrefabNameResolver
 
     // ── Phase 2 — admin alias overrides ──────────────────────
 
+    /// <summary>
+    /// Loads alias overrides from Aliases/*.json.
+    ///
+    /// [CHANGED] File format changed from prefabString → alias to
+    ///           GuidHash (int) → alias. Keys are now raw integer
+    ///           GuidHash values (e.g. "862477668" or "-1595790789").
+    ///           This removes the dependency on prefab strings being
+    ///           stable across game updates and allows aliasing any
+    ///           prefab by its GUID directly.
+    ///
+    ///           Old format (no longer supported):
+    ///             "Item_BloodEssence_T01": "BloodEssence"
+    ///           New format:
+    ///             "862477668": "BloodEssence"
+    ///
+    ///           PrefabString keys that fail int.TryParse are skipped
+    ///           with a warning so admins know to update their files.
+    /// </summary>
     static void LoadAliasOverrides()
     {
         if (!Directory.Exists(HeartPathIndex.AliasesDir))
@@ -266,25 +231,39 @@ public static class PrefabNameResolver
 
                 if (entries == null) continue;
 
-                foreach (var (prefabString, adminAlias) in entries)
+                foreach (var (keyStr, adminAlias) in entries)
                 {
                     // Skip comment/readme keys.
-                    if (prefabString.StartsWith("_")) continue;
+                    if (keyStr.StartsWith("_")) continue;
 
                     // Alias must be non-empty.
                     if (string.IsNullOrWhiteSpace(adminAlias))
                     {
                         HeartLogger.Warning(LOG_SOURCE,
-                            $"[Aliases] '{prefabString}' has null/empty alias — skipping.");
+                            $"[Aliases] '{keyStr}' has null/empty alias — skipping.");
                         skipCount++;
                         continue;
                     }
 
-                    // Prefab string must be known.
-                    if (!_prefabToGuid.TryGetValue(prefabString, out PrefabGUID guid))
+                    // [CHANGED] Key must be a valid GuidHash integer.
+                    // Old prefab string keys (e.g. "Item_BloodEssence_T01") will
+                    // fail here — admins must regenerate alias files to get the
+                    // new GuidHash-keyed format.
+                    if (!int.TryParse(keyStr, out int guidHash))
                     {
                         HeartLogger.Warning(LOG_SOURCE,
-                            $"[Aliases] '{prefabString}' not found in compiled definitions — skipping.");
+                            $"[Aliases] Key '{keyStr}' is not a valid GuidHash integer — skipping. " +
+                            "Regenerate alias files with GenerateNameAliasConfigs=true to get the " +
+                            "new GuidHash-keyed format.");
+                        skipCount++;
+                        continue;
+                    }
+
+                    // GuidHash must be known.
+                    if (!_hashToGuid.TryGetValue(guidHash, out PrefabGUID guid))
+                    {
+                        HeartLogger.Warning(LOG_SOURCE,
+                            $"[Aliases] GuidHash '{guidHash}' not found in compiled definitions — skipping.");
                         skipCount++;
                         continue;
                     }
@@ -294,7 +273,7 @@ public static class PrefabNameResolver
                     if (_prefabToGuid.ContainsKey(adminAlias))
                     {
                         HeartLogger.Warning(LOG_SOURCE,
-                            $"[Aliases] Alias '{adminAlias}' for '{prefabString}' collides with " +
+                            $"[Aliases] Alias '{adminAlias}' for GuidHash '{guidHash}' collides with " +
                             "an existing prefab string — skipping. Choose a different alias.");
                         skipCount++;
                         continue;
@@ -310,7 +289,7 @@ public static class PrefabNameResolver
                     _guidToName[guid._Value]    = adminAlias;
 
                     HeartLogger.Debug(LOG_SOURCE,
-                        $"[Aliases] '{prefabString}' → '{adminAlias}'");
+                        $"[Aliases] GuidHash '{guidHash}' → '{adminAlias}'");
                     overrideCount++;
                 }
             }
@@ -330,11 +309,21 @@ public static class PrefabNameResolver
 
     /// <summary>
     /// Dumps one JSON file per *Index class to Aliases/.
-    /// Each file maps prefab string → current compiled Name (or null
-    /// if the entry has no Name). Admins edit the values to set
-    /// custom aliases for this server. Always overwrites.
     ///
-    /// Called from Initialize() when GenerateNameAliasConfigs = true.
+    /// [CHANGED] Generated files now use GuidHash integer as the key
+    ///           rather than prefab string. This makes aliases stable
+    ///           across game updates where prefab string names may change,
+    ///           and matches the new LoadAliasOverrides() format.
+    ///
+    ///           New format:
+    ///             "862477668": "BloodEssence"    ← GuidHash → alias
+    ///
+    ///           Old format (retired):
+    ///             "Item_BloodEssence_T01": "BloodEssence"
+    ///
+    /// Admins edit the values to set custom aliases for this server.
+    /// Always overwrites. Called from Initialize() when
+    /// GenerateNameAliasConfigs = true.
     ///
     /// [PERFORMANCE] Runs once per flag trigger. O(definitions).
     ///               No ECS access needed — all data from Phase 1.
@@ -354,15 +343,17 @@ public static class PrefabNameResolver
                 var output = new Dictionary<string, object>(StringComparer.Ordinal)
                 {
                     ["_readme"] =
-                        $"Prefab name alias overrides for {indexClassName}. " +
-                        "Keys are prefab strings (do not change). " +
+                        $"Prefab alias overrides for {indexClassName}. " +
+                        "Keys are GuidHash integers (do not change). " +
                         "Values are the alias used in all module configs on this server. " +
-                        "Set a value to null to use the prefab string directly. " +
+                        "Set a value to null to use the default compiled Name. " +
                         "Aliases must not match any existing prefab string.",
                 };
 
+                // [CHANGED] Key is now GuidHash integer string, not prefab string.
+                // Value is the compiled Name (alias default) or null if none.
                 foreach (var (guidHash, prefab, compiledName) in entries)
-                    output[prefab] = compiledName ?? (object)"null";
+                    output[guidHash.ToString()] = compiledName ?? (object)"null";
 
                 var json = JsonSerializer.Serialize(output, _writeOptions);
                 File.WriteAllText(path, json);
