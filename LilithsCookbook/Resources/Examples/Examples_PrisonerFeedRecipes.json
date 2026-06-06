@@ -1,12 +1,12 @@
 {
-  "_readme": "DEBUG CONFIG — ChangesEnabled=true. Do not use on live servers.",
+  "_readme": "Example Feed Action Recipes, always needs a PrisonerFeedItem to apply effects to prisoner",
 
   "Recipes": {
     "RecipeFeedRat": {
-      "ChangesEnabled": true,
-      "CraftDuration": 3.0,
+      "ChangesEnabled": false,
+      "CraftDuration": 10.0,
       "Requirements": [
-        { "Item": "VerminSalve", "Amount": 1 }
+        { "Item": "Rat", "Amount": 1 }
       ],
       "Outputs": [
         { "Item": "FeedRat", "Amount": 1 }
@@ -14,8 +14,8 @@
     },
 
     "RecipeFeedIrradiantGruel": {
-      "ChangesEnabled": true,
-      "CraftDuration": 3.0,
+      "ChangesEnabled": false,
+      "CraftDuration": 20.0,
       "Requirements": [
         { "Item": "IrradiantGruel", "Amount": 1 }
       ],
@@ -25,8 +25,8 @@
     },
 
     "RecipeExtractBloodEssence": {
-      "ChangesEnabled": true,
-      "CraftDuration": 3.0,
+      "ChangesEnabled": false,
+      "CraftDuration": 5.0,
       "Outputs": [
         { "Item": "ExtractBloodEssence", "Amount": 1 },
         { "Item": "BloodEssence", "Amount": 15 }

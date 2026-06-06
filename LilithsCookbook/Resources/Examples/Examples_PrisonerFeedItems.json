@@ -1,18 +1,18 @@
 {
-  "_readme": "DEBUG CONFIG — ChangesEnabled=true. Do not use on live servers.",
+  "_readme": "Examples of the fake items that govern the prisoner feed effects",
 
   "PrisonerFeeding": {
     "FeedRat": {
-      "ChangesEnabled": true,
+      "ChangesEnabled": false,
       "Type": "FeedPrisoner",
-      "RecoverHealth_Min": 0.50,
-      "RecoverHealth_Max": 0.99,
-      "RecoverMisery_Min": 0.50,
-      "RecoverMisery_Max": 0.99
+      "RecoverHealth_Min": 0.05,
+      "RecoverHealth_Max": 0.15,
+      "RecoverMisery_Min": 0.01,
+      "RecoverMisery_Max": 0.02
     },
 
     "ExtractBloodEssence": {
-      "ChangesEnabled": true,
+      "ChangesEnabled": false,
       "Type": "DealDamageToPrisoner",
       "DealPercentualDamage_Min": 0.05,
       "DealPercentualDamage_Max": 0.25,
@@ -21,11 +21,11 @@
     },
 
     "FeedIrradiantGruel": {
-      "ChangesEnabled": true,
+      "ChangesEnabled": false,
       "Type": "AffectWithToxic",
-      "ChanceToBecomeMutant": 0.0,
-      "IncreaseBloodQuality_Min": 0.10,
-      "IncreaseBloodQuality_Max": 0.20
+      "ChanceToBecomeMutant": 0.95,
+      "IncreaseBloodQuality_Min": 0.50,
+      "IncreaseBloodQuality_Max": 0.99
     }
   }
 }

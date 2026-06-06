@@ -32,7 +32,7 @@ Things can break in early testing so always create new servers or create backups
 
 # Modules
 ## LilithsCookbook
-- Edit Recipes, Items, Prisoner Food
+- Edit Recipes, Items, Prisoner Food and Effects
 ## Hopeful Additions
 ### LilithsCookbook
 - Add/Edit more crafting stations

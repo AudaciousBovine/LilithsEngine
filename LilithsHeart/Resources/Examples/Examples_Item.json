@@ -1,24 +1,19 @@
 {
-  "_readme": "Keys are prefab Name or Prefab string from LilithsMind PrefabDef entries (e.g. 'BloodEssence' or 'Item_BloodEssence_T01'). All appearance fields apply when non-null. Files in Items/ load alphabetically and merge per-field — later files win on conflicts.",
-  "_appearance_readme": "DisplayName sets the item name shown in tooltips and inventory. DescriptionText sets the tooltip body. Icon can be: (1) a PNG filename in the client Icons/ folder e.g. 'vitae.png'; (2) an in-game sprite name e.g. 'Icon_BloodOrb'; (3) an https:// URL the client will download and cache.",
-  "_changesEnabled_readme": "ChangesEnabled gates functional fields (StackSize and future additions). Appearance fields always apply when non-null regardless of ChangesEnabled.",
+  "_readme": "Item override examples, DELETE these files after creating your own as they are always in effect.",
+  "_Toggle_readme": "You can add an Underscore _ to the beginning of a value to disable the changes(or delete the entry)",
+  "_DescriptionText_readme": "Unique to each item even if vanilla is shared.",
+  "_Icon_readme": "Must always be a *.png, use a file in Icons, URL, or existing item's Icon.",
+  "_CookbookModule_readme": "If you have Cookbook StackSize can be added to the attributes",
 
-  "Item_BloodEssence_T01": {
-    "DisplayName": "Vitae",
-    "DescriptionText": "Concentrated life force, harvested from the living.",
-    "Icon": "vitae.png",
-    "ChangesEnabled": false
+  "BloodEssence": {
+    "DisplayName": "Red Marble",
+    "DescriptionText": "A lovely Red Marble dropped from the living, it swirls with life energy.",
+    "Icon": "https://raw.githubusercontent.com/AudaciousBovine/LilithsEngine/refs/heads/main/Media/Icons/RedMarble.png"
   },
 
-  "Item_Ingredient_Gem_Ruby_T01": {
-    "DisplayName": "Bloodstone",
-    "Icon": "Icon_BloodOrb",
-    "ChangesEnabled": false
-  },
-
-  "Item_MagicSource_BloodKey_T01": {
-    "DisplayName": "Crimson Key",
-    "Icon": "https://example.com/icons/crimson-key.png",
-    "ChangesEnabled": false
+  "CopperSword": {
+    "DisplayName": "Orange Blade",
+    "DescriptionText": "A bright Orange Blade made of some alloy, surely not copper as that would be too soft. The blue handle makes the color pop.",
+    "Icon": "Stunlock_Icon_BronzeSword02"
   }
 }

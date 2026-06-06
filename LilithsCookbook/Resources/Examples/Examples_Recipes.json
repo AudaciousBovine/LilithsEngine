@@ -1,9 +1,9 @@
 {
-  "_readme": "DEBUG CONFIG — ChangesEnabled=true. Do not use on live servers.",
+  "_readme": "Example recipe formats",
 
   "Recipes": {
     "RecipeBoneSword": {
-      "ChangesEnabled": true,
+      "ChangesEnabled": false,
       "AlwaysUnlocked": true,
       "CraftDuration": 2.0,
       "Requirements": [
@@ -17,7 +17,7 @@
     },
 
     "RecipePlank": {
-      "ChangesEnabled": true,
+      "ChangesEnabled": false,
       "AlwaysUnlocked": true,
       "CraftDuration": 3.0,
       "Requirements": [

@@ -1,23 +1,23 @@
 {
-  "_readme": "DEBUG CONFIG — ChangesEnabled=true. Do not use on live servers.",
+  "_readme": "Example Stack changes, valid values are 1-4095, going past wont display properly on Client",
 
   "BloodEssence": {
-    "ChangesEnabled": true,
+    "ChangesEnabled": false,
     "StackSize": 1000
   },
 
   "Wood": {
-    "ChangesEnabled": true,
-    "StackSize": 9999
+    "ChangesEnabled": false,
+    "StackSize": 4000
   },
 
   "IrradiantGruel": {
-    "ChangesEnabled": true,
+    "ChangesEnabled": false,
     "StackSize": 1
   },
 
   "VerminSalve": {
-    "ChangesEnabled": true,
+    "ChangesEnabled": false,
     "StackSize": 1
   }
 }
