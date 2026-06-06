@@ -52,7 +52,7 @@ Things can break in early testing so always create new servers or create backups
 # Credits and Special Thanks
 > ***deca*** (Discord, VampireCommandFramework and more) - Using VCM for the main Sync method  
 > ***Odjit*** (Discord, Kindred Suite) - KindredExtract let me dig in the files  
-> ***zlomft*** (Bloodcraft) - Recipes in there were initial inspiration for Cookbook code
+> ***zfolmt*** (Bloodcraft) - Recipes in there were initial inspiration for Cookbook code
 > ***Imperivm Draconis*** (Discord) - For being a font of knowledge always explaining things
 > ***V Rising Mod Community Discord*** (And everyone in it!)  
 > ***Cassapica***, ***Proximo***, ***Lays***, ***Lucas***, ***Ruymber***  
