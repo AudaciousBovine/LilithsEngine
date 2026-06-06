@@ -76,19 +76,19 @@ GenerateAllModuleExamples:
   └─ Extract Resources/Examples/Examples_Item.json → Items/Examples_Item.json
   └─ Call each registered module's GenerateExampleFiles()
        └─ CookbookConfigBuilder.GenerateExampleFiles():
-             Extract → Recipes/Examples_Recipe.json
-             Extract → Recipes/Examples_PrisonerFeed.json
-             Extract → Recipes/Examples_PrisonerFed.json
-             Extract → Items/Examples_CookbookItem.json
+             Extract → Recipes/Examples_Recipes.json
+             Extract → Recipes/Examples_PrisonerFeedRecipes.json
+             Extract → Recipes/Examples_PrisonerFeedItems.json
+             Extract → Items/Examples_CookbookItems.json
 
 GenerateDebugConfigs:
   └─ Extract Resources/Debug/Debug_Item.json → Items/Debug_Item.json
   └─ Call each registered module's GenerateDebugFiles()
        └─ CookbookConfigBuilder.GenerateDebugFiles():
-             Extract → Recipes/Debug_Recipe.json
-             Extract → Recipes/Debug_PrisonerFeed.json
-             Extract → Recipes/Debug_PrisonerFed.json
-             Extract → Items/Debug_CookbookItem.json
+             Extract → Recipes/Debug_Recipes.json
+             Extract → Recipes/Debug_PrisonerFeedRecipes.json
+             Extract → Recipes/Debug_PrisonerFeedItems.json
+             Extract → Items/Debug_CookbookItems.json
 
 GenerateNameAliasConfigs:
   └─ PrefabNameResolver.GenerateAliasFiles()
@@ -342,16 +342,16 @@ BepInEx/config/LilithsHeart/
   ├── Items/                         — *.json item overrides (recursive)
   │     Examples_Item.json           — generated on demand
   │     Debug_Item.json              — generated on demand
-  │     Examples_CookbookItem.json   — generated on demand
-  │     Debug_CookbookItem.json      — generated on demand
+  │     Examples_CookbookItems.json   — generated on demand
+  │     Debug_CookbookItems.json      — generated on demand
   │     my-items.json                — admin-authored
   ├── Recipes/                       — *.json recipe config (LilithsCookbook)
-  │     Examples_Recipe.json
-  │     Debug_Recipe.json
-  │     Examples_PrisonerFeed.json
-  │     Debug_PrisonerFeed.json
-  │     Examples_PrisonerFed.json
-  │     Debug_PrisonerFed.json
+  │     Examples_Recipes.json
+  │     Debug_Recipes.json
+  │     Examples_PrisonerFeedRecipes.json
+  │     Debug_PrisonerFeedRecipes.json
+  │     Examples_PrisonerFeedItems.json
+  │     Debug_PrisonerFeedItems.json
   │     AllRecipes.json              — generated on demand (ECS dump)
   └── Localization/                  — per-language item name/description overrides
         Spanish/

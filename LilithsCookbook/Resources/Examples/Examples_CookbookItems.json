@@ -1,0 +1,23 @@
+{
+  "_readme": "DEBUG CONFIG — ChangesEnabled=true. Do not use on live servers.",
+
+  "BloodEssence": {
+    "ChangesEnabled": true,
+    "StackSize": 1000
+  },
+
+  "Wood": {
+    "ChangesEnabled": true,
+    "StackSize": 9999
+  },
+
+  "IrradiantGruel": {
+    "ChangesEnabled": true,
+    "StackSize": 1
+  },
+
+  "VerminSalve": {
+    "ChangesEnabled": true,
+    "StackSize": 1
+  }
+}

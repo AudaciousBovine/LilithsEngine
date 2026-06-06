@@ -252,7 +252,7 @@ The change log prevents confusion when older references conflict with newer ones
 | ---------- | -------------- | ---------------------- | -------------------------------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------- |
 | 2026-06-02 | Nose sharpness | Softer simplified nose | Moderately sharper nose with clearer bridge and tip definition | Approved for Draft Canon | Variant C from Nose Sharpness Test. Supports mature-chibi face without becoming overly sharp. |
 | 2026-06-02 | Iris size | Larger current-reference irises | Much smaller bright gold irises | Approved for Draft Canon | Variant D from Much Smaller Iris Test. Creates a sharper, more intense focused gaze while preserving Lilith’s mischievous personality. |
-
+| 2026-06-05 | Eye shape and pupils | Smaller bright gold irises without strong slit-pupil definition | Very sharp mature eyes with small bright gold irises, strong vertical slitted pupils, and intense focused gaze | Approved for Draft Canon | Variant D from Eye Sharpness + Slitted Pupil Test. Replaces the smaller-iris-only eye direction. |
 
 
 ---

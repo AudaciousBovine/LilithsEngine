@@ -171,19 +171,19 @@ Embedded JSON files extracted on demand when GenerateDebugConfigs is set.
 
 | File | Purpose |
 |------|---------|
-| `Examples_Recipe.json` | 3 recipe override examples. ChangesEnabled=false. |
-| `Examples_PrisonerFeed.json` | 2 prisoner feed recipe examples (one standard, one with FakeItem + item output). |
-| `Examples_PrisonerFed.json` | 3 FakeItem examples (FeedPrisoner, DealDamageToPrisoner, AffectWithToxic). |
-| `Examples_CookbookItem.json` | 3 StackSize examples. ChangesEnabled=false. |
+| `Examples_Recipes.json` | 3 recipe override examples. ChangesEnabled=false. |
+| `Examples_PrisonerFeedRecipes.json` | 2 prisoner feed recipe examples (one standard, one with FakeItem + item output). |
+| `Examples_PrisonerFeedItems.json` | 3 FakeItem examples (FeedPrisoner, DealDamageToPrisoner, AffectWithToxic). |
+| `Examples_CookbookItems.json` | 3 StackSize examples. ChangesEnabled=false. |
 
 ### Resources/Debug/
 
 | File | Purpose |
 |------|---------|
-| `Debug_Recipe.json` | 3 recipe debug entries. ChangesEnabled=true, CraftDuration=1. |
-| `Debug_PrisonerFeed.json` | Feed recipe durations cut to 1 second. |
-| `Debug_PrisonerFed.json` | Extreme stat values for obvious in-game verification. |
-| `Debug_CookbookItem.json` | StackSize=9999 entries. ChangesEnabled=true. |
+| `Debug_Recipes.json` | 3 recipe debug entries. ChangesEnabled=true, CraftDuration=1. |
+| `Debug_PrisonerFeedRecipes.json` | Feed recipe durations cut to 1 second. |
+| `Debug_PrisonerFeedItems.json` | Extreme stat values for obvious in-game verification. |
+| `Debug_CookbookItems.json` | StackSize=9999 entries. ChangesEnabled=true. |
 
 ### Config/
 

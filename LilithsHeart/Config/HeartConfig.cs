@@ -63,10 +63,10 @@ public static class HeartConfig
         ServerName = config.Bind(
             section:      "1) General",
             key:          "ServerName",
-            defaultValue: "LilithsEngine",
+            defaultValue: "LilithsEngineServer",
             description:  "Unique name for this server. Used by Soul clients to cache " +
-                          "server-specific configs. Change this if you run multiple " +
-                          "LilithsEngine servers."
+                          "server-specific configs. CHANGE THIS or clients playing on " +
+                          "multiple LilithsEngine servers will need to keep redownloading sync."
         );
 
         _chunksPerFrame = config.Bind(
@@ -76,12 +76,9 @@ public static class HeartConfig
             description:  "Maximum number of sync payload chunks sent per server frame. " +
                           "Higher values sync clients faster but increase CPU load on connect. " +
                           "Reduce if you see frame drops when many players connect simultaneously. " +
-                          "Default: 10. Range: 1-50."
+                          "Default: 10."
         );
 
-        // [CHANGED] Default language for item name/description overrides.
-        // Soul clients whose PreferredLanguage differs will request a
-        // localization payload for their preferred language after connecting.
         _defaultLanguage = config.Bind(
             section:      "1) General",
             key:          "DefaultLanguage",
@@ -89,18 +86,25 @@ public static class HeartConfig
             description:  "Language used for DisplayName and DescriptionText in the " +
                           "standard sync payload. Soul clients with a different " +
                           "PreferredLanguage will request their language separately. " +
-                          "Folder names under Localization/ must match LanguageCodeEnum values."
+                          "Folder names under Localization/ must match LanguageCodeEnum values " +
+                          "to support multiple language overrides on your server. " +
+                          "Enums are: English, Brazilian, French, German, Hungarian, Italian, " + 
+                          "Japanese, Koreana, Latam, Polish, Russian, SChinese, Spanish, TChinese, " + 
+                          "Thai, Turkish, Ukrainian, Vietnamese, Custom."
         );
 
-        // [CHANGED] Sync transport mode settings.
         _syncMode = config.Bind(
             section:      "2) Sync",
             key:          "SyncMode",
             defaultValue: SyncModeEnum.ChunkPush,
             description:  "Sync transport mode. " +
-                          "ChunkPush: payload sent as tiered chat chunks on connect (default, no extra config). " +
-                          "HttpServer: Heart hosts an HTTP endpoint; Soul fetches directly (requires HttpPort open in firewall). " +
-                          "StaticUrl: Soul fetches from StaticSyncUrl; Heart hosts nothing extra."
+                          "ChunkPush: payload sent as tiered chat chunks on connect, may have a " +
+                          "performance impact with a lot to sync/many connects at a time (default, no extra config). " +
+                          "HttpServer: Heart hosts an HTTP endpoint; Soul fetches directly, quicker sync download " + 
+                          "method more performance friendly than ChunkPush (requires HttpPort open in firewall). " +
+                          "StaticUrl: Soul fetches from a Static Url. Server not responsible for sync " +
+                          "no performance hit, but admin must upload SyncCache manually to URL every change. " +
+                          "Best for servers with configs that do not change ofen."
         );
 
         _httpPort = config.Bind(
@@ -127,38 +131,28 @@ public static class HeartConfig
             description:  "When true and an HTTP fetch fails (HttpServer or StaticUrl mode), " +
                           "Soul requests chunk delivery as a fallback. " +
                           "When false, a failed fetch logs a warning and gives up — " +
-                          "the player will not receive server config until they reconnect " +
-                          "or the admin switches to ChunkPush mode. " +
+                          "the player will not receive server config until they reconnect. " +
                           "Only relevant for HttpServer and StaticUrl modes."
         );
 
         _debugLogging = config.Bind(
-            section:      "3) Debug",
+            section:      "4) Debug",
             key:          "DebugLogging",
             defaultValue: false,
             description:  "Enable verbose debug logging for LilithsHeart. " +
                           "Useful during development — disable on live servers."
         );
 
-        // [CHANGED] GenerateHeartExamples — generates only Heart's own
-        //           Items/ItemExamples.json (DisplayName, DescriptionText, Icon).
-        //           Does not trigger module generators. Always overwrites.
         _generateHeartExamples = config.Bind(
-            section:      "4) Config Generation",
+            section:      "3) Config Generation",
             key:          "GenerateHeartExamples",
             defaultValue: false,
             description:  "Generates Items/ItemExamples.json showing Heart's appearance " +
                           "fields (DisplayName, DescriptionText, Icon). " +
                           "Always overwrites the existing file. Resets to false after generation."
         );
-
-        // [CHANGED] GenerateAllModuleExamples — merges Heart's item examples with
-        //           all registered module item contributions into Items/ItemExamples.json,
-        //           then triggers each module's own example generator.
-        //           Always overwrites. Takes priority over GenerateHeartExamples
-        //           if both are set.
         _generateAllModuleExamples = config.Bind(
-            section:      "4) Config Generation",
+            section:      "3) Config Generation",
             key:          "GenerateAllModuleExamples",
             defaultValue: false,
             description:  "Merges Heart's item appearance examples with all installed " +
@@ -168,9 +162,8 @@ public static class HeartConfig
                           "Resets to false after generation."
         );
 
-        // [CHANGED] GenerateDebugConfigs — triggers all registered module debug generators.
         _generateDebugConfigs = config.Bind(
-            section:      "4) Config Generation",
+            section:      "4) Debug",
             key:          "GenerateDebugConfigs",
             defaultValue: false,
             description:  "Triggers debug config generation for all installed modules. " +
@@ -179,10 +172,8 @@ public static class HeartConfig
                           "Always overwrites. Resets to false after generation."
         );
 
-        // [CHANGED] GenerateNameAliasConfigs — dumps compiled PrefabDef aliases
-        //           to Aliases/*.json so admins can override them per server.
         _generateNameAliasConfigs = config.Bind(
-            section:      "4) Config Generation",
+            section:      "3) Config Generation",
             key:          "GenerateNameAliasConfigs",
             defaultValue: false,
             description:  "Dumps all compiled prefab Name aliases from LilithsMind to " +

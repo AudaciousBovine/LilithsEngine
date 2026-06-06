@@ -1,0 +1,33 @@
+{
+  "_readme": "DEBUG CONFIG — ChangesEnabled=true. Do not use on live servers.",
+
+  "Recipes": {
+    "RecipeBoneSword": {
+      "ChangesEnabled": true,
+      "AlwaysUnlocked": true,
+      "CraftDuration": 2.0,
+      "Requirements": [
+        { "Item": "Bone", "Amount": 1 },
+        { "Item": "Wood", "Amount": 1 }
+      ],
+      "Outputs": [
+        { "Item": "BoneSword", "Amount": 1 }
+      ],
+      "Stations": [ "PlayerCrafting", "SimpleWorkbench" ]
+    },
+
+    "RecipePlank": {
+      "ChangesEnabled": true,
+      "AlwaysUnlocked": true,
+      "CraftDuration": 3.0,
+      "Requirements": [
+        { "Item": "Wood", "Amount": 10 }
+      ],
+      "Outputs": [
+        { "Item": "Plank", "Amount": 5 },
+        { "Item": "Sawdust", "Amount": 10 }        
+      ],
+      "Stations": [ "PlayerCrafting", "Sawmill" ]
+    }
+  }
+}

@@ -100,8 +100,8 @@ public class CookbookPlugin : BasePlugin
         CookbookConfigBuilder.Initialize();
 
         // [CHANGED] RegisterItemExamples and RegisterItemDebug removed — Cookbook
-        //           now writes its own Items/Examples_CookbookItem.json and
-        //           Items/Debug_CookbookItem.json from embedded resources.
+        //           now writes its own Items/Examples_CookbookItems.json and
+        //           Items/Debug_CookbookItems.json from embedded resources.
         //           ItemService merges all Items/*.json files automatically,
         //           so no code-level merging is needed.
         HeartConfigBuilder.RegisterExampleGenerator(CookbookConfigBuilder.GenerateExampleFiles);

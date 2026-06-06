@@ -1,23 +1,3 @@
-// ============================================================
-//  CookbookConfig — LilithsCookbook
-//  LilithsCookbook/Config/CookbookConfig.cs
-//
-//  BepInEx config bindings for LilithsCookbook.
-//
-//  [CHANGED] Full overhaul to match the new suite-wide config
-//            generation system:
-//
-//    ModuleEnabled               — new, skips all initialization if false
-//    GenerateAllRecipes          — unchanged, dumps vanilla recipe ECS state
-//    GenerateCookbookExamples    — replaces GeneratePrisonerFeedExample +
-//                                  any other one-off example flags;
-//                                  generates all Cookbook example files
-//    GenerateCookbookDebugConfigs — new, generates all Cookbook debug files
-//
-//  [PERFORMANCE] All values read directly from ConfigEntry.Value.
-//                No Lazy<T> wrappers.
-// ============================================================
-
 using BepInEx.Configuration;
 using LilithsHeart.Foundation;
 
@@ -39,54 +19,40 @@ public static class CookbookConfig
 
     public static void Initialize(ConfigFile config)
     {
-        // [CHANGED] ModuleEnabled — when false, CookbookPlugin.Load() returns
-        //           immediately after reading this value. No ECS patching,
-        //           no registration, no Heart subscription.
         _moduleEnabled = config.Bind(
             section:      "1) General",
             key:          "ModuleEnabled",
             defaultValue: true,
             description:  "When false, LilithsCookbook is completely disabled. " +
-                          "No recipe, station, prisoner feed, or item function changes " +
-                          "will be applied. Restart the server after changing this value."
+                          "Restart the server after changing this value for it to take effect."
         );
 
         _generateAllRecipes = config.Bind(
-            section:      "2) Config Generation",
+            section:      "3) Debug",
             key:          "GenerateAllRecipes",
             defaultValue: false,
-            description:  "Dumps all vanilla recipes from ECS to Recipes/AllRecipes.json " +
-                          "with ChangesEnabled=false. Use as a reference when authoring " +
-                          "recipe overrides. Always overwrites. Resets to false after generation."
+            description:  "Generates a file with all vanilla recipes in Recipes/AllRecipes.json " +
+                          "with ChangesEnabled=false. Use as a reference when making recipe changes " +
+                          "but remove from Recipes when starting server or it may disable your changes. " +
+                          "Always overwrites itself. Resets to false after generation."
         );
 
-        // [CHANGED] GenerateCookbookExamples — replaces all previous one-off
-        //           example flags. Generates all four Cookbook example files:
-        //             Recipes/RecipeExamples.json
-        //             Recipes/PrisonerFeedExamples.json
-        //             Recipes/PrisonerFedExamples.json
-        //             Items/CookbookItemExamples.json
-        //           Always overwrites. Can also be triggered by Heart's
-        //           GenerateAllModuleExamples.
         _generateCookbookExamples = config.Bind(
             section:      "2) Config Generation",
             key:          "GenerateCookbookExamples",
             defaultValue: false,
-            description:  "Generates all Cookbook example config files: " +
+            description:  "Generates Cookbook example config files: " +
                           "RecipeExamples, PrisonerFeedExamples, PrisonerFedExamples, " +
-                          "and CookbookItemExamples. " +
+                          "and CookbookItemExamples to show formatting, use them as a base for your " +
+                          "own changes. " + 
                           "Always overwrites. Resets to false after generation."
         );
 
-        // [CHANGED] GenerateCookbookDebugConfigs — generates debug variants of all
-        //           Cookbook config files with ChangesEnabled=true and values
-        //           obviously different from vanilla for feature verification.
         _generateCookbookDebugConfigs = config.Bind(
-            section:      "2) Config Generation",
+            section:      "3) Debug",
             key:          "GenerateCookbookDebugConfigs",
             defaultValue: false,
-            description:  "Generates Cookbook debug config files with ChangesEnabled=true " +
-                          "and values visibly different from vanilla. " +
+            description:  "Generates Cookbook debug config files. " +
                           "Use to verify Cookbook features are working in-game. " +
                           "Always overwrites. Resets to false after generation."
         );

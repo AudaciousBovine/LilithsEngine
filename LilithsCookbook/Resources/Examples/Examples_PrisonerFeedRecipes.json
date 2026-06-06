@@ -1,0 +1,36 @@
+{
+  "_readme": "DEBUG CONFIG — ChangesEnabled=true. Do not use on live servers.",
+
+  "Recipes": {
+    "RecipeFeedRat": {
+      "ChangesEnabled": true,
+      "CraftDuration": 3.0,
+      "Requirements": [
+        { "Item": "VerminSalve", "Amount": 1 }
+      ],
+      "Outputs": [
+        { "Item": "FeedRat", "Amount": 1 }
+      ]
+    },
+
+    "RecipeFeedIrradiantGruel": {
+      "ChangesEnabled": true,
+      "CraftDuration": 3.0,
+      "Requirements": [
+        { "Item": "IrradiantGruel", "Amount": 1 }
+      ],
+      "Outputs": [
+        { "Item": "FeedIrradiantGruel", "Amount": 1 }
+      ]
+    },
+
+    "RecipeExtractBloodEssence": {
+      "ChangesEnabled": true,
+      "CraftDuration": 3.0,
+      "Outputs": [
+        { "Item": "ExtractBloodEssence", "Amount": 1 },
+        { "Item": "BloodEssence", "Amount": 15 }
+      ]
+    }
+  }
+}

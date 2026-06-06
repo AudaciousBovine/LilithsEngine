@@ -47,24 +47,6 @@ public enum LanguageCodeEnum
     Turkish,
     Ukrainian,
     Vietnamese,
-
-    // ── Special values ──────────────────────────────────────
-
-    /// <summary>
-    /// Server admins may define a non-standard language folder.
-    /// e.g. Localization/Custom/ with hand-authored overrides.
-    /// </summary>
     Custom,
-
-    /// <summary>
-    /// [CHANGED] Soul-only sentinel. When PreferredLanguage is System,
-    /// SystemLanguageResolver reads Localization.CurrentLanguage from the
-    /// running V Rising client at connect time and maps it to one of the
-    /// real LanguageCodeEnum values above.
-    ///
-    /// NEVER used as a folder name under Localization/.
-    /// NEVER sent in a [[LG:lang-request:X]] sentinel.
-    /// Heart never sees or handles this value.
-    /// </summary>
     System,
 }

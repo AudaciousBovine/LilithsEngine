@@ -1,0 +1,31 @@
+{
+  "_readme": "DEBUG CONFIG — ChangesEnabled=true. Do not use on live servers.",
+
+  "PrisonerFeeding": {
+    "FeedRat": {
+      "ChangesEnabled": true,
+      "Type": "FeedPrisoner",
+      "RecoverHealth_Min": 0.50,
+      "RecoverHealth_Max": 0.99,
+      "RecoverMisery_Min": 0.50,
+      "RecoverMisery_Max": 0.99
+    },
+
+    "ExtractBloodEssence": {
+      "ChangesEnabled": true,
+      "Type": "DealDamageToPrisoner",
+      "DealPercentualDamage_Min": 0.05,
+      "DealPercentualDamage_Max": 0.25,
+      "DealPercentualTorture_Min": 0.10,
+      "DealPercentualTorture_Max": 0.20
+    },
+
+    "FeedIrradiantGruel": {
+      "ChangesEnabled": true,
+      "Type": "AffectWithToxic",
+      "ChanceToBecomeMutant": 0.0,
+      "IncreaseBloodQuality_Min": 0.10,
+      "IncreaseBloodQuality_Max": 0.20
+    }
+  }
+}

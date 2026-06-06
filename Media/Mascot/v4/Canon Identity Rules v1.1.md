@@ -162,10 +162,12 @@ Lilith’s eyes should be:
 - Slightly sleepy or unimpressed in shape, but still alert
 
 Approved Draft Canon direction:
-- Use the much smaller iris size from Much Smaller Iris Test Variant D.
-- The smaller irises should make her gaze feel sharper, more focused, and more villainess-like.
-- Preserve bright gold readability even at the smaller size.
-- Keep her expression mischievous and amused, not blank, lifeless, or purely angry.
+- Use Eye Sharpness + Slitted Pupil Test Variant D.
+- Eyes should be very sharp and mature with strong upper-lid weight.
+- Irises should remain small, bright, and gold for readability.
+- Pupils should be clearly vertical and slitted.
+- The gaze should feel intense, focused, smug, and villainess-like.
+- Keep her expression mischievous and amused, not blank, lifeless, purely angry, or monstrous.
 
 Her eyes should not become huge, round, innocent, overly sparkly, dull, or unreadable.
 

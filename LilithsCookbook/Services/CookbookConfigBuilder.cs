@@ -10,16 +10,16 @@
 //            Generation code is now trivial — resource → file copy.
 //
 //  Example files (ChangesEnabled = false):
-//    Recipes/Examples_Recipe.json
-//    Recipes/Examples_PrisonerFeed.json
-//    Recipes/Examples_PrisonerFed.json
-//    Items/Examples_CookbookItem.json
+//    Recipes/Examples_Recipes.json
+//    Recipes/Examples_PrisonerFeedRecipes.json
+//    Recipes/Examples_PrisonerFeedItems.json
+//    Items/Examples_CookbookItems.json
 //
 //  Debug files (ChangesEnabled = true, values visibly changed):
-//    Recipes/Debug_Recipe.json
-//    Recipes/Debug_PrisonerFeed.json
-//    Recipes/Debug_PrisonerFed.json
-//    Items/Debug_CookbookItem.json
+//    Recipes/Debug_Recipes.json
+//    Recipes/Debug_PrisonerFeedRecipes.json
+//    Recipes/Debug_PrisonerFeedItems.json
+//    Items/Debug_CookbookItems.json
 //
 //  Reference dumps (ECS data, on-demand):
 //    Recipes/AllRecipes.json
@@ -51,14 +51,14 @@ public static class CookbookConfigBuilder
 
     // ── Output file paths ─────────────────────────────────────
     static readonly string AllRecipesPath          = Path.Combine(RecipesDir, "AllRecipes.json");
-    static readonly string RecipeExamplesPath      = Path.Combine(RecipesDir, "Examples_Recipe.json");
-    static readonly string PrisonerFeedExamplesPath = Path.Combine(RecipesDir, "Examples_PrisonerFeed.json");
-    static readonly string PrisonerFedExamplesPath  = Path.Combine(RecipesDir, "Examples_PrisonerFed.json");
-    static readonly string RecipeDebugPath          = Path.Combine(RecipesDir, "Debug_Recipe.json");
-    static readonly string PrisonerFeedDebugPath    = Path.Combine(RecipesDir, "Debug_PrisonerFeed.json");
-    static readonly string PrisonerFedDebugPath     = Path.Combine(RecipesDir, "Debug_PrisonerFed.json");
-    static readonly string CookbookItemExamplesPath = Path.Combine(HeartPathIndex.ItemsDir, "Examples_CookbookItem.json");
-    static readonly string CookbookItemDebugPath    = Path.Combine(HeartPathIndex.ItemsDir, "Debug_CookbookItem.json");
+    static readonly string RecipeExamplesPath      = Path.Combine(RecipesDir, "Examples_Recipes.json");
+    static readonly string PrisonerFeedRecipeExamplesPath = Path.Combine(RecipesDir, "Examples_PrisonerFeedRecipes.json");
+    static readonly string PrisonerFeedItemExamplesPath  = Path.Combine(RecipesDir, "Examples_PrisonerFeedItems.json");
+    static readonly string RecipesDebugPath          = Path.Combine(RecipesDir, "Debug_Recipes.json");
+    static readonly string PrisonerFeedRecipesDebugPath    = Path.Combine(RecipesDir, "Debug_PrisonerFeedRecipes.json");
+    static readonly string PrisonerFeedItemsDebugPath     = Path.Combine(HeartPathIndex.ItemsDir, "Debug_PrisonerFeedItems.json");
+    static readonly string CookbookItemExamplesPath = Path.Combine(HeartPathIndex.ItemsDir, "Examples_CookbookItems.json");
+    static readonly string CookbookItemsDebugPath    = Path.Combine(HeartPathIndex.ItemsDir, "Debug_CookbookItems.json");
 
     static readonly JsonSerializerOptions _writeOptions = new()
     {
@@ -89,10 +89,10 @@ public static class CookbookConfigBuilder
     public static void GenerateExampleFiles()
     {
         HeartLogger.Info(LOG_SOURCE, "Generating Cookbook example files...");
-        Extract("Examples.Examples_Recipe.json",      RecipeExamplesPath);
-        Extract("Examples.Examples_PrisonerFeed.json", PrisonerFeedExamplesPath);
-        Extract("Examples.Examples_PrisonerFed.json",  PrisonerFedExamplesPath);
-        Extract("Examples.Examples_CookbookItem.json", CookbookItemExamplesPath);
+        Extract("Examples.Examples_Recipes.json",      RecipeExamplesPath);
+        Extract("Examples.Examples_PrisonerFeedRecipes.json", PrisonerFeedRecipeExamplesPath);
+        Extract("Examples.Examples_PrisonerFeedItems.json",  PrisonerFeedItemExamplesPath);
+        Extract("Examples.Examples_CookbookItems.json", CookbookItemExamplesPath);
         HeartLogger.Info(LOG_SOURCE, "Cookbook example files generated.");
     }
 
@@ -104,10 +104,10 @@ public static class CookbookConfigBuilder
     public static void GenerateDebugFiles()
     {
         HeartLogger.Info(LOG_SOURCE, "Generating Cookbook debug files...");
-        Extract("Debug.Debug_Recipe.json",          RecipeDebugPath);
-        Extract("Debug.Debug_PrisonerFeed.json",    PrisonerFeedDebugPath);
-        Extract("Debug.Debug_PrisonerFed.json",     PrisonerFedDebugPath);
-        Extract("Debug.Debug_CookbookItem.json",    CookbookItemDebugPath);
+        Extract("Debug.Debug_Recipes.json",          RecipesDebugPath);
+        Extract("Debug.Debug_PrisonerFeedRecipes.json",    PrisonerFeedRecipesDebugPath);
+        Extract("Debug.Debug_PrisonerFeedItems.json",     PrisonerFeedItemsDebugPath);
+        Extract("Debug.Debug_CookbookItems.json",    CookbookItemsDebugPath);
         HeartLogger.Info(LOG_SOURCE, "Cookbook debug files generated.");
     }
 

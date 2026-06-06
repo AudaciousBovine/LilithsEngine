@@ -1,29 +1,3 @@
-// ============================================================
-//  LilithItemConfig — LilithsHeart
-//  LilithsHeart/Config/LilithItemConfig.cs
-//
-//  Pure data surface for all server-defined item overrides.
-//  Holds the merged results of all Items/*.json files loaded
-//  by ItemService.
-//
-//  One dictionary keyed by prefab name, valued by LilithItemData.
-//  Each service reads only the fields it owns:
-//    LocalizationService  — DisplayName, DescriptionText
-//    InterfaceService     — Icon
-//    ItemFunctionService  — StackSize (LilithsCookbook)
-//
-//  [CHANGED] Replaces ItemAppearanceConfig.
-//
-//  [CHANGED] FunctionalOverrides dictionary removed — StackSize
-//            lives directly on LilithItemData alongside appearance
-//            fields. One dictionary covers all item overrides.
-//            Each service reads what it needs from the same entry.
-//
-//  [PERFORMANCE] Single flat dictionary — O(1) lookup per key.
-//                Populated once at world ready by ItemService.
-//                No file I/O occurs here.
-// ============================================================
-
 using LilithsMind.Data;
 
 namespace LilithsHeart.Config;
