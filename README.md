@@ -5,6 +5,11 @@ A modular V Rising mod suite that works together!
 Gimme Feedback in this discord!  
 # https://discord.gg/ejrUvBWcnt
 
+## Downloads
+### [LilithsSoul Alpha (Client)](https://github.com/AudaciousBovine/LilithsEngine/releases/tag/LilithsSoul)
+### [LilithsHeart Alpha (Server)](https://github.com/AudaciousBovine/LilithsEngine/releases/tag/LilithsHeart)
+### [LilithsCookbook Alpha (Server)](https://github.com/AudaciousBovine/LilithsEngine/releases/tag/LilithsCookbook)
+
 ## DO NOT USE ON YOUR ONGOING LIVE SERVERS WHEN TESTING
 Things can break in early testing so always create new servers or create backups before installing.
 ## Testing Goals
