@@ -32,6 +32,7 @@ Things can break in early testing so always create new servers or create backups
 - Didn't show me your logs
 
 # The Heart and Soul of the Engine
+
 ## LilithsHeart
 - Server Side Core
 - Houses all config files (For convenience!)
@@ -47,6 +48,22 @@ Things can break in early testing so always create new servers or create backups
 # Modules
 ## LilithsCookbook
 - Edit Recipes, Items, Prisoner Food and Effects
+
+# Credits and Special Thanks
+> ***deca*** (Discord, VampireCommandFramework and more) - Using VCM for the main Sync method  
+> ***Odjit*** (Discord, Kindred Suite) - KindredExtract let me dig in the files  
+> ***zlomft*** (Bloodcraft) - Recipes in there were initial inspiration for Cookbook code
+> ***Imperivm Draconis*** (Discord) - For being a font of knowledge always explaining things
+> ***V Rising Mod Community Discord*** (And everyone in it!)  
+> ***Cassapica***, ***Proximo***, ***Lays***, ***Lucas***, ***Ruymber***  
+> ***And Everyone Else That Supports My Endeavors and Deal With My Chaos!***  
+
+
+
+
+
+
+
 ## Hopeful Additions
 ### LilithsCookbook
 - Add/Edit more crafting stations
