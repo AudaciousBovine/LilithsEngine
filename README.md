@@ -2,6 +2,9 @@
 A modular V Rising mod suite that works together!
 
 # ALPHA TESTING
+Gimme Feedback in this discord!  
+# https://discord.gg/ejrUvBWcnt
+
 ## DO NOT USE ON YOUR ONGOING LIVE SERVERS WHEN TESTING
 Things can break in early testing so always create new servers or create backups before installing.
 ## Testing Goals
@@ -11,11 +14,17 @@ Things can break in early testing so always create new servers or create backups
 - Are there unintended effects?
 - What happens when you change configs after playing with a different set of configs?
 - Do all the configs work?
+- Test Multi Language Support
+- Test other Sync types
+- Test if it plays nice with other mods
+- Test if things survive server restarts
+
 ## What Invalidates a Bug/Feedback
 - Didnt read the documentation
 - Player doesn't have LilithsSoul or BepinEx Installed right
 - Server doesn't have LilithsHeart or it's dependencies installed right
 - Your json config formatting is wrong
+- Didn't show me your logs
 
 # The Heart and Soul of the Engine
 ## LilithsHeart

@@ -7,64 +7,6 @@ using LilithsHeart.Config;
 using LilithsHeart.Foundation;
 using LilithsMind.Data;
 
-// ============================================================
-//  SyncSender — LilithsHeart
-//  LilithsHeart/Network/SyncSender.cs
-//
-//  Enqueues tiered sync payload chunks into SyncQueue on client
-//  connect. SchedulerPatch drains the queue at ChunksPerFrame
-//  rate each server frame.
-//
-//  [CHANGED] No longer sends chunks immediately on connect.
-//            Chunks are enqueued into SyncQueue so SchedulerPatch
-//            can drain them at a controlled rate across frames.
-//            This prevents large simultaneous-connect spikes from
-//            creating thousands of entities in one frame.
-//
-//  [CHANGED] NetworkIds are now captured at ENQUEUE time and carried
-//            through the queue, instead of being re-read off the
-//            stored entities at SEND time. Because the queue spans
-//            frames, a client could disconnect before the drain ran;
-//            re-reading NetworkId off a destroyed entity throws and
-//            would silently abort the drain, leaving chunks unsent.
-//            Capturing the IDs up front (entities are valid at connect)
-//            removes that failure. SyncQueue.Drain() additionally drops
-//            entries whose client entity no longer exists.
-//
-//  [CHANGED] SendRedirect() added for HttpServer and StaticUrl sync
-//            modes. Sends a single [[LG:sync-url:<url>:<fallback>]]
-//            sentinel instead of enqueuing dozens of chunk entities.
-//            The fallback flag travels in the sentinel so Soul does
-//            not need its own copy of the HeartConfig setting.
-//
-//  Protocol per tier:
-//  ───────────────────
-//  [[LG:begin:T:N:CKSUM]]   — begin sentinel (tier, chunk count, checksum)
-//  [[LG:T:NNNN]]<data>      — chunk (tier, zero-padded index, base64+gzip data)
-//  [[LG:end:T:CKSUM]]       — end sentinel (tier, checksum)
-//
-//  Redirect sentinel (HttpServer / StaticUrl modes):
-//  ──────────────────────────────────────────────────
-//  [[LG:sync-url:<url>:<fallback>]]
-//    url      — HTTP URL for Soul to fetch the payload from
-//    fallback — "1" if SyncFallbackToChunks=true, "0" otherwise
-//
-//  Soul accumulates chunks per tier and decompresses on end sentinel.
-//  Each tier is independent — Soul applies Critical before High arrives.
-//
-//  Transport:
-//  ──────────
-//  ChatMessageServerEvent with ServerChatMessageType.System.
-//  Soul intercepts before messages reach the chat UI.
-//  SendEventToUser routes each entity to the correct client.
-//
-//  [PERFORMANCE] EnqueueSyncTiers() runs once per connect — O(n)
-//                over tier blobs to build message strings and enqueue.
-//                Actual entity creation is deferred to SchedulerPatch
-//                at ChunksPerFrame per frame — no connect-frame spike.
-//                SendRedirect() creates one entity — far cheaper.
-// ============================================================
-
 namespace LilithsHeart.Network;
 
 public static class SyncSender
@@ -74,10 +16,8 @@ public static class SyncSender
     private const string BEGIN_PREFIX    = "[[LG:begin:";
     private const string CHUNK_PREFIX    = "[[LG:";
     private const string END_PREFIX      = "[[LG:end:";
-    // [CHANGED] Redirect sentinel prefix for HttpServer / StaticUrl modes.
     private const string REDIRECT_PREFIX = "[[LG:sync-url:";
 
-    // [PERFORMANCE] Static readonly — allocated once, reused for every entity create.
     static readonly ComponentType[] _networkEventComponents =
     [
         ComponentType.ReadOnly(Il2CppType.Of<FromCharacter>()),
@@ -96,19 +36,6 @@ public static class SyncSender
 
     // ── Public API ───────────────────────────────────────────
 
-    /// <summary>
-    /// Enqueues all tier blobs for a connecting client into SyncQueue.
-    /// Tiers are enqueued in order (Critical first) so they arrive
-    /// and are applied in priority order.
-    /// Called from ClientConnectPatch when SyncMode = ChunkPush.
-    ///
-    /// [CHANGED] Captures user/character NetworkIds here (entities are
-    ///           valid at connect) and passes them into the queue so the
-    ///           drain never re-reads them off a possibly-dead entity.
-    ///
-    /// [PERFORMANCE] Builds message strings and enqueues — no entity creation.
-    ///               Entity creation is deferred to SchedulerPatch.Drain().
-    /// </summary>
     public static void EnqueueSyncTiers(Entity userEntity, Entity characterEntity, int userIndex)
     {
         var blobs = SyncPayloadCache.GetAllTierBlobs().ToList();
@@ -120,8 +47,6 @@ public static class SyncSender
             return;
         }
 
-        // Capture routing IDs now, while the entities are guaranteed valid.
-        // These travel with the queue entry; the drain uses them directly.
         var userNetId      = userEntity.Read<NetworkId>();
         var characterNetId = characterEntity.Read<NetworkId>();
 
@@ -140,22 +65,6 @@ public static class SyncSender
             $"for userIndex {userIndex}.");
     }
 
-    /// <summary>
-    /// Sends a single redirect sentinel to a connecting client directing
-    /// Soul to fetch the sync payload from a URL instead of receiving chunks.
-    ///
-    /// Sentinel format: [[LG:sync-url:<url>:<fallback>]]
-    ///   url      — HTTP URL to fetch payload from
-    ///   fallback — "1" if SyncFallbackToChunks=true, "0" otherwise
-    ///
-    /// The fallback flag travels in the sentinel so Soul does not need
-    /// its own copy of HeartConfig.SyncFallbackToChunks — Heart is the
-    /// single source of truth for this setting.
-    ///
-    /// Called from ClientConnectPatch when SyncMode = HttpServer or StaticUrl.
-    ///
-    /// [PERFORMANCE] One entity created vs dozens for chunk delivery.
-    /// </summary>
     public static void SendRedirect(
         Entity userEntity,
         Entity characterEntity,
@@ -177,16 +86,6 @@ public static class SyncSender
             $"Sent redirect sentinel to userIndex {userIndex}: url='{url}' fallback={fallback}");
     }
 
-    /// <summary>
-    /// Sends a single queued chunk entity immediately.
-    /// Called by SchedulerPatch via SyncQueue.Drain().
-    /// Must run on the server main thread (EntityManager not thread-safe).
-    ///
-    /// [CHANGED] Takes the pre-captured user/character NetworkIds rather
-    ///           than re-reading them from the entities (which may have
-    ///           been recycled). The caller (SyncQueue.Drain) has already
-    ///           confirmed the user entity still exists.
-    /// </summary>
     public static void SendQueuedChunk(
         Entity    userEntity,
         Entity    characterEntity,
