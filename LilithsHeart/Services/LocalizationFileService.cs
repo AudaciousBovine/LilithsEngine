@@ -9,15 +9,23 @@
 //  ─────────────────────
 //  BepInEx/config/LilithsHeart/Localization/
 //      Spanish/
-//          items-es.json
-//          weapons-es.json
+//          Items/
+//              items-es.json
+//              weapons-es.json
 //      French/
-//          items-fr.json
+//          Items/
+//              items-fr.json
 //      ...
+//
+//  [CHANGED] Item overrides now live in Localization/(Language)/Items/
+//            rather than directly in Localization/(Language)/.
+//            This separates item localization from future localization
+//            categories (e.g. spells, quests) that will live alongside
+//            Items/ as sibling subdirectories under each language folder.
 //
 //  Folder names must match LanguageCodeEnum member names exactly
 //  (e.g. "Spanish", "SChinese", "Brazilian").
-//  Files inside each folder are scanned recursively for *.json.
+//  Files inside each Items/ folder are scanned recursively for *.json.
 //  Format is the same as Items/ files — keys are prefab names,
 //  values are LilithItemData objects. Only DisplayName and
 //  DescriptionText are meaningful here — Icon and StackSize are
@@ -84,7 +92,13 @@ public static class LocalizationFileService
                 continue;
             }
 
-            var overrides = LoadLanguageDir(langDir, langName);
+            // [CHANGED] Item overrides live in Localization/(Language)/Items/
+            // rather than directly in the language folder. This allows future
+            // localization categories (spells, quests, etc.) to sit alongside
+            // Items/ as sibling subdirectories without mixing file types.
+            var itemsDir = Path.Combine(langDir, "Items");
+
+            var overrides = LoadLanguageItemsDir(itemsDir, langName);
 
             if (overrides.Count > 0)
             {
@@ -154,19 +168,33 @@ public static class LocalizationFileService
 
     // ── Internal ─────────────────────────────────────────────
 
-    static Dictionary<string, LilithItemData> LoadLanguageDir(string dir, string langName)
+    /// <summary>
+    /// Loads item overrides from Localization/(Language)/Items/ recursively.
+    /// Returns an empty dictionary if the Items/ subdirectory does not exist.
+    /// </summary>
+    static Dictionary<string, LilithItemData> LoadLanguageItemsDir(
+        string itemsDir, string langName)
     {
         var result = new Dictionary<string, LilithItemData>(StringComparer.Ordinal);
 
+        // [CHANGED] Items/ subdirectory is now required under each language folder.
+        // If it doesn't exist the language is effectively unconfigured for items.
+        if (!Directory.Exists(itemsDir))
+        {
+            HeartLogger.Debug(LOG_SOURCE,
+                $"Localization/{langName}/Items/ not found — no item overrides for '{langName}'.");
+            return result;
+        }
+
         var files = Directory
-            .GetFiles(dir, "*.json", SearchOption.AllDirectories)
+            .GetFiles(itemsDir, "*.json", SearchOption.AllDirectories)
             .OrderBy(f => f, StringComparer.Ordinal)
             .ToArray();
 
         if (files.Length == 0)
         {
             HeartLogger.Debug(LOG_SOURCE,
-                $"No JSON files found in Localization/{langName}/ — skipping.");
+                $"No JSON files found in Localization/{langName}/Items/ — skipping.");
             return result;
         }
 
