@@ -1,24 +1,7 @@
-// ============================================================
-//  HeartConfig — LilithsHeart
-//  LilithsHeart/Config/HeartConfig.cs
-//
-//  Master config file for LilithsHeart and the suite.
-//
-//  [CHANGED] Generation flags overhauled:
-//    GenerateExampleConfigs  → split into GenerateHeartExamples
-//                              and GenerateAllModuleExamples
-//    GenerateDebugConfigs    → new, triggers all module debug generators
-//    GenerateNameAliasConfigs → new, dumps compiled prefab aliases
-//                               to Aliases/*.json for admin editing
-//
-//  [PERFORMANCE] All values read directly from ConfigEntry.Value.
-//                No Lazy<T> wrappers.
-// ============================================================
-
 using BepInEx.Configuration;
 using LilithsHeart.Foundation;
-using LilithsMind.Data;    // SyncModeEnum, LanguageCodeEnum
-using LilithsMind.Network; // ServerSyncPayload
+using LilithsMind.Data;
+using LilithsMind.Network;
 
 namespace LilithsHeart.Config;
 
@@ -33,10 +16,8 @@ public static class HeartConfig
     static ConfigEntry<bool>         _generateDebugConfigs      = null!;
     static ConfigEntry<bool>         _generateNameAliasConfigs  = null!;
 
-    // [CHANGED] Sync transport mode settings.
     static ConfigEntry<SyncModeEnum>    _syncMode                  = null!;
 
-    // [CHANGED] Default language for item name/description overrides.
     static ConfigEntry<LanguageCodeEnum> _defaultLanguage           = null!;
     static ConfigEntry<int>          _httpPort                  = null!;
     static ConfigEntry<string>       _staticSyncUrl             = null!;
@@ -51,7 +32,6 @@ public static class HeartConfig
     public static bool        GenerateDebugConfigs     => _generateDebugConfigs.Value;
     public static bool        GenerateNameAliasConfigs => _generateNameAliasConfigs.Value;
 
-    // [CHANGED] Sync transport mode properties.
     public static SyncModeEnum    SyncMode              => _syncMode.Value;
     public static LanguageCodeEnum DefaultLanguage    => _defaultLanguage.Value;
     public static int          HttpPort              => _httpPort.Value;

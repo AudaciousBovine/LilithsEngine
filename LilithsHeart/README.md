@@ -17,7 +17,11 @@ Core server mod that supports the function of all Lilith Modules and communicate
     - Alias (BloodEssence)
 - Aliases may be renamed to your own
 
-
+# Installation
+- Download and Install Dependencies
+- Download and unzip file
+- Place **LilithsHeart.dll** and **LilithsMind.dll** into `(WhereYouInstallGames)/VRising/BepinEx/plugins`
+- Done!
 
 # Configuration
 

@@ -13,6 +13,12 @@ Server module giving admins control over crafting, refining and prisoner feeding
 - Edit prisoner feed action recipes and effects
 - Edit Item Stack sizes
 
+# Installation
+- Download and Install Dependencies
+- Download and unzip file
+- Place **LilithsCookbook.dll** into `(WhereYouInstallGames)/VRising/BepinEx/plugins`
+- Done!
+
 # Configuration
 
 <details>
