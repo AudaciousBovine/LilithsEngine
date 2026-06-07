@@ -2,7 +2,16 @@
 //  CookbookPlugin — LilithsCookbook
 //  LilithsCookbook/CookbookPlugin.cs
 //
-//  BepInEx entry point for LilithsCookbook.
+//  [CHANGED] Wired CookbookExperimentService calls into
+//            OnHeartInitialized(). Both experiment tests run
+//            AFTER the full normal init sequence (including
+//            RecipeSystem.ApplyMapValues()) so:
+//              - RecipeHashLookupMap is in its final patched state
+//                when Test B probes it post-remove.
+//              - Test A runs on a clean FakeItem entity before any
+//                production system has touched it this frame.
+//            Both tests are gated on their respective CookbookConfig
+//            flags (default false) and auto-reset after running.
 //
 //  [CHANGED] StationData property removed. CookbookStationData
 //            is retired — station membership is now embedded in
@@ -177,5 +186,23 @@ public class CookbookPlugin : BasePlugin
         //           ensures custom durations survive and are not reset to vanilla
         //           (the root cause of the 24-hour timer bug).
         RecipeSystem.ApplyMapValues();
+
+        // [ADDED] Experiment tests — run AFTER the full init sequence so
+        //         RecipeHashLookupMap is in its final state when Test B probes it.
+        //         Both are no-ops when their config flags are false (default).
+        //
+        //         Test A: Add AffectPrisonerWithToxic + remove ConsumableCondition
+        //                 from FakeItem_FeedPrisoner_Rat.
+        //         Test B: Remove RecipeOutputUnitBuffer (empty) from
+        //                 Recipe_Weapon_Sword_T01_Bone, verify RecipeData
+        //                 and RecipeHashLookupMap survive.
+        //
+        //         [PERFORMANCE] Both are guarded by a single bool check — zero
+        //                       cost when flags are false.
+        if (CookbookConfig.RunComponentAddTest)
+            CookbookExperimentService.RunAddTest();
+
+        if (CookbookConfig.RunComponentRemoveTest)
+            CookbookExperimentService.RunRemoveTest();
     }
 }
