@@ -27,14 +27,385 @@ LilithsHeart (required by all server modules)
   ├── LilithsMachinations  — quest system
   └── LilithsNexus         — teleportation
 
-LilithsSoul (client panels — standalone, no Heart dependency at load time)
-  └── UI panels for: Treasury, Menagerie, Conquest, Blessings,
-                     Machinations, Nexus, Architects, Adversaries
+LilithsSoul (client — standalone, no Heart dependency at load time)
+  ├── UI panels for: Treasury, Menagerie, Conquest, Blessings,
+  │                  Machinations, Nexus, Architects, Adversaries
+  └── Client feature areas (Soul-internal, no separate module):
+        ├── Camera        — third person and first person modes
+        ├── CeilingTiles  — structural floor tile mirroring for interior rendering
+        └── Appearances   — per-character texture overrides (pairs with Heart's
+                            AppearanceSync feature area for broadcast support)
+
+Heart Appearance Feature Area (paired with Soul Appearances, gated independently):
+  └── AppearanceSync    — server-side storage and broadcast of player appearance data
 ```
 
 **Cross-module communication rule:** All modules publish and subscribe to
 `HeartEventBus` exclusively. No module holds a direct reference to another
 module's classes. This preserves independent installability.
+
+---
+
+## Soul Client Features
+
+These features live inside LilithsSoul (and partially LilithsHeart for server-paired
+concerns) rather than as separate installable modules. The deciding factor is idle
+performance cost — when a feature flag is off, zero overhead is incurred. Since Soul
+runs on one machine for one player, absorbing optional client work here avoids adding
+install friction for players. The modular philosophy applies primarily to server-side
+modules where feature scope genuinely varies per server.
+
+> All Soul client features are disabled by default (`changesEnabled = false` philosophy).
+> Players opt in via `LilithsSoul.cfg` or the in-game options menu where applicable.
+
+---
+
+### Camera
+
+**Role:** Adds third person and first person camera modes to V Rising's default
+bird's eye perspective.
+
+**Scope:**
+- Third person mode — over-the-shoulder view with configurable shoulder offset
+  (left / centre / right), zoom distance, FOV, and pitch angle
+- First person mode — full immersive first person with configurable FOV
+- Mode cycling via a single bindable hotkey (forward press / shift+press for reverse)
+- Optional discrete per-mode hotkey binds
+- All settings exposed in the game's native options menu (keybinds + sliders)
+- Last-used camera mode persists locally across sessions and servers
+
+**Technical approach:** Harmony patch on V Rising's camera update method to intercept
+and substitute position/rotation calculations. RetroCam (existing mod) proves these
+hooks are accessible — study their implementation before writing our own. In-game
+options and keybind registration API to be confirmed via RetroCam source inspection.
+
+**Config (LilithsSoul.cfg):**
+```
+CameraEnabled = false
+DefaultCameraMode = BirdsEye       # BirdsEye | ThirdPerson | FirstPerson
+ThirdPersonFOV = 70
+ThirdPersonZoom = 8
+ThirdPersonPitch = 15
+ThirdPersonShoulderOffset = Right   # Left | Centre | Right
+FirstPersonFOV = 90
+CameraTransitionsEnabled = true
+```
+
+**Future experiment (not in scope yet):**
+Auto-swap shoulder offset when targeting an enemy — noted for later investigation.
+
+**Soul infrastructure dependency:** `SoulOptionsRegistry` — registers keybinds and
+settings sliders with the game's native options UI. Shared by all Soul client features
+that expose player-facing controls. Implementation requires RetroCam API research.
+
+**Performance:** No per-frame overhead when `CameraEnabled = false` — no patches
+registered. When enabled, only the camera update intercept runs per frame, which is
+minimal. No ECS queries, no allocations.
+
+---
+
+### CeilingTiles
+
+**Role:** Renders mirrored structural floor tiles as ceiling tiles for improved
+interior immersion and screenshot quality, particularly in first person and
+low-angle third person.
+
+**Scope:**
+- Mirrors only structural floor grid tiles — decorative tiles, rugs, blood pools
+  excluded
+- Configurable horizontal radius (tile distance outward from player XZ position)
+- Configurable vertical layers (how many floors above to render simultaneously)
+- Both axes independently adjustable via hotkeys on the fly
+- On-screen toast notification shows current radius and layer values when adjusted
+- Master on/off hotkey toggle — players with weaker machines can enable for
+  screenshots only without committing to full-time rendering cost
+- Auto-detection of castle territory boundary to activate/deactivate automatically
+  (manual toggle always overrides)
+- Ceiling tile state (on/off, radius, layers) persists locally between sessions
+
+**Hotkeys (all bindable via SoulOptionsRegistry):**
+```
+CeilingTileToggle          — master on/off
+Page Up                    — increase horizontal radius by 1
+Page Down                  — decrease horizontal radius by 1
+Shift + Page Up            — increase vertical layers by 1
+Shift + Page Down          — decrease vertical layers by 1
+```
+
+**Config (LilithsSoul.cfg):**
+```
+CeilingTilesDefaultEnabled = false
+CeilingTileAutoDetectCastle = true     # auto toggle on castle territory entry/exit
+CeilingTileHorizontalRadius = 5
+CeilingTileVerticalLayers = 1
+CeilingTileHorizontalRadiusMax = 20
+CeilingTileVerticalLayersMax = 6
+```
+
+**Technical approach — two-path rendering strategy:**
+
+Primary path (occlusion-driven, preferred): Hook into Unity's renderer visibility
+callbacks (`OnBecameVisible` / `OnBecameInvisible` on floor tile renderers, or
+`Renderer.isVisible` polling) to spawn/despawn ceiling tiles only for floor tiles
+currently visible to the camera. Zero spatial math — mirrors the renderer's own
+culling decisions exactly.
+
+Fallback path (radius-driven): If occlusion hooks are not accessible on floor tile
+GameObjects, maintain a tile grid within the configured radius. Grid rebuilds only
+when the player crosses a tile boundary — not per frame.
+
+```
+CeilingTileMode = Auto     # Auto | OcclusionDriven | RadiusDriven
+```
+
+`Auto` attempts occlusion-driven first and silently falls back to radius-driven.
+Players never need to know which path is active.
+
+Ceiling tiles are placed at the same transform as their source floor tile, flipped
+on the Y axis only. No additional vertical offset — floor tile geometry is planar
+so the underside is invisible and exact positioning is effectively free. Normal map
+behaviour when flipped is an open implementation-phase question; texture override
+system can address this if needed.
+
+**Performance:** V Rising's hard cap of 600 floor tiles per castle means worst case
+is 1200 total tile GameObjects (floor + ceiling). In practice the radius system
+ensures far fewer are active simultaneously. High `HorizontalRadiusMax` combined
+with high `VerticalLayersMax` is the most expensive configuration and should be
+documented clearly. Grid rebuilds are boundary-triggered, never per-frame.
+`CeilingTilesDefaultEnabled = false` means zero cost when the feature is off —
+no hooks registered, no GameObjects, no position tracking.
+
+**Open implementation questions:**
+- Which occlusion hook is accessible on V Rising floor tile GameObjects (needs
+  runtime scene hierarchy inspection)
+- Normal map appearance of Y-flipped tiles (verify at implementation; texture
+  override system available as fallback fix)
+- Consistent ceiling height across all castle piece types (verify at implementation)
+
+---
+
+### Appearances
+
+**Role:** Per-character texture overrides for body, head, hair, armor, and weapon
+slots. Allows players to personalise their character's visual appearance beyond
+vanilla options. Server-paired feature: Heart stores and broadcasts appearance data
+so other players can see each other's overrides.
+
+**Design principle:** Heart does the minimum necessary to be the authority. Soul
+does all fetching, caching, and rendering work. Heart never performs HTTP requests,
+texture loading, or per-frame appearance checks.
+
+---
+
+#### Appearance Slots
+
+| Slot | Notes |
+|------|-------|
+| `Body` | Full body texture |
+| `Head_01`, `Head_02`, `Head_03`... | One slot per head variant. Textures are only compatible with the matching head variant — UI shows only compatible options for the character's current head |
+| `Hair` | |
+| `HairAccessory` | |
+| `FacialAccessory` | |
+| `Chest` | |
+| `Gloves` | |
+| `Legs` | |
+| `Boots` | |
+| `Headpiece` | |
+| `Weapon_<type>` | One slot per weapon type (e.g. `Weapon_Sword`, `Weapon_Scythe`). Override applies to that weapon type regardless of tier. Only the N most recently used weapon type overrides are sent to the server (N is server-configured, default 5) |
+
+Weapon overrides are tracked separately from character presets — the server
+communicates the maximum weapon appearance count it supports; Soul sends only
+the most recently used N weapon type appearances accordingly.
+
+---
+
+#### Texture Tiers
+
+**Bundled styles (Tier 1):** Curated textures authored by the suite creator, shipped
+inside Soul's install. Referenced by a stable `StyleId` string known to both Soul
+and Mind. Always available with no external dependency. Stored under
+`LilithsHeart/Appearances/Styles/` with a `styles_manifest.json` index.
+Soul carries its own copy of the manifest for the local appearance editor UI —
+Heart does not need to sync bundled style definitions.
+
+**Custom URL textures (Tier 2):** Player or server provides an external URL pointing
+to a texture file. Soul fetches, caches locally, and applies. Enables community
+sharing of texture packs. Gated independently from bundled styles at both server
+and client level.
+
+---
+
+#### Preset System
+
+Players author named appearance presets stored locally in Soul's cache. Each preset
+defines the full slot configuration for a character.
+
+```json
+{
+  "ActivePreset": "Evening Look",
+  "Presets": [
+    {
+      "Name": "Evening Look",
+      "Body": { "StyleId": "PaleRose_01" },
+      "Head_02": { "StyleId": "RedLips_01" },
+      "Hair": null,
+      "Chest": { "Url": "https://example.com/mythic_chest.png" },
+      "Weapon_Sword": { "StyleId": "ObsidianBlade_01" }
+    },
+    {
+      "Name": "Battle Ready",
+      "Body": { "StyleId": "WarPaint_02" }
+    }
+  ]
+}
+```
+
+- `StyleId` and `Url` are mutually exclusive per slot. `StyleId` wins if both present.
+- Only the `ActivePreset`'s resolved slot state is broadcast to Heart — preset names,
+  counts, and inactive presets are private to the local client file.
+- Client may save unlimited presets locally.
+- Server stores up to N presets per player (server-configurable, default 4). Player
+  must delete server-side presets to free space before saving new ones.
+- Appearance changes require a save/apply step in the UI — no live preview broadcast.
+- The appearance panel is visible to all players. Broadcasting to other players is
+  the gated part, not the panel itself.
+
+---
+
+#### Directory Structure
+
+```
+LilithsHeart/Appearances/
+├── Permissions/
+│   └── approved_players.json        — server whitelist and mode config
+├── Styles/                          — bundled curated textures (shipped with Soul)
+│   ├── Face/
+│   ├── Body/
+│   ├── Nails/
+│   └── styles_manifest.json         — index of all bundled styles, display names, slot assignments
+└── Custom/                          — per-player server-side appearance data
+    └── <SteamId>/
+        └── appearance.json          — active preset slot state for this player
+```
+
+Soul-side cache (local to the player's machine, per server identity):
+```
+LilithsSoul/Cache/<ServerIdentity>/
+├── appearance_whitelist.json        — client-side personal whitelist
+└── AppearanceCache/                 — locally cached URL textures
+    └── <url_hash>.png
+```
+
+---
+
+#### Permission Model
+
+**Server-side broadcast mode (HeartConfig):**
+
+| Setting | Behaviour |
+|---------|-----------|
+| `AppearanceSyncMode = Permissive` | All players may broadcast appearances; admins revoke individuals |
+| `AppearanceSyncMode = Whitelist` | No player may broadcast until explicitly approved in `approved_players.json` |
+
+**Per-player flags (approved_players.json):**
+- `CanSetAppearance` — may this player set and broadcast their own appearance
+- `CanUseCustomUrls` — may this player use external URL textures specifically
+
+Defaults: both `true` in Permissive mode, both `false` in Whitelist mode until granted.
+
+If a player's `CanSetAppearance` is revoked mid-session, Heart broadcasts a clear
+appearance event for that character to all clients immediately — no wait for next
+reconnect.
+
+**approved_players.json entry format:**
+```json
+{
+  "SteamId": "76561198012345678",
+  "PlayerName": "Seraphine",
+  "CanSetAppearance": true,
+  "CanUseCustomUrls": false
+}
+```
+
+SteamId is the canonical identifier. PlayerName is human-readable convenience for
+file editing and command use. If name and SteamId conflict (player renamed), SteamId
+wins and the file self-heals the name field on next write. Commands accept either
+SteamId or PlayerName as input, resolving via the same three-path lookup pattern
+used by PrefabNameResolver.
+
+**Client-side personal whitelist (Soul):**
+Players maintain a local whitelist of SteamIds whose custom appearances they consent
+to rendering. Soul receives all appearance broadcasts from Heart regardless — filtering
+happens at the applicator level on the client. Stored per server identity so preferences
+are independent per server.
+
+```json
+{
+  "SteamId": "76561198087654321",
+  "PlayerName": "Morrigan"
+}
+```
+
+Entries resolved by SteamId first. PlayerName enriched from Heart broadcast data
+when available.
+
+**Client-side tier toggles (SoulConfig):**
+```
+AppearancesEnabled = false           # master toggle — receive and render appearances at all
+CustomAppearancesEnabled = false     # render custom URL textures from other players
+```
+
+**Server-side tier toggles (HeartConfig):**
+```
+AppearanceSyncEnabled = false        # master toggle — store and broadcast appearance data at all
+CustomAppearanceSyncEnabled = false  # accept and broadcast custom URL texture entries
+AppearanceSyncMode = Permissive      # Permissive | Whitelist
+MaxPresetsPerPlayer = 4
+MaxWeaponAppearances = 5             # how many recent weapon type overrides to request from clients
+AppearanceChangeCooldownSeconds = 30
+```
+
+---
+
+#### Sync Architecture
+
+Appearance sync is a **fully isolated parallel channel** — completely separate from
+the existing `SyncPayloadCache`, `SyncSender`, and `SyncQueue`. When
+`AppearanceSyncEnabled = false` none of the appearance infrastructure initialises.
+The existing sync pipeline is untouched regardless.
+
+**Heart-side components (appearance feature area):**
+- `AppearanceStore` — reads/writes `Custom/<SteamId>/appearance.json` per player
+- `AppearanceSyncSender` — broadcasts appearance payloads via `[[LG:appearance:...]]`
+  sentinels, handled in `ServerChatSystemPatch` (the single home for all Soul→Heart
+  and Heart→Soul sentinel communication)
+- Triggers: player connects → broadcast that player's appearance to all online clients;
+  player updates appearance (and cooldown has elapsed) → broadcast delta to all clients;
+  permission revoked → broadcast clear event to all clients
+
+**Cooldown enforcement:**
+- Client sends appearance update sentinel to Heart
+- Heart checks cooldown per player. If not elapsed: responds with current cooldown
+  remaining value via sentinel — Soul reads this, stores the value locally, and
+  suppresses resends until elapsed
+- Heart does one check and one conditional response — no polling, no per-frame work
+
+**Soul-side components (appearance feature area):**
+- `AppearanceSyncReceiver` — listens for `[[LG:appearance:...]]` sentinels,
+  maintains in-memory `SteamId → AppearanceData` map
+- `AppearanceTextureCache` — disk-backed cache for URL textures (keyed by URL hash),
+  memory cache for bundled style textures. Lazy load — textures fetched only when
+  a character using them enters render range
+- `AppearanceApplicator` — hooks character entity spawn/despawn to apply and release
+  texture overrides via `Renderer.material.SetTexture()`
+- `AppearanceWhitelistService` — filters applicator output against the client-side
+  personal whitelist and the `CustomAppearancesEnabled` flag
+
+**Performance:** Soul is responsible for all texture fetching (HTTP), caching, and
+application. Heart never performs HTTP requests or texture work. URL textures are
+lazy-loaded and cached to disk — the second encounter of any URL is instant.
+`AppearancesEnabled = false` means zero hooks registered, zero memory held, zero
+per-frame cost.
 
 ---
 

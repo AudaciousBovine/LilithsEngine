@@ -30,8 +30,12 @@ LilithsMind (pure C#, no game deps)
 LilithsSoul (client, standalone)
     Foundation/    Services/    Config/
     Network/       Patches/     LUI/
+    Features/      (Camera, CeilingTiles, Appearances — Soul-internal feature areas)
     Plugin entry: SoulPlugin.cs
     NuGet: VRising.Unhollowed.Client
+
+Heart Appearance Feature Area (paired with Soul Appearances, gated independently):
+    Appearances/   (AppearanceStore, AppearanceSyncSender — server-side storage + broadcast)
 ```
 
 ## Plugin GUIDs
@@ -147,10 +151,22 @@ Per-frame drain (SchedulerPatch on ServerBootstrapSystem.OnUpdate):
 
 Server-side incoming chat (ServerChatSystemPatch on ServerBootstrapSystem.OnUpdate):
   Queries for ChatMessageServerEvent + FromCharacter entities
-  └── [[LG:sync-fallback]]    → SyncSender.EnqueueSyncTiers() for that client
-  └── [[LG:lang-request:X]]   → LocalizationSyncSender.HandleRequest()
+  └── [[LG:sync-fallback]]         → SyncSender.EnqueueSyncTiers() for that client
+  └── [[LG:lang-request:X]]        → LocalizationSyncSender.HandleRequest()
         └── If language available: enqueue localization payload chunks
         └── If unavailable: send [[LG:lang-unavailable:X]]
+  └── [[LG:appearance:update]]     → AppearanceSyncSender.HandleUpdateRequest()
+        └── Validate AppearanceSyncEnabled + permission flags
+        └── Check per-player cooldown
+              ├── Elapsed: write appearance.json, broadcast to all clients
+              └── Active: send [[LG:appearance:cooldown:<seconds>]] to sender
+  └── [[LG:appearance:clear]]      → AppearanceSyncSender.HandleClearRequest()
+        └── Admin-issued clear — broadcasts clear event to all clients for target player
+
+On player connect (ClientConnectPatch — in addition to standard sync):
+  └── If AppearanceSyncEnabled:
+        AppearanceSyncSender.BroadcastPlayerAppearance(connectingPlayer)
+          └── [[LG:appearance:data:<steamid>:<payload>]] → all online clients
 ```
 
 ---
@@ -161,7 +177,22 @@ Server-side incoming chat (ServerChatSystemPatch on ServerBootstrapSystem.OnUpda
 SoulPlugin.Load()
   ├── SoulCoroutineHost.Register()      — IL2CPP MonoBehaviour registration
   ├── SoulLogger.Initialize()
-  ├── SoulConfig.Initialize()           — reads LilithsSoul.cfg (DebugLogging, PreferredLanguage)
+  ├── SoulConfig.Initialize()           — reads LilithsSoul.cfg (DebugLogging, PreferredLanguage,
+  │                                        CameraEnabled, CeilingTilesDefaultEnabled,
+  │                                        AppearancesEnabled, CustomAppearancesEnabled)
+  ├── SoulEventBus.Initialize()         — Soul-internal pub/sub bus (mirrors HeartEventBus pattern)
+  ├── SoulOptionsRegistry.Initialize()  — [NOT YET IMPLEMENTED] in-game options + keybind
+  │                                        registration; requires RetroCam API research
+  ├── if CameraEnabled:
+  │     CameraFeature.Initialize()       — [NOT YET IMPLEMENTED] Harmony camera patches,
+  │                                        mode persistence load, keybind registration
+  ├── if CeilingTilesDefaultEnabled:
+  │     CeilingTileFeature.Initialize()  — [NOT YET IMPLEMENTED] tile visibility hooks,
+  │                                        castle boundary detection, hotkey registration
+  ├── if AppearancesEnabled:
+  │     AppearanceFeature.Initialize()   — [NOT YET IMPLEMENTED] AppearanceSyncReceiver,
+  │                                        AppearanceTextureCache, AppearanceApplicator,
+  │                                        AppearanceWhitelistService
   └── Harmony.PatchAll()
         │
         ▼  (client world loads)
@@ -176,7 +207,11 @@ ClientInitPatch.Postfix()               — hooks GameDataManager.OnUpdate
         │     └── Read sync.json → ApplyTier() BEFORE CharacterHUD builds
         ├── TryPreApplyCachedLocalization(connectionString)
         │     └── Read localization_<PreferredLanguage>.json → ApplyTier()
-        └── If pendingTierPayloads → ApplyTier() for each
+        ├── If pendingTierPayloads → ApplyTier() for each
+        └── If AppearancesEnabled:
+              AppearanceSyncReceiver.NotifyWorldReady()
+                └── Load appearance_whitelist.json from server-identity cache
+                └── Apply any cached appearance data for already-known players
 ```
 
 ---
@@ -359,6 +394,140 @@ All `[[LG:...]]` sentinels sent from Soul are handled in `ServerChatSystemPatch`
 The HeartEventBus is the nervous system connecting all modules. Every significant game event is published here; modules subscribe only to what they need.
 
 **Rule:** Modules communicate exclusively via HeartEventBus. No module holds a direct reference to another module's classes. This preserves independent installability — any module can be absent without breaking others.
+
+---
+
+## SoulEventBus — Soul-Internal Event Flow
+
+`SoulEventBus` is the Soul-side equivalent of `HeartEventBus`. It is a pub/sub bus
+for events that are internal to Soul — camera mode changes, ceiling tile state changes,
+appearance data received, whitelist updates, and any future client-side feature
+coordination. No cross-plugin communication passes through SoulEventBus — it is
+entirely local to the Soul process.
+
+**Rule:** Soul's internal feature areas (Camera, CeilingTiles, Appearances) communicate
+with each other and with Soul's UI layer exclusively via SoulEventBus. No direct
+cross-feature references.
+
+**Location:** `LilithsSoul/Foundation/SoulEventBus.cs` — mirrors HeartEventBus placement
+and naming convention exactly.
+
+**Soul EventKind ranges** (equivalent to HeartEventBus EventKind reservation table):
+
+| Range | Feature Area |
+|-------|-------------|
+| 0–99 | Core Soul events (reserved) |
+| 100–199 | Camera |
+| 200–299 | CeilingTiles |
+| 300–399 | Appearances |
+| 400–499 | Reserved for future Soul feature areas |
+
+---
+
+## SoulOptionsRegistry — In-Game Options and Keybind Integration
+
+`SoulOptionsRegistry` is the bridge between Soul's feature set and V Rising's native
+options menu and keybind system. All player-facing controls that should appear in the
+game's options UI register through this class rather than being managed ad-hoc.
+
+**Responsibilities:**
+- Register bindable hotkeys that appear in the game's keybind list
+- Register settings sliders and toggles that appear in the game's options menu
+- Provide a unified query surface for current keybind state per frame
+
+**Known registrations (planned):**
+
+| Feature | Registration type | Default |
+|---------|------------------|---------|
+| Camera mode cycle (forward) | Keybind | Unbound |
+| Camera mode cycle (backward) | Keybind (Shift+cycle key) | — |
+| Ceiling tile toggle | Keybind | Unbound |
+| Ceiling tile horizontal radius +/- | Keybind | Page Up / Page Down |
+| Ceiling tile vertical layers +/- | Keybind | Shift+Page Up / Shift+Page Down |
+| Camera FOV (per mode) | Options slider | Per-mode default |
+| Camera zoom distance | Options slider | Per-mode default |
+| Camera pitch | Options slider | Per-mode default |
+| Camera shoulder offset | Options dropdown | Right |
+
+**Implementation status:** NOT YET IMPLEMENTED. Requires research into V Rising's
+options and keybind registration API. RetroCam (existing mod) uses this API for both
+keybinds and slider settings — consult RetroCam source before implementing.
+
+**Location:** `LilithsSoul/Foundation/SoulOptionsRegistry.cs`
+
+---
+
+## Appearance Sync — Isolated Parallel Channel
+
+Appearance sync runs as a **fully isolated parallel channel** alongside the standard
+sync pipeline. It shares only `ServerChatSystemPatch` as the sentinel intercept point.
+The existing `SyncPayloadCache`, `SyncSender`, `SyncQueue`, and `SyncReceiver` are
+completely untouched by appearances. When `AppearanceSyncEnabled = false` on Heart
+and `AppearancesEnabled = false` on Soul, zero appearance infrastructure initialises
+on either side.
+
+**Design principle:** Heart does the minimum necessary to be the authority.
+Soul does all fetching, caching, and rendering work. Heart never performs HTTP
+requests, texture loading, or per-frame appearance work.
+
+### Heart-Side Components (Appearances Feature Area)
+
+| Class | Responsibility |
+|-------|---------------|
+| `AppearanceStore` | Read/write `Custom/<SteamId>/appearance.json`. Loads all on startup, writes on change. In-memory cache — no per-request disk I/O. |
+| `AppearanceSyncSender` | Broadcasts appearance data via `[[LG:appearance:...]]` sentinels. Handles connect broadcast, update broadcast, clear broadcast, and cooldown response. |
+| `AppearancePermissionService` | Reads `Permissions/approved_players.json`. Resolves `CanSetAppearance` and `CanUseCustomUrls` per player. Self-heals PlayerName drift on write. SteamId is canonical; PlayerName is convenience. |
+
+**Sentinel family — Heart sends:**
+```
+[[LG:appearance:data:<steamid>:<payload>]]     — full appearance snapshot for a player
+[[LG:appearance:clear:<steamid>]]              — remove appearance for a player
+[[LG:appearance:cooldown:<seconds>]]           — cooldown remaining, sent to requesting client
+[[LG:appearance:maxweapons:<n>]]               — server's MaxWeaponAppearances setting,
+                                                 sent on connect so Soul knows how many to send
+```
+
+**Sentinel family — Soul sends (handled in ServerChatSystemPatch):**
+```
+[[LG:appearance:update:<payload>]]             — player submitting their active preset
+[[LG:appearance:clear]]                        — player clearing their own appearance
+```
+
+### Soul-Side Components (Appearances Feature Area)
+
+| Class | Responsibility |
+|-------|---------------|
+| `AppearanceSyncReceiver` | Listens for `[[LG:appearance:...]]` sentinels. Maintains in-memory `SteamId → AppearanceData` map. |
+| `AppearanceTextureCache` | Disk-backed cache for URL textures (keyed by URL hash under `AppearanceCache/`). Memory cache for bundled style textures. Lazy load — textures fetched only when a character using them enters render range. |
+| `AppearanceApplicator` | Hooks character entity spawn/despawn. Applies texture overrides via `Renderer.material.SetTexture()`. Consults whitelist and `CustomAppearancesEnabled` flag before applying. Releases textures on despawn. |
+| `AppearanceWhitelistService` | Loads/saves `appearance_whitelist.json` from server-identity cache. Resolves by SteamId; enriches PlayerName from received broadcast data. |
+
+### Cooldown Flow
+
+```
+Soul                                           Heart
+────────────────────────                       ──────────────────────
+[[LG:appearance:update:<payload>]]          ──► ServerChatSystemPatch
+                                                  └─ AppearanceSyncSender.HandleUpdateRequest()
+                                                        ├─ Cooldown elapsed:
+                                                        │    AppearanceStore.Write()
+                                                        │    Broadcast to all clients
+                                                        └─ Cooldown active:
+[[LG:appearance:cooldown:<seconds>]]        ◄──          Send cooldown remaining
+Soul stores cooldown locally,
+suppresses resend until elapsed
+```
+
+### Permission Revocation Flow
+
+```
+Admin revokes CanSetAppearance for a player
+  └─ AppearancePermissionService.Revoke(steamId)
+        └─ AppearanceStore.Clear(steamId)
+        └─ AppearanceSyncSender.BroadcastClear(steamId)
+              └─ [[LG:appearance:clear:<steamid>]] → all online clients
+                    └─ AppearanceApplicator.Release(steamId) — immediate visual reset
+```
 
 ---
 

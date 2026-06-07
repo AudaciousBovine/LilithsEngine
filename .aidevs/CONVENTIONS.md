@@ -27,6 +27,10 @@
 | `*System` | Recurring logic systems or ECS processing | `RecipeSystem`, `StationSystem`, `PrisonerFeedSystem` |
 | `*Resolver` | Resolves one identifier form to another | `PrefabNameResolver` |
 | `*Downloader` | Fetches remote resources | `IconDownloader` |
+| `*Feature` | Soul-internal client feature area entry point | `CameraFeature`, `CeilingTileFeature`, `AppearanceFeature` |
+| `*Applicator` | Applies data to live game objects (Soul-side) | `AppearanceApplicator` |
+| `*Receiver` | Receives and interprets incoming network data (Soul-side) | `AppearanceSyncReceiver` |
+| `*Store` | Owns persistent read/write of a managed data domain | `AppearanceStore` |
 
 ## Coding Style
 
@@ -64,9 +68,10 @@ All core service classes are static with an `Initialize()` method:
 - `Heart`, `Soul` — static ECS world accessors
 - `HeartLogger`, `SoulLogger` — static logging
 - `HeartEventBus`, `HeartModuleRegistry` — static infrastructure
+- `SoulEventBus`, `SoulOptionsRegistry` — static Soul-side infrastructure
 
 ### Pub/Sub Event Bus
-`HeartEventBus` provides type-safe, thread-safe event dispatch:
+`HeartEventBus` (Heart-side) and `SoulEventBus` (Soul-side) both provide type-safe, thread-safe event dispatch. They are separate buses — `SoulEventBus` is entirely local to the Soul process and is never used for cross-plugin communication. Both follow the same API convention:
 - Subscribe: `HeartEventBus.Subscribe<T>(handler)`
 - SubscribeOnce: `HeartEventBus.SubscribeOnce<T>(handler)` — auto-unsubscribes after first fire
 - Unsubscribe: `HeartEventBus.Unsubscribe<T>(handler)`
@@ -102,6 +107,47 @@ if (!CookbookConfig.ModuleEnabled)
 }
 ```
 When disabled: no ECS work, no generator registration, no Heart subscription.
+
+### Soul Client Feature Enable/Disable Pattern
+
+Soul client feature areas (Camera, CeilingTiles, Appearances) follow the same
+zero-cost-when-disabled principle as Heart modules, enforced at `SoulPlugin.Load()`:
+
+```csharp
+if (SoulConfig.CameraEnabled)
+    CameraFeature.Initialize();
+
+if (SoulConfig.CeilingTilesDefaultEnabled)
+    CeilingTileFeature.Initialize();
+
+if (SoulConfig.AppearancesEnabled)
+    AppearanceFeature.Initialize();
+```
+
+When a feature flag is `false`: no Harmony patches registered for that feature,
+no hooks, no GameObjects, no memory held, no per-frame cost. The config flag is
+read once at load time — changes require a restart.
+
+This mirrors the Heart module `ModuleEnabled` early-exit pattern. All Soul client
+feature flags default to `false` (opt-in philosophy).
+
+### Heart Does Minimum — Soul Does Work
+
+**Principle:** Heart's role is to be a reliable, low-overhead authority. Soul is
+responsible for all presentation-layer and optional work on the player's machine.
+
+When deciding which side should perform a task, apply this test: if the work is
+optional, involves local resources (disk, HTTP, Unity GameObjects, textures), or
+exists purely to serve one player's experience — it belongs in Soul.
+
+Examples of this principle applied:
+- URL texture fetching and caching — Soul only; Heart never performs HTTP requests
+- Appearance rendering and texture application — Soul only
+- Client-side whitelist filtering — Soul only; Heart broadcasts to all, Soul filters locally
+- Cooldown tracking after Heart's initial response — Soul suppresses resends locally
+
+Heart's appearance obligations are limited to: permission check, cooldown check,
+write to disk, broadcast payload. Nothing more.
 
 ### Config Generation Pattern
 Modules register their generators with `HeartConfigBuilder` before Heart initializes:
@@ -171,6 +217,11 @@ Rules:
 - Payload serialization runs at most twice at startup (baseline + final)
 - No per-frame ECS queries after initialization
 - Appearance repointing is one-time at apply — zero steady-state cost
+- Soul client features (Camera, CeilingTiles, Appearances) incur zero cost when
+  their feature flag is `false` — no patches registered, no hooks, no per-frame work
+- Ceiling tile grid rebuilds are boundary-triggered only — never per frame
+- Appearance URL textures are lazy-loaded and disk-cached by URL hash — second
+  encounter is always instant; Heart never fetches textures
 
 ## Change Documentation
 
@@ -191,6 +242,16 @@ All Soul→Heart communication uses the `[[LG:...]]` sentinel pattern via `ChatM
 Current Soul→Heart sentinels:
 - `[[LG:sync-fallback]]` — HTTP fetch failed, request chunk delivery
 - `[[LG:lang-request:<language>]]` — request localization payload for a language
+- `[[LG:appearance:update:<payload>]]` — player submitting their active appearance preset
+- `[[LG:appearance:clear]]` — player clearing their own appearance
+
+Current Heart→Soul sentinels (also handled in ServerChatSystemPatch):
+- `[[LG:sync-url:<url>:<fallback>]]` — redirect client to fetch payload from URL
+- `[[LG:lang-unavailable:<language>]]` — requested language not configured on server
+- `[[LG:appearance:data:<steamid>:<payload>]]` — full appearance snapshot for a player
+- `[[LG:appearance:clear:<steamid>]]` — remove a player's appearance from all clients
+- `[[LG:appearance:cooldown:<seconds>]]` — cooldown remaining, sent to requesting client only
+- `[[LG:appearance:maxweapons:<n>]]` — server's MaxWeaponAppearances setting, sent on connect
 
 All new Soul→Heart sentinels must be added to `ServerChatSystemPatch.cs` — the single home for this communication.
 
@@ -241,3 +302,7 @@ A LilithsHeart child module must:
 | 1100–1199 | LilithsGrimoire |
 | 1200–1299 | LilithsArchitects |
 | 1300–1399 | LilithsMachinations (extended) |
+
+> These ranges are for **Heart-side** (`HeartEventBus`) events only.
+> Soul-side (`SoulEventBus`) event ranges are documented in `ARCHITECTURE.md`
+> under the SoulEventBus section.
