@@ -10,12 +10,14 @@ A modular **V Rising** mod suite that allows server administrators to customize 
 |-------|---------|------|-------------|
 | **Mind** | `LilithsMind` | Shared library — pure C#, zero game dependencies | none |
 | **Heart** | `LilithsHeart` | Server plugin — ECS access, module registration, sync sending | Mind |
-| **Soul** | `LilithsSoul` | Client plugin — chat interception, UI panels, localization injection | Mind |
+| **Soul** | `LilithsSoul` | Client plugin — chat interception, UI panels, localization injection, client feature areas (Camera, CeilingTiles, Appearances) | Mind |
 | **Cookbook** | `LilithsCookbook` | Server plugin — recipe, station, prisoner feed, and item function configuration | Heart + Mind |
 
 ## Planned Modules
 
 These modules are designed but not yet implemented. Each is a standalone server-side child module of Heart unless noted. See `.aidevs/MODULES.md` for full design documentation.
+
+Soul-internal client feature areas (Camera, CeilingTiles, Appearances) are documented separately in `.aidevs/SOUL_FEATURES.md`. These are not standalone modules — they are optional features built into LilithsSoul, enabled via config flags.
 
 | Module | Role | Notes |
 |--------|------|-------|
@@ -44,6 +46,7 @@ These modules are designed but not yet implemented. Each is a standalone server-
 | `.aidevs/DATA_FLOW.md` | Data flow diagrams, payload formats, lookup chains |
 | `.aidevs/PREFAB_INDEX.md` | Prefab definition system reference |
 | `.aidevs/GLOSSARY.md` | Domain-specific terminology |
+| `.aidevs/SOUL_FEATURES.md` | Soul-internal client feature designs: Camera, CeilingTiles, Appearances |
 
 ## Tech Stack
 
@@ -105,8 +108,10 @@ Client Chat Receive (ClientChatSystem)
 
 Server Chat Receive (ServerBootstrapSystem)
   └─ ServerChatSystemPatch → handles Soul→Heart sentinels:
-      ├─ [[LG:sync-fallback]]   → enqueue chunk delivery for that client
-      └─ [[LG:lang-request:X]]  → send localization payload for language X
+      ├─ [[LG:sync-fallback]]          → enqueue chunk delivery for that client
+      ├─ [[LG:lang-request:X]]         → send localization payload for language X
+      ├─ [[LG:appearance:update:...]]  → validate + store + broadcast appearance (AppearanceSyncEnabled)
+      └─ [[LG:appearance:clear]]       → clear and broadcast player appearance removal
 ```
 
 ## How to Use These Docs
@@ -123,3 +128,4 @@ When an AI agent is asked to work on this codebase, it should first read the rel
 | Data flow diagrams, payload formats, lookup chains | `DATA_FLOW.md` |
 | Prefab definition system (item database) | `PREFAB_INDEX.md` |
 | Domain terminology definitions | `GLOSSARY.md` |
+| Soul client feature designs (Camera, CeilingTiles, Appearances) | `SOUL_FEATURES.md` |
