@@ -28,6 +28,20 @@
 | **Infamy** | A per-player, per-faction reputation value tracked by LilithsAdversaries. Increases when the player provokes a faction; decays over real time. |
 | **Schematic** | A LilithsArchitects JSON definition describing a complete castle layout as a set of tile/object placements relative to an origin point. |
 | **HeartEventBus** | The pub/sub event system in LilithsHeart. All cross-module events are published here. Modules communicate exclusively via this bus — no direct cross-module references. |
+| **LUI** | LilithUserInterface — LilithsSoul's data-driven UI framework. Provides panels, HUD elements, and the config editor built entirely on Unity's legacy `UnityEngine.UI` runtime API using extracted V Rising textures. Gated behind `SoulConfig.LUIEnabled` (default `true`). |
+| **LUIAssets** | Static registry of all loaded V Rising texture sprites used by LUI. Populated at world-ready time by `LUIAssetLoader` from PNG files in `SoulPathIndex.LUIAssetsDir`. No panel or component does its own texture loading — all asset access goes through this registry. |
+| **LUIAssetsDir** | `SoulPathIndex.LUIAssetsDir` — the `LUI/` subdirectory alongside the Soul plugin DLL. Contains all extracted V Rising PNG textures used by the framework. |
+| **LUILayoutsDir** | `SoulPathIndex.LUILayoutsDir` — directory scanned recursively at startup for `*.layout.json` files. Modules place their panel definitions here. |
+| **Layout JSON** | A `*.layout.json` file defining one or more LUI panels using the element vocabulary. Discovered automatically by Soul at startup. Adding a module's layout JSON requires no Soul code changes. |
+| **LUI Element** | A typed UI building block in the layout system. Containers: `LilithPanel`, `LilithButtonTray`, `LilithTabBar`, `LilithScrollView`, `LilithGroup`. Leaves: `LilithButton`, `LilithToggle`, `LilithDropdown`, `LilithTextBox`, `LilithLabel`, `LilithImage`, `LilithSlider`, `LilithSeparator`. Every element has a unique `"Name"` identifier within its scope. |
+| **LilithPermissions** | Server-side permission configuration file (`lilithpermissions.json`). Defines which Steam IDs belong to which tier (`Admin`, `Moderator`) and which permission tier is required to open each panel. Travels to Soul as part of the standard `ServerSyncPayload` Critical tier. |
+| **Permission Tier** | A privilege level assigned to a connected player. Four tiers: `Player` (default), `Moderator`, `Admin`, `Owner`. UI panel visibility is gated by tier client-side; all sentinel commands are verified server-side regardless. |
+| **AdminSyncPayload** | A heavyweight payload containing server config file contents, directory structure, and config schemas. Never pushed to regular players. Requested explicitly by an admin opening the config editor panel. Delivered via the standard chunk system. Cached in memory per file with `Modified` timestamps; not persisted to disk. |
+| **Config Editor** | A LUI panel that allows admins to browse, view, and edit server-side config JSON files in-game. Gated behind `SoulConfig.ConfigEditorEnabled` (default `false`). Uses a lazy three-ping directory navigation model. Changes are staged locally and saved explicitly — never applied immediately to the live server. |
+| **Staged Edits** | The config editor's write model. Edits made in the panel are held locally until the admin explicitly saves. Save transmits only the changed fields (delta) to Heart. Heart writes the file and updates the `Modified` timestamp. A server reload is required to apply changes to the live server. |
+| **HUD Edit Mode** | A LUI mode toggled via the HUD settings panel. When active, all HUD elements display drag handles and visibility toggles. When inactive, elements are fixed in place. Element positions and visibility are persisted to `SoulConfig`. |
+| **SoulHudRegistry** | Static registry where modules declare custom HUD resource bars at startup via `SoulHudRegistry.RegisterResource(key, label, colour)`. Heart includes current values for registered resources in sync or targeted updates. Bars appear only when the registering module is active. |
+| **ConfigEditorEnabled** | `SoulConfig` bool (default `false`). When false, no AdminSyncPayload handling, directory navigation, file caching, or config editor UI is initialized. Flip to `true` on servers where admins want in-game config editing. |
 
 ## V Rising / ECS Terminology
 
@@ -59,7 +73,7 @@
 
 | Term | Definition |
 |------|------------|
-| **ServerSyncPayload** | The main data contract sent from Heart to Soul on client connect. Contains `ServerLanguage`, appearance overrides, recipe overrides, station changes, and player recipe changes. |
+| **ServerSyncPayload** | The main data contract sent from Heart to Soul on client connect. Contains `ServerLanguage`, appearance overrides, recipe overrides, station changes, player recipe changes, and `LilithPermissions` tier data. |
 | **ChunkPush** | Default sync transport. Payload delivered as tiered GZip+Base64 chunks via chat messages. Controlled rate via `ChunksPerFrame` setting. |
 | **HttpServer** | Sync transport where Heart hosts an `HttpListener` endpoint. Soul fetches the full payload via HTTP on connect. Requires firewall port open. |
 | **StaticUrl** | Sync transport where the admin hosts the payload at a static URL. Heart sends a redirect sentinel; Soul fetches directly. |
@@ -73,6 +87,9 @@
 | **[[LG:lang-unavailable:X]]** | Heart→Soul sentinel. Sent when requested language has no configured overrides. Soul logs a warning and stays on default language. |
 | **ServerIdentity** | The sanitized server name from `HeartConfig.ServerName`. Used as a folder name on the client for per-server cached data. |
 | **ChatMessageEvent** | `ProjectM.Network.ChatMessageEvent` — client-side outgoing chat struct. Used by Soul to send `[[LG:...]]` sentinels to Heart. `MessageType = ChatMessageType.Local`. |
+| **[[LG:admin:dir:...]]** | Soul→Heart sentinel. Requests a directory listing from the server config file tree. Format: `[[LG:admin:dir:<path>]]` where `<path>` is `root` or a relative folder path (e.g. `Recipes/Stations`). Heart responds with a directory listing payload including entry names, types, and `Modified` timestamps. |
+| **[[LG:admin:file:...]]** | Soul→Heart sentinel. Requests the content and schema for a specific server config file. Format: `[[LG:admin:file:<path>]]` where `<path>` is a relative file path (e.g. `Recipes/Stations/alchemy.json`). Heart responds with file content JSON and config schema JSON. |
+| **[[LG:admin:save:...]]** | Soul→Heart sentinel. Submits a staged edit delta for a specific config file. Format: `[[LG:admin:save:<path>]]` with delta payload. Heart validates admin permission, writes the file, and updates the `Modified` timestamp. Changes require a server reload to take effect. |
 
 ## Config / Data Terminology
 
