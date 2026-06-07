@@ -31,7 +31,7 @@ Things can break in early testing so always create new servers or create backups
 - Your json config formatting is wrong
 - Didn't show me your logs
 
-# The Heart and Soul of the Engine
+# The Heart, (Mind) and Soul of the Engine
 
 ## LilithsHeart
 - Server Side Core
@@ -39,6 +39,10 @@ Things can break in early testing so always create new servers or create backups
 - Facilitates Localization changes
 - Communicates neccesary info to LilithsSoul (Client) to make sure UI is in sync
 - Registers all installed Modules
+
+## LilithsMind
+- Shared Library
+- Holds shared methods and libraries that both client and server reference
 
 ## LilithsSoul
 - Client Side Core
