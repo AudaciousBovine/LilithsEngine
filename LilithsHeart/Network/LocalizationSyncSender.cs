@@ -7,7 +7,7 @@
 //
 //  Flow:
 //  ──────
-//  1. Soul sends [[LG:lang-request:Spanish]] via chat message
+//  1. Soul sends [[LE::lang-request:Spanish]] via chat message
 //  2. ServerChatSystemPatch routes to HandleLangRequest()
 //  3. LocalizationFileService.BuildLocalizationPayload() builds
 //     a ServerSyncPayload with only DisplayName + DescriptionText
@@ -24,7 +24,7 @@
 //  Language unavailable:
 //  ──────────────────────
 //  If the requested language has no configured overrides,
-//  sends [[LG:lang-unavailable:<language>]] so Soul can log
+//  sends [[LE::lang-unavailable:<language>]] so Soul can log
 //  a warning and stay on the default language.
 //
 //  [PERFORMANCE] Chunk building runs once per language request
@@ -50,7 +50,7 @@ namespace LilithsHeart.Network;
 public static class LocalizationSyncSender
 {
     private const string LOG_SOURCE        = "LilithsHeart.LocalizationSyncSender";
-    private const string UNAVAILABLE_PREFIX = "[[LG:lang-unavailable:";
+    private const string UNAVAILABLE_PREFIX = "[[LE::lang-unavailable:";
     private const int    MAX_CHUNK_CONTENT  = 440;
 
     static readonly JsonSerializerOptions _writeOptions = new() { WriteIndented = false };
@@ -77,7 +77,7 @@ public static class LocalizationSyncSender
     /// <summary>
     /// Handles a language request from Soul.
     /// If the language is available, builds and enqueues a localization
-    /// payload for this client. If unavailable, sends [[LG:lang-unavailable:X]].
+    /// payload for this client. If unavailable, sends [[LE::lang-unavailable:X]].
     /// </summary>
     public static void HandleRequest(
         Entity    userEntity,
@@ -176,10 +176,10 @@ public static class LocalizationSyncSender
     static IEnumerable<string> BuildMessages((string[] Chunks, string Checksum) blob)
     {
         int t = (int)SyncTierEnum.Critical;
-        yield return $"[[LG:begin:{t}:{blob.Chunks.Length}:{blob.Checksum}]]";
+        yield return $"[[LE::begin:{t}:{blob.Chunks.Length}:{blob.Checksum}]]";
         for (int i = 0; i < blob.Chunks.Length; i++)
-            yield return $"[[LG:{t}:{i:D4}]]{blob.Chunks[i]}";
-        yield return $"[[LG:end:{t}:{blob.Checksum}]]";
+            yield return $"[[LE::{t}:{i:D4}]]{blob.Chunks[i]}";
+        yield return $"[[LE::end:{t}:{blob.Checksum}]]";
     }
 
     static string[] Chunkify(string input)

@@ -7,15 +7,15 @@
 //
 //  [CHANGED] Branches on HeartConfig.SyncMode:
 //    ChunkPush  — existing behaviour: enqueues tiered chunks
-//    HttpServer — sends [[LG:sync-url:<url>]] redirect sentinel
-//    StaticUrl  — sends [[LG:sync-url:<configured-url>]] redirect
+//    HttpServer — sends [[LE::sync-url:<url>]] redirect sentinel
+//    StaticUrl  — sends [[LE::sync-url:<configured-url>]] redirect
 //
 //  For HttpServer mode the URL is built from the server's local
 //  IP and configured HttpPort. For StaticUrl it is taken directly
 //  from HeartConfig.StaticSyncUrl.
 //
 //  If SyncFallbackToChunks = true and Soul reports a fetch failure
-//  via [[LG:sync-fallback]], Heart enqueues chunks for that client
+//  via [[LE::sync-fallback]], Heart enqueues chunks for that client
 //  via SyncSender.EnqueueSyncTiers() at that point (handled in
 //  a separate VCF command handler, not here).
 //

@@ -6,8 +6,8 @@
 //  system. Lower numeric value = higher priority = sent first.
 //
 //  This is a shared wire contract: Heart stamps the tier's
-//  integer value into every sentinel ([[LG:begin:T:...]],
-//  [[LG:T:NNNN]], [[LG:end:T:...]]) and Soul reads it back to
+//  integer value into every sentinel ([[LE::begin:T:...]],
+//  [[LE::T:NNNN]], [[LE::end:T:...]]) and Soul reads it back to
 //  route each decoded slice. It therefore belongs in LilithsMind
 //  alongside the other shared DTOs, not in either plugin.
 //

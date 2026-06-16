@@ -578,16 +578,16 @@ Summary:
 
 **Soul → Heart:**
 ```
-[[LG:appearance:update:<payload>]]    — submit active preset
-[[LG:appearance:clear]]               — clear own appearance
+[[LE::appearance:update:<payload>]]    — submit active preset
+[[LE::appearance:clear]]               — clear own appearance
 ```
 
 **Heart → Soul:**
 ```
-[[LG:appearance:data:<steamid>:<payload>]]   — full snapshot for a player
-[[LG:appearance:clear:<steamid>]]            — remove a player's appearance
-[[LG:appearance:cooldown:<seconds>]]         — cooldown remaining (to sender only)
-[[LG:appearance:maxweapons:<n>]]             — MaxWeaponAppearances (sent on connect)
+[[LE::appearance:data:<steamid>:<payload>]]   — full snapshot for a player
+[[LE::appearance:clear:<steamid>]]            — remove a player's appearance
+[[LE::appearance:cooldown:<seconds>]]         — cooldown remaining (to sender only)
+[[LE::appearance:maxweapons:<n>]]             — MaxWeaponAppearances (sent on connect)
 ```
 
 ---

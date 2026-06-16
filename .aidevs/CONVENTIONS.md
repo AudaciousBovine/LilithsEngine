@@ -237,21 +237,21 @@ See `ARCHITECTURE.md` — Payload Application Order section. The 9-step order is
 
 ## Soul→Heart Communication
 
-All Soul→Heart communication uses the `[[LG:...]]` sentinel pattern via `ChatMessageEvent { MessageType = Local }` in the client ECS world. Heart intercepts via `ServerChatSystemPatch`. VCF is a server-side framework — Soul has no VCF dependency and must never gain one.
+All Soul→Heart communication uses the `[[LE::...]]` sentinel pattern via `ChatMessageEvent { MessageType = Local }` in the client ECS world. Heart intercepts via `ServerChatSystemPatch`. VCF is a server-side framework — Soul has no VCF dependency and must never gain one.
 
 Current Soul→Heart sentinels:
-- `[[LG:sync-fallback]]` — HTTP fetch failed, request chunk delivery
-- `[[LG:lang-request:<language>]]` — request localization payload for a language
-- `[[LG:appearance:update:<payload>]]` — player submitting their active appearance preset
-- `[[LG:appearance:clear]]` — player clearing their own appearance
+- `[[LE::sync-fallback]]` — HTTP fetch failed, request chunk delivery
+- `[[LE::lang-request:<language>]]` — request localization payload for a language
+- `[[LE::appearance:update:<payload>]]` — player submitting their active appearance preset
+- `[[LE::appearance:clear]]` — player clearing their own appearance
 
 Current Heart→Soul sentinels (also handled in ServerChatSystemPatch):
-- `[[LG:sync-url:<url>:<fallback>]]` — redirect client to fetch payload from URL
-- `[[LG:lang-unavailable:<language>]]` — requested language not configured on server
-- `[[LG:appearance:data:<steamid>:<payload>]]` — full appearance snapshot for a player
-- `[[LG:appearance:clear:<steamid>]]` — remove a player's appearance from all clients
-- `[[LG:appearance:cooldown:<seconds>]]` — cooldown remaining, sent to requesting client only
-- `[[LG:appearance:maxweapons:<n>]]` — server's MaxWeaponAppearances setting, sent on connect
+- `[[LE::sync-url:<url>:<fallback>]]` — redirect client to fetch payload from URL
+- `[[LE::lang-unavailable:<language>]]` — requested language not configured on server
+- `[[LE::appearance:data:<steamid>:<payload>]]` — full appearance snapshot for a player
+- `[[LE::appearance:clear:<steamid>]]` — remove a player's appearance from all clients
+- `[[LE::appearance:cooldown:<seconds>]]` — cooldown remaining, sent to requesting client only
+- `[[LE::appearance:maxweapons:<n>]]` — server's MaxWeaponAppearances setting, sent on connect
 
 All new Soul→Heart sentinels must be added to `ServerChatSystemPatch.cs` — the single home for this communication.
 

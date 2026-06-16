@@ -95,23 +95,23 @@ World Ready (WarEventRegistrySystem)
 Client Connects (ServerBootstrapSystem)
   └─ ClientConnectPatch → branches on SyncMode:
        ChunkPush  → SyncSender.EnqueueSyncTiers() (tiered chunks via chat)
-       HttpServer → SyncSender.SendRedirect() ([[LG:sync-url:<url>:<fallback>]])
+       HttpServer → SyncSender.SendRedirect() ([[LE::sync-url:<url>:<fallback>]])
        StaticUrl  → SyncSender.SendRedirect() (configured static URL)
 
 Client Chat Receive (ClientChatSystem)
   └─ ClientChatSystemPatch → SyncReceiver.TryHandleMessage()
-      ├─ [[LG:sync-url:...]]    → SyncHttpFetcher.Fetch() (HTTP fetch)
-      ├─ [[LG:lang-unavailable:...]] → log warning, stay on default language
-      ├─ [[LG:begin:T:N:CKSUM]] → init tier accumulator
-      ├─ [[LG:T:NNNN]]<data>    → accumulate chunk
-      └─ [[LG:end:T:CKSUM]]     → verify, decompress, apply tier, cache to disk
+      ├─ [[LE::sync-url:...]]    → SyncHttpFetcher.Fetch() (HTTP fetch)
+      ├─ [[LE::lang-unavailable:...]] → log warning, stay on default language
+      ├─ [[LE::begin:T:N:CKSUM]] → init tier accumulator
+      ├─ [[LE::T:NNNN]]<data>    → accumulate chunk
+      └─ [[LE::end:T:CKSUM]]     → verify, decompress, apply tier, cache to disk
 
 Server Chat Receive (ServerBootstrapSystem)
   └─ ServerChatSystemPatch → handles Soul→Heart sentinels:
-      ├─ [[LG:sync-fallback]]          → enqueue chunk delivery for that client
-      ├─ [[LG:lang-request:X]]         → send localization payload for language X
-      ├─ [[LG:appearance:update:...]]  → validate + store + broadcast appearance (AppearanceSyncEnabled)
-      └─ [[LG:appearance:clear]]       → clear and broadcast player appearance removal
+      ├─ [[LE::sync-fallback]]          → enqueue chunk delivery for that client
+      ├─ [[LE::lang-request:X]]         → send localization payload for language X
+      ├─ [[LE::appearance:update:...]]  → validate + store + broadcast appearance (AppearanceSyncEnabled)
+      └─ [[LE::appearance:clear]]       → clear and broadcast player appearance removal
 ```
 
 ## How to Use These Docs

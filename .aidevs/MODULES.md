@@ -376,7 +376,7 @@ The existing sync pipeline is untouched regardless.
 
 **Heart-side components (appearance feature area):**
 - `AppearanceStore` — reads/writes `Custom/<SteamId>/appearance.json` per player
-- `AppearanceSyncSender` — broadcasts appearance payloads via `[[LG:appearance:...]]`
+- `AppearanceSyncSender` — broadcasts appearance payloads via `[[LE::appearance:...]]`
   sentinels, handled in `ServerChatSystemPatch` (the single home for all Soul→Heart
   and Heart→Soul sentinel communication)
 - Triggers: player connects → broadcast that player's appearance to all online clients;
@@ -391,7 +391,7 @@ The existing sync pipeline is untouched regardless.
 - Heart does one check and one conditional response — no polling, no per-frame work
 
 **Soul-side components (appearance feature area):**
-- `AppearanceSyncReceiver` — listens for `[[LG:appearance:...]]` sentinels,
+- `AppearanceSyncReceiver` — listens for `[[LE::appearance:...]]` sentinels,
   maintains in-memory `SteamId → AppearanceData` map
 - `AppearanceTextureCache` — disk-backed cache for URL textures (keyed by URL hash),
   memory cache for bundled style textures. Lazy load — textures fetched only when

@@ -133,17 +133,17 @@ Embedded JSON files extracted on demand when GenerateDebugConfigs is set.
 | `InitializationPatch.cs` | `InitializationPatch` | Harmony postfix on `WarEventRegistrySystem.RegisterWarEventEntities`. Single-fire — calls `Heart.OnInitialize()`. |
 | `ClientConnectPatch.cs` | `ClientConnectPatch` | Harmony postfix on `ServerBootstrapSystem.OnUserConnected`. Resolves User + Character entities + userIndex. Branches on `HeartConfig.SyncMode` — `EnqueueSyncTiers()` for ChunkPush, `SendRedirect()` for HttpServer/StaticUrl. |
 | `SchedulerPatch.cs` | `SchedulerPatch` | Harmony postfix on `ServerBootstrapSystem.OnUpdate`. Per-frame drain of `SyncQueue` at `ChunksPerFrame` rate. Fast-path: single `HasPending` bool check when idle. |
-| `ServerChatSystemPatch.cs` | `ServerChatSystemPatch` | Harmony postfix on `ServerBootstrapSystem.OnUpdate`. General Soul→Heart sentinel intercept. Queries `ChatMessageServerEvent + FromCharacter` entities. Handles `[[LG:sync-fallback]]` (enqueues chunks for that client) and `[[LG:lang-request:X]]` (triggers LocalizationSyncSender). The single home for all Soul→Heart communication. |
+| `ServerChatSystemPatch.cs` | `ServerChatSystemPatch` | Harmony postfix on `ServerBootstrapSystem.OnUpdate`. General Soul→Heart sentinel intercept. Queries `ChatMessageServerEvent + FromCharacter` entities. Handles `[[LE::sync-fallback]]` (enqueues chunks for that client) and `[[LE::lang-request:X]]` (triggers LocalizationSyncSender). The single home for all Soul→Heart communication. |
 
 ### Network/
 
 | File | Class | Purpose |
 |------|-------|---------|
 | `SyncQueue.cs` | `SyncQueue` | Thread-safe FIFO queue of pending client sends. `Enqueue()` at connect captures NetworkIds (entities valid then). `Drain()` guards each entry with `em.Exists(UserEntity)`. |
-| `SyncSender.cs` | `SyncSender` | `EnqueueSyncTiers()` builds tier messages, enqueues into SyncQueue (ChunkPush mode). `SendRedirect()` sends `[[LG:sync-url:<url>:<fallback>]]` sentinel (HttpServer/StaticUrl modes). Protocol: `[[LG:begin:T:N:CKSUM]]` / `[[LG:T:NNNN]]<chunk>` / `[[LG:end:T:CKSUM]]`. |
+| `SyncSender.cs` | `SyncSender` | `EnqueueSyncTiers()` builds tier messages, enqueues into SyncQueue (ChunkPush mode). `SendRedirect()` sends `[[LE::sync-url:<url>:<fallback>]]` sentinel (HttpServer/StaticUrl modes). Protocol: `[[LE::begin:T:N:CKSUM]]` / `[[LE::T:NNNN]]<chunk>` / `[[LE::end:T:CKSUM]]`. |
 | `SyncPayloadCache.cs` | `SyncPayloadCache` | Builds `TierBlobData[]` per tier. Filters StackSize out of appearance payload (server-only). Populates `ServerLanguage` from `HeartConfig.DefaultLanguage`. Calls `SyncHttpServer.UpdatePayload()` after rebuild when mode is HttpServer. `Rebuild()` called twice at startup. |
 | `SyncHttpServer.cs` | `SyncHttpServer` | HttpListener on background thread (HttpServer mode only). Serves `GET /sync` → current payload JSON. `Start()`/`Stop()` lifecycle. `UpdatePayload()` called by SyncPayloadCache after each rebuild. Port configured via `HeartConfig.HttpPort`. |
-| `LocalizationSyncSender.cs` | `LocalizationSyncSender` | Handles language requests from Soul. Builds a ServerSyncPayload with only DisplayName/DescriptionText for the requested language (via LocalizationFileService), enqueues as Critical-tier chunks. Sends `[[LG:lang-unavailable:X]]` if language not configured. |
+| `LocalizationSyncSender.cs` | `LocalizationSyncSender` | Handles language requests from Soul. Builds a ServerSyncPayload with only DisplayName/DescriptionText for the requested language (via LocalizationFileService), enqueues as Critical-tier chunks. Sends `[[LE::lang-unavailable:X]]` if language not configured. |
 
 ### Services/
 
@@ -264,5 +264,5 @@ Embedded JSON files extracted on demand when GenerateDebugConfigs is set.
 
 | File | Class | Purpose |
 |------|-------|---------|
-| `SyncReceiver.cs` | `SyncReceiver` | Intercepts and reassembles tiered sync payload. Handles: `[[LG:sync-url:...]]` (redirect → SyncHttpFetcher), `[[LG:lang-unavailable:X]]` (log warning), `[[LG:begin/end/chunk]]` (ChunkPush protocol). On tier complete: verify SHA256 → decompress → deserialize → cache to disk → `ApplyTier()`. Language request logic: compares `SoulConfig.PreferredLanguage` vs `payload.ServerLanguage` on Critical tier receipt, sends `[[LG:lang-request:X]]` if different. Pre-apply: `TryPreApplyCachedSync()` + `TryPreApplyCachedLocalization()` in `NotifyWorldReady()`. Fallback: `SendFallbackSentinel()` creates `ChatMessageEvent { MessageType = Local }` in client ECS world. |
+| `SyncReceiver.cs` | `SyncReceiver` | Intercepts and reassembles tiered sync payload. Handles: `[[LE::sync-url:...]]` (redirect → SyncHttpFetcher), `[[LE::lang-unavailable:X]]` (log warning), `[[LE::begin/end/chunk]]` (ChunkPush protocol). On tier complete: verify SHA256 → decompress → deserialize → cache to disk → `ApplyTier()`. Language request logic: compares `SoulConfig.PreferredLanguage` vs `payload.ServerLanguage` on Critical tier receipt, sends `[[LE::lang-request:X]]` if different. Pre-apply: `TryPreApplyCachedSync()` + `TryPreApplyCachedLocalization()` in `NotifyWorldReady()`. Fallback: `SendFallbackSentinel()` creates `ChatMessageEvent { MessageType = Local }` in client ECS world. |
 | `SyncHttpFetcher.cs` | `SyncHttpFetcher` | Fetches sync payload from URL via `UnityWebRequest` coroutine (10s timeout). On success: invokes onSuccess callback. On failure: invokes onFailure. Runs via `SoulCoroutineHost.Run()`. No `using` on `UnityWebRequest` (not IDisposable in IL2CPP). |

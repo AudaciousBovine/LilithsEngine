@@ -9,13 +9,13 @@
 //               on client connect. No extra ports or URLs needed.
 //
 //  HttpServer — Heart starts an HttpListener on a configured port.
-//               On connect, Heart sends [[LG:sync-url:<url>]] and
+//               On connect, Heart sends [[LE::sync-url:<url>]] and
 //               Soul fetches the payload directly via HTTP.
 //               Server admin must open the configured port.
 //
 //  StaticUrl  — Admin hosts the payload at a URL (CDN, Gist, etc.)
 //               and sets StaticSyncUrl in HeartConfig. On connect,
-//               Heart sends [[LG:sync-url:<configured-url>]] and
+//               Heart sends [[LE::sync-url:<configured-url>]] and
 //               Soul fetches from that URL. Heart hosts nothing.
 //
 //  For HttpServer and StaticUrl, SyncFallbackToChunks in HeartConfig

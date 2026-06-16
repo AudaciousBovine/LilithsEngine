@@ -21,16 +21,16 @@ using LilithsSoul.Services;
 //
 //  Wire protocol (must match LilithsHeart.SyncSender / SyncPayloadCache):
 //  ─────────────────────────────────────────────────────────────────────
-//    [[LG:begin:T:N:CKSUM]]      begin a tier — T=tier int, N=chunk count,
+//    [[LE::begin:T:N:CKSUM]]      begin a tier — T=tier int, N=chunk count,
 //                                CKSUM=first 8 hex chars of SHA256
-//    [[LG:T:NNNN]]<base64>       chunk NNNN of tier T (zero-padded index);
+//    [[LE::T:NNNN]]<base64>       chunk NNNN of tier T (zero-padded index);
 //                                payload is a slice of the tier's ONE Base64
 //                                string (whole gzip blob Base64'd, THEN sliced)
-//    [[LG:end:T:CKSUM]]          end tier T — verify + decode + apply
+//    [[LE::end:T:CKSUM]]          end tier T — verify + decode + apply
 //
 //  Redirect sentinel (HttpServer / StaticUrl modes):
 //  ──────────────────────────────────────────────────
-//    [[LG:sync-url:<url>:<fallback>]]
+//    [[LE::sync-url:<url>:<fallback>]]
 //      url      — HTTP URL to fetch the full payload from
 //      fallback — "1" = request chunk fallback on failure,
 //                 "0" = log warning and give up
@@ -90,16 +90,16 @@ using LilithsSoul.Services;
 //  If a tier verifies before the client ECS world is ready, its decoded
 //  payload is queued and applied in NotifyWorldReady once maps are built.
 //
-//  [CHANGED] HandleRedirect() added — handles [[LG:sync-url:...]] sentinels
+//  [CHANGED] HandleRedirect() added — handles [[LE::sync-url:...]] sentinels
 //            sent by Heart in HttpServer and StaticUrl modes. Triggers
 //            SyncHttpFetcher to fetch the payload directly. On failure,
-//            sends [[LG:sync-fallback]] as a plain chat message to the
+//            sends [[LE::sync-fallback]] as a plain chat message to the
 //            server (no VCF dependency) — Heart's ClientSyncFallbackPatch
 //            intercepts it and enqueues chunk delivery for this client.
 //
-//  [CHANGED] Rewritten from the stale FLAT protocol ([[LG:N]] / [[LG:end]],
+//  [CHANGED] Rewritten from the stale FLAT protocol ([[LE::N]] / [[LE::end]],
 //            single concat→JSON) to this TIERED protocol. The flat receiver
-//            could not parse [[LG:begin:T:N:CKSUM]] / [[LG:end:T:CKSUM]], so
+//            could not parse [[LE::begin:T:N:CKSUM]] / [[LE::end:T:CKSUM]], so
 //            every chunk was silently unrecognized and no payload ever
 //            applied — names, icons, AND descriptions all went dark. This
 //            version matches the sender Heart has been emitting.
@@ -133,13 +133,13 @@ public static class SyncReceiver
 {
     private const string LOG_SOURCE = "LilithsSoul.SyncReceiver";
 
-    private const string BEGIN_PREFIX        = "[[LG:begin:";
-    private const string END_PREFIX          = "[[LG:end:";
-    private const string CHUNK_PREFIX        = "[[LG:";
+    private const string BEGIN_PREFIX        = "[[LE::begin:";
+    private const string END_PREFIX          = "[[LE::end:";
+    private const string CHUNK_PREFIX        = "[[LE::";
     // [CHANGED] Redirect sentinel prefix for HttpServer / StaticUrl modes.
-    private const string REDIRECT_PREFIX     = "[[LG:sync-url:";
+    private const string REDIRECT_PREFIX     = "[[LE::sync-url:";
     // [CHANGED] Language sentinels for multi-language localization.
-    private const string LANG_UNAVAILABLE_PREFIX = "[[LG:lang-unavailable:";
+    private const string LANG_UNAVAILABLE_PREFIX = "[[LE::lang-unavailable:";
 
     // Per-tier in-flight reassembly state, keyed by tier int.
     sealed class TierAccumulator
@@ -178,7 +178,7 @@ public static class SyncReceiver
         try
         {
             // [CHANGED] Handle redirect sentinel BEFORE the generic chunk/begin/end
-            //           dispatch — redirect starts with [[LG:sync-url: which would
+            //           dispatch — redirect starts with [[LE::sync-url: which would
             //           otherwise fall through to HandleChunk incorrectly.
             if (message.StartsWith(REDIRECT_PREFIX, StringComparison.Ordinal))
                 HandleRedirect(message);
@@ -197,7 +197,7 @@ public static class SyncReceiver
             SoulLogger.Error(LOG_SOURCE, $"Failed handling sync message: {ex.Message}");
         }
 
-        // Any [[LG: message is ours — consume it so it never hits chat UI.
+        // Any [[LE:: message is ours — consume it so it never hits chat UI.
         return true;
     }
 
@@ -238,7 +238,7 @@ public static class SyncReceiver
     // ── Sentinel handlers ─────────────────────────────────────
 
     /// <summary>
-    /// Handles [[LG:sync-url:<url>:<fallback>]] redirect sentinel.
+    /// Handles [[LE::sync-url:<url>:<fallback>]] redirect sentinel.
     /// Triggers SyncHttpFetcher to fetch the payload from the given URL.
     /// On success: applies and caches the payload.
     /// On failure: requests chunk fallback via VCF command if fallback=1,
@@ -299,7 +299,7 @@ public static class SyncReceiver
                 if (fallback)
                 {
                     SoulLogger.Info(LOG_SOURCE,
-                        "Fallback enabled — sending [[LG:sync-fallback]] to server.");
+                        "Fallback enabled — sending [[LE::sync-fallback]] to server.");
                     SendFallbackSentinel();
                 }
                 else
@@ -313,7 +313,7 @@ public static class SyncReceiver
 
     static void HandleBegin(string message)
     {
-        // [[LG:begin:T:N:CKSUM]]
+        // [[LE::begin:T:N:CKSUM]]
         var body = Unwrap(message);                 // begin:T:N:CKSUM
         var parts = body.Split(':');                // [begin, T, N, CKSUM]
         if (parts.Length != 4)
@@ -334,7 +334,7 @@ public static class SyncReceiver
 
     static void HandleChunk(string message)
     {
-        // [[LG:T:NNNN]]<base64>
+        // [[LE::T:NNNN]]<base64>
         int close = message.IndexOf("]]", CHUNK_PREFIX.Length, StringComparison.Ordinal);
         if (close < 0) return;
 
@@ -357,7 +357,7 @@ public static class SyncReceiver
 
     static void HandleEnd(string message)
     {
-        // [[LG:end:T:CKSUM]]
+        // [[LE::end:T:CKSUM]]
         var body  = Unwrap(message);                // end:T:CKSUM
         var parts = body.Split(':');                // [end, T, CKSUM]
         if (parts.Length != 3)
@@ -665,7 +665,7 @@ public static class SyncReceiver
     // ── Language sentinels ───────────────────────────────────
 
     /// <summary>
-    /// Sends [[LG:lang-request:<language>]] to Heart requesting
+    /// Sends [[LE::lang-request:<language>]] to Heart requesting
     /// a localization payload for the preferred language.
     /// </summary>
     static void RequestLanguage(string languageName)
@@ -681,12 +681,12 @@ public static class SyncReceiver
 
             em.SetComponentData(entity, new ChatMessageEvent
             {
-                MessageText = new FixedString512Bytes($"[[LG:lang-request:{languageName}]]"),
+                MessageText = new FixedString512Bytes($"[[LE::lang-request:{languageName}]]"),
                 MessageType = ChatMessageType.Local,
             });
 
             SoulLogger.Debug(LOG_SOURCE,
-                $"Sent [[LG:lang-request:{languageName}]] to server.");
+                $"Sent [[LE::lang-request:{languageName}]] to server.");
         }
         catch (Exception ex)
         {
@@ -696,7 +696,7 @@ public static class SyncReceiver
     }
 
     /// <summary>
-    /// Handles [[LG:lang-unavailable:<language>]] from Heart.
+    /// Handles [[LE::lang-unavailable:<language>]] from Heart.
     /// Logs a warning and stays on the server default language.
     /// </summary>
     static void HandleLangUnavailable(string message)
@@ -752,7 +752,7 @@ public static class SyncReceiver
     // ── Fallback sentinel ────────────────────────────────────
 
     /// <summary>
-    /// Sends [[LG:sync-fallback]] to the server as a plain chat message.
+    /// Sends [[LE::sync-fallback]] to the server as a plain chat message.
     /// Heart's ClientSyncFallbackPatch intercepts this and enqueues chunk
     /// delivery for this client specifically.
     ///
@@ -785,11 +785,11 @@ public static class SyncReceiver
 
             em.SetComponentData(entity, new ChatMessageEvent
             {
-                MessageText = new FixedString512Bytes("[[LG:sync-fallback]]"),
+                MessageText = new FixedString512Bytes("[[LE::sync-fallback]]"),
                 MessageType = ChatMessageType.Local,
             });
 
-            SoulLogger.Debug(LOG_SOURCE, "Sent [[LG:sync-fallback]] to server.");
+            SoulLogger.Debug(LOG_SOURCE, "Sent [[LE::sync-fallback]] to server.");
         }
         catch (Exception ex)
         {
@@ -800,7 +800,7 @@ public static class SyncReceiver
 
     // ── Helpers ───────────────────────────────────────────────
 
-    /// <summary>Strips the leading "[[LG:" and trailing "]]" from a sentinel.</summary>
+    /// <summary>Strips the leading "[[LE::" and trailing "]]" from a sentinel.</summary>
     static string Unwrap(string message)
     {
         var inner = message[CHUNK_PREFIX.Length..];

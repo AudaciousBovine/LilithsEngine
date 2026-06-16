@@ -173,11 +173,11 @@ Connect event:
   ClientConnectPatch → SyncSender.EnqueueSyncTiers(userEntity, characterEntity, userIndex)
     └── For each TierBlobData (ordered Critical→Background):
           SyncQueue.Enqueue(messages) where messages =
-            [[LG:begin:T:N:CKSUM]]        — begin sentinel (T=tier, N=chunk count)
-            [[LG:T:0000]]<base64chunk>    — chunk (zero-padded index)
-            [[LG:T:0001]]<base64chunk>
+            [[LE::begin:T:N:CKSUM]]        — begin sentinel (T=tier, N=chunk count)
+            [[LE::T:0000]]<base64chunk>    — chunk (zero-padded index)
+            [[LE::T:0001]]<base64chunk>
             ...
-            [[LG:end:T:CKSUM]]            — end sentinel
+            [[LE::end:T:CKSUM]]            — end sentinel
 
 Per-frame drain (SchedulerPatch on ServerBootstrapSystem.OnUpdate):
   SyncQueue.Drain() — creates at most ChunksPerFrame(10) ECS entities per frame
@@ -195,7 +195,7 @@ Heart startup: SyncHttpServer.Start() on HeartConfig.HttpPort (default 7902)
   └─ Background thread HttpListener serves GET /sync → payload JSON
 
 Connect: SyncSender.SendRedirect(url, fallback)
-  └─ [[LG:sync-url:http://<ip>:<port>/sync:<1|0>]]
+  └─ [[LE::sync-url:http://<ip>:<port>/sync:<1|0>]]
 
 Soul receipt: SyncReceiver.HandleRedirect(message)
   ├─ Parse URL + fallback flag (split from END — URL may contain colons)
@@ -204,7 +204,7 @@ Soul receipt: SyncReceiver.HandleRedirect(message)
         ├─ Success → apply + cache
         └─ Failure + fallback=1 → SendFallbackSentinel()
               └─ ChatMessageEvent { MessageType = Local } in client ECS world
-                    └─ ServerChatSystemPatch intercepts [[LG:sync-fallback]]
+                    └─ ServerChatSystemPatch intercepts [[LE::sync-fallback]]
                           └─ SyncSender.EnqueueSyncTiers() for that client
 ```
 
@@ -219,17 +219,17 @@ Identical to HttpServer Soul-side fetch path. URL comes from `HeartConfig.Static
 ```
 ClientChatSystemPatch.Prefix (per-frame):
   └── SyncReceiver.TryHandleMessage(text)
-        ├── [[LG:sync-url:<url>:<fallback>]]   → HandleRedirect()
+        ├── [[LE::sync-url:<url>:<fallback>]]   → HandleRedirect()
         │     └─ SyncHttpFetcher or SendFallbackSentinel
-        ├── [[LG:lang-unavailable:<lang>]]      → log warning, stay on default
-        ├── [[LG:begin:T:N:CKSUM]]              → init tier accumulator
-        ├── [[LG:T:NNNN]]<data>                 → append chunk to accumulator
-        └── [[LG:end:T:CKSUM]]                  → HandleEnd()
+        ├── [[LE::lang-unavailable:<lang>]]      → log warning, stay on default
+        ├── [[LE::begin:T:N:CKSUM]]              → init tier accumulator
+        ├── [[LE::T:NNNN]]<data>                 → append chunk to accumulator
+        └── [[LE::end:T:CKSUM]]                  → HandleEnd()
               ├─ Concat chunks → SHA256-verify base64 text
               ├─ Convert.FromBase64String → GZip decompress → JSON
               ├─ Deserialize tier-specific payload
               ├─ Check ServerLanguage vs PreferredLanguage (Critical tier only)
-              │    └─ If different → SendChatMessage([[LG:lang-request:<lang>]])
+              │    └─ If different → SendChatMessage([[LE::lang-request:<lang>]])
               ├─ if localization payload → WriteLocalizationToDisk()
               │    else → MergeAndCache() → WriteToDisk()
               └─ ApplyTier() (or queue if world not ready)
@@ -292,7 +292,7 @@ Client (Soul):
 
   On Critical tier receipt:
     ServerLanguage="English", PreferredLanguage="Spanish"
-    └─ SyncReceiver sends [[LG:lang-request:Spanish]]
+    └─ SyncReceiver sends [[LE::lang-request:Spanish]]
           └─ ServerChatSystemPatch → LocalizationSyncSender.HandleRequest()
                 ├─ LocalizationFileService.HasLanguage("Spanish") = true
                 ├─ BuildLocalizationPayload() → ServerSyncPayload (DisplayName+DescriptionText only)

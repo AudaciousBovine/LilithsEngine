@@ -3,7 +3,7 @@
 //  LilithsSoul/Network/SyncHttpFetcher.cs
 //
 //  Fetches the sync payload from a URL via UnityWebRequest.
-//  Used when Soul receives a [[LG:sync-url:...]] redirect sentinel
+//  Used when Soul receives a [[LE::sync-url:...]] redirect sentinel
 //  (SyncMode = HttpServer or StaticUrl on the server).
 //
 //  Fetch flow:

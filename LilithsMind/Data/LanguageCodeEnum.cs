@@ -15,7 +15,7 @@
 //            from the running V Rising client and map it to a concrete
 //            LanguageCodeEnum value at runtime. System is never sent
 //            over the wire — Soul resolves it to a real language name
-//            before sending [[LG:lang-request:X]] to Heart.
+//            before sending [[LE::lang-request:X]] to Heart.
 //            This is the new default for PreferredLanguage, meaning
 //            players get automatic language detection with no config.
 // ============================================================

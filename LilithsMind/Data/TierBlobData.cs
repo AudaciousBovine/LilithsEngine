@@ -44,7 +44,7 @@ public sealed class TierBlobData
     /// <summary>
     /// Pre-built chunk strings, each ≤450 chars.
     /// Each chunk is a base64-encoded segment of the GZip-compressed
-    /// tier JSON. SyncSender wraps each in [[LG:T:NNNN]]<chunk>.
+    /// tier JSON. SyncSender wraps each in [[LE::T:NNNN]]<chunk>.
     /// </summary>
     public string[] Chunks { get; }
 

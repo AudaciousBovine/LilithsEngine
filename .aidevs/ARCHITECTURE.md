@@ -141,9 +141,9 @@ Client connects to server
                     ChunkPush  → SyncSender.EnqueueSyncTiers()
                                    └── SyncQueue.Enqueue(tierMessages)
                     HttpServer → SyncSender.SendRedirect(httpUrl, fallback)
-                                   └── [[LG:sync-url:<url>:<1|0>]]
+                                   └── [[LE::sync-url:<url>:<1|0>]]
                     StaticUrl  → SyncSender.SendRedirect(staticUrl, fallback)
-                                   └── [[LG:sync-url:<url>:<1|0>]]
+                                   └── [[LE::sync-url:<url>:<1|0>]]
 
 Per-frame drain (SchedulerPatch on ServerBootstrapSystem.OnUpdate):
   SyncQueue.HasPending → SyncQueue.Drain()
@@ -151,22 +151,22 @@ Per-frame drain (SchedulerPatch on ServerBootstrapSystem.OnUpdate):
 
 Server-side incoming chat (ServerChatSystemPatch on ServerBootstrapSystem.OnUpdate):
   Queries for ChatMessageServerEvent + FromCharacter entities
-  └── [[LG:sync-fallback]]         → SyncSender.EnqueueSyncTiers() for that client
-  └── [[LG:lang-request:X]]        → LocalizationSyncSender.HandleRequest()
+  └── [[LE::sync-fallback]]         → SyncSender.EnqueueSyncTiers() for that client
+  └── [[LE::lang-request:X]]        → LocalizationSyncSender.HandleRequest()
         └── If language available: enqueue localization payload chunks
-        └── If unavailable: send [[LG:lang-unavailable:X]]
-  └── [[LG:appearance:update]]     → AppearanceSyncSender.HandleUpdateRequest()
+        └── If unavailable: send [[LE::lang-unavailable:X]]
+  └── [[LE::appearance:update]]     → AppearanceSyncSender.HandleUpdateRequest()
         └── Validate AppearanceSyncEnabled + permission flags
         └── Check per-player cooldown
               ├── Elapsed: write appearance.json, broadcast to all clients
-              └── Active: send [[LG:appearance:cooldown:<seconds>]] to sender
-  └── [[LG:appearance:clear]]      → AppearanceSyncSender.HandleClearRequest()
+              └── Active: send [[LE::appearance:cooldown:<seconds>]] to sender
+  └── [[LE::appearance:clear]]      → AppearanceSyncSender.HandleClearRequest()
         └── Admin-issued clear — broadcasts clear event to all clients for target player
 
 On player connect (ClientConnectPatch — in addition to standard sync):
   └── If AppearanceSyncEnabled:
         AppearanceSyncSender.BroadcastPlayerAppearance(connectingPlayer)
-          └── [[LG:appearance:data:<steamid>:<payload>]] → all online clients
+          └── [[LE::appearance:data:<steamid>:<payload>]] → all online clients
 ```
 
 ---
@@ -269,9 +269,9 @@ SyncPayloadCache.Rebuild()
 
 On client connect:
 SyncSender.EnqueueSyncTiers()
-  └─ [[LG:begin:T:N:CKSUM]]           ──►  SyncReceiver accumulates
-  └─ [[LG:T:NNNN]]<base64chunk>       ──►  per-tier buffer
-  └─ [[LG:end:T:CKSUM]]               ──►  verify → decompress → apply → cache
+  └─ [[LE::begin:T:N:CKSUM]]           ──►  SyncReceiver accumulates
+  └─ [[LE::T:NNNN]]<base64chunk>       ──►  per-tier buffer
+  └─ [[LE::end:T:CKSUM]]               ──►  verify → decompress → apply → cache
 ```
 
 ### HttpServer
@@ -282,10 +282,10 @@ Heart: SyncHttpServer starts on HeartConfig.HttpPort (default 7902)
 
 On client connect:
 SyncSender.SendRedirect()
-  └─ [[LG:sync-url:http://<ip>:<port>/sync:<fallback>]]  ──►  SyncReceiver
+  └─ [[LE::sync-url:http://<ip>:<port>/sync:<fallback>]]  ──►  SyncReceiver
         └─ SyncHttpFetcher.Fetch(url)
               ├─ Success → apply + cache
-              └─ Failure + fallback=1 → [[LG:sync-fallback]] → Heart enqueues chunks
+              └─ Failure + fallback=1 → [[LE::sync-fallback]] → Heart enqueues chunks
 ```
 
 ### StaticUrl
@@ -294,14 +294,14 @@ SyncSender.SendRedirect()
 Admin hosts payload at a URL (CDN, Gist, etc.)
 On client connect:
 SyncSender.SendRedirect()
-  └─ [[LG:sync-url:<StaticSyncUrl>:<fallback>]]  ──►  same fetch path as HttpServer
+  └─ [[LE::sync-url:<StaticSyncUrl>:<fallback>]]  ──►  same fetch path as HttpServer
 ```
 
 Fallback sentinel flow (HttpServer/StaticUrl failure when SyncFallbackToChunks=true):
 ```
 Soul                                        Heart
 ────────────────────                        ──────────────────────
-[[LG:sync-fallback]] (ChatMessageEvent)  ──►  ServerChatSystemPatch
+[[LE::sync-fallback]] (ChatMessageEvent)  ──►  ServerChatSystemPatch
                                                └─ SyncSender.EnqueueSyncTiers()
 ```
 
@@ -322,10 +322,10 @@ Client (Soul):
   PreferredLanguage in SoulConfig
   On Critical tier receipt:
     └─ if PreferredLanguage != ServerLanguage:
-          [[LG:lang-request:<language>]]  ──►  ServerChatSystemPatch
+          [[LE::lang-request:<language>]]  ──►  ServerChatSystemPatch
                 └─ LocalizationSyncSender.HandleRequest()
                       ├─ Language available → enqueue localization payload chunks
-                      └─ Unavailable → [[LG:lang-unavailable:<language>]]
+                      └─ Unavailable → [[LE::lang-unavailable:<language>]]
 ```
 
 ---
@@ -379,13 +379,13 @@ Soul fires chat messages silently to send player interaction events back to Hear
 
 ```
 Player interaction in Soul panel
-  └─ Creates ChatMessageEvent { MessageText = "[[LG:...]]", MessageType = Local }
+  └─ Creates ChatMessageEvent { MessageText = "[[LE::...]]", MessageType = Local }
         └─ ServerChatSystemPatch intercepts server-side, processes sentinel
         └─ Heart sends response payload back to Soul
         └─ Soul panel refreshes
 ```
 
-All `[[LG:...]]` sentinels sent from Soul are handled in `ServerChatSystemPatch` — the single home for all Soul→Heart communication.
+All `[[LE::...]]` sentinels sent from Soul are handled in `ServerChatSystemPatch` — the single home for all Soul→Heart communication.
 
 ---
 
@@ -475,29 +475,29 @@ requests, texture loading, or per-frame appearance work.
 | Class | Responsibility |
 |-------|---------------|
 | `AppearanceStore` | Read/write `Custom/<SteamId>/appearance.json`. Loads all on startup, writes on change. In-memory cache — no per-request disk I/O. |
-| `AppearanceSyncSender` | Broadcasts appearance data via `[[LG:appearance:...]]` sentinels. Handles connect broadcast, update broadcast, clear broadcast, and cooldown response. |
+| `AppearanceSyncSender` | Broadcasts appearance data via `[[LE::appearance:...]]` sentinels. Handles connect broadcast, update broadcast, clear broadcast, and cooldown response. |
 | `AppearancePermissionService` | Reads `Permissions/approved_players.json`. Resolves `CanSetAppearance` and `CanUseCustomUrls` per player. Self-heals PlayerName drift on write. SteamId is canonical; PlayerName is convenience. |
 
 **Sentinel family — Heart sends:**
 ```
-[[LG:appearance:data:<steamid>:<payload>]]     — full appearance snapshot for a player
-[[LG:appearance:clear:<steamid>]]              — remove appearance for a player
-[[LG:appearance:cooldown:<seconds>]]           — cooldown remaining, sent to requesting client
-[[LG:appearance:maxweapons:<n>]]               — server's MaxWeaponAppearances setting,
+[[LE::appearance:data:<steamid>:<payload>]]     — full appearance snapshot for a player
+[[LE::appearance:clear:<steamid>]]              — remove appearance for a player
+[[LE::appearance:cooldown:<seconds>]]           — cooldown remaining, sent to requesting client
+[[LE::appearance:maxweapons:<n>]]               — server's MaxWeaponAppearances setting,
                                                  sent on connect so Soul knows how many to send
 ```
 
 **Sentinel family — Soul sends (handled in ServerChatSystemPatch):**
 ```
-[[LG:appearance:update:<payload>]]             — player submitting their active preset
-[[LG:appearance:clear]]                        — player clearing their own appearance
+[[LE::appearance:update:<payload>]]             — player submitting their active preset
+[[LE::appearance:clear]]                        — player clearing their own appearance
 ```
 
 ### Soul-Side Components (Appearances Feature Area)
 
 | Class | Responsibility |
 |-------|---------------|
-| `AppearanceSyncReceiver` | Listens for `[[LG:appearance:...]]` sentinels. Maintains in-memory `SteamId → AppearanceData` map. |
+| `AppearanceSyncReceiver` | Listens for `[[LE::appearance:...]]` sentinels. Maintains in-memory `SteamId → AppearanceData` map. |
 | `AppearanceTextureCache` | Disk-backed cache for URL textures (keyed by URL hash under `AppearanceCache/`). Memory cache for bundled style textures. Lazy load — textures fetched only when a character using them enters render range. |
 | `AppearanceApplicator` | Hooks character entity spawn/despawn. Applies texture overrides via `Renderer.material.SetTexture()`. Consults whitelist and `CustomAppearancesEnabled` flag before applying. Releases textures on despawn. |
 | `AppearanceWhitelistService` | Loads/saves `appearance_whitelist.json` from server-identity cache. Resolves by SteamId; enriches PlayerName from received broadcast data. |
@@ -507,13 +507,13 @@ requests, texture loading, or per-frame appearance work.
 ```
 Soul                                           Heart
 ────────────────────────                       ──────────────────────
-[[LG:appearance:update:<payload>]]          ──► ServerChatSystemPatch
+[[LE::appearance:update:<payload>]]          ──► ServerChatSystemPatch
                                                   └─ AppearanceSyncSender.HandleUpdateRequest()
                                                         ├─ Cooldown elapsed:
                                                         │    AppearanceStore.Write()
                                                         │    Broadcast to all clients
                                                         └─ Cooldown active:
-[[LG:appearance:cooldown:<seconds>]]        ◄──          Send cooldown remaining
+[[LE::appearance:cooldown:<seconds>]]        ◄──          Send cooldown remaining
 Soul stores cooldown locally,
 suppresses resend until elapsed
 ```
@@ -525,7 +525,7 @@ Admin revokes CanSetAppearance for a player
   └─ AppearancePermissionService.Revoke(steamId)
         └─ AppearanceStore.Clear(steamId)
         └─ AppearanceSyncSender.BroadcastClear(steamId)
-              └─ [[LG:appearance:clear:<steamid>]] → all online clients
+              └─ [[LE::appearance:clear:<steamid>]] → all online clients
                     └─ AppearanceApplicator.Release(steamId) — immediate visual reset
 ```
 
@@ -608,7 +608,7 @@ Elements are either **containers** (hold other elements) or **leaves** (display 
 { "Action": "OpenPanel",   "Target": "PanelName" }
 { "Action": "ClosePanel" }
 { "Action": "TogglePanel", "Target": "PanelName" }
-{ "Action": "ChatCommand", "Target": "[[LG:command:args]]" }
+{ "Action": "ChatCommand", "Target": "[[LE::command:args]]" }
 { "Action": "SetConfig",   "Target": "ConfigKey", "Value": "..." }
 { "Action": "TriggerHud",  "Target": "HudElementName" }
 ```
@@ -653,7 +653,7 @@ Panels are defined in `*.layout.json` files. Soul discovers all layout files at 
 
 Permission tiers are defined server-side in `lilithpermissions.json` and travel to Soul as part of the standard `ServerSyncPayload` (Critical tier). The data is small and needed immediately. Soul knows its own tier on connect and shows or hides panels accordingly.
 
-**UI gating is cosmetic.** Heart verifies the permission tier of every incoming `[[LG:...]]` sentinel server-side regardless of what the client displays. A player who bypassed UI gating would have their commands silently rejected.
+**UI gating is cosmetic.** Heart verifies the permission tier of every incoming `[[LE::...]]` sentinel server-side regardless of what the client displays. A player who bypassed UI gating would have their commands silently rejected.
 
 **Tiers (lowest to highest privilege):**
 
@@ -701,13 +701,13 @@ The config editor is gated behind `SoulConfig.ConfigEditorEnabled` (default `fal
 **Lazy directory navigation — three-ping model:**
 
 ```
-Ping 1: [[LG:admin:dir:root]]
+Ping 1: [[LE::admin:dir:root]]
   Heart → top-level folder list with per-entry timestamps
 
-Ping 2: [[LG:admin:dir:Recipes/Stations]]
+Ping 2: [[LE::admin:dir:Recipes/Stations]]
   Heart → subfolder and file list with per-file Modified timestamps
 
-Ping 3: [[LG:admin:file:Recipes/Stations/alchemy.json]]
+Ping 3: [[LE::admin:file:Recipes/Stations/alchemy.json]]
   Heart → file content JSON + schema JSON for field rendering
 ```
 
@@ -730,7 +730,7 @@ Ping 3: [[LG:admin:file:Recipes/Stations/alchemy.json]]
 
 **Staleness:** Last write wins. Simultaneous editing of the same file by two admins is a communication problem, not a software problem. No conflict resolution is implemented.
 
-**Staged edits:** Changes are held locally in the panel until the admin explicitly saves. Save transmits only the changed fields (delta) via `[[LG:admin:save:<path>]]`. Heart validates permission, writes the file, and updates the `Modified` timestamp. Changes never take effect immediately — a server reload or designated reload command is required to apply them to the live server.
+**Staged edits:** Changes are held locally in the panel until the admin explicitly saves. Save transmits only the changed fields (delta) via `[[LE::admin:save:<path>]]`. Heart validates permission, writes the file, and updates the `Modified` timestamp. Changes never take effect immediately — a server reload or designated reload command is required to apply them to the live server.
 
 **Schema-driven rendering:** Heart includes the config schema alongside file content in the Ping 3 response. The schema describes each field's type, constraints, display name, description, and minimum permission tier required to edit it. The editor panel builds its field list entirely from the schema — adding a new module automatically adds its config section to the editor with zero Soul-side changes.
 

@@ -13,10 +13,10 @@ public static class SyncSender
 {
     private const string LOG_SOURCE = "LilithsHeart.SyncSender";
 
-    private const string BEGIN_PREFIX    = "[[LG:begin:";
-    private const string CHUNK_PREFIX    = "[[LG:";
-    private const string END_PREFIX      = "[[LG:end:";
-    private const string REDIRECT_PREFIX = "[[LG:sync-url:";
+    private const string BEGIN_PREFIX    = "[[LE::begin:";
+    private const string CHUNK_PREFIX    = "[[LE::";
+    private const string END_PREFIX      = "[[LE::end:";
+    private const string REDIRECT_PREFIX = "[[LE::sync-url:";
 
     static readonly ComponentType[] _networkEventComponents =
     [
@@ -103,11 +103,11 @@ public static class SyncSender
 
     /// <summary>
     /// Builds the full sequence of messages for a tier blob:
-    ///   [[LG:begin:T:N:CKSUM]]
-    ///   [[LG:T:0000]]<chunk>
-    ///   [[LG:T:0001]]<chunk>
+    ///   [[LE::begin:T:N:CKSUM]]
+    ///   [[LE::T:0000]]<chunk>
+    ///   [[LE::T:0001]]<chunk>
     ///   ...
-    ///   [[LG:end:T:CKSUM]]
+    ///   [[LE::end:T:CKSUM]]
     /// </summary>
     static IEnumerable<string> BuildTierMessages(TierBlobData blob)
     {

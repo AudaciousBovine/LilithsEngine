@@ -4,13 +4,13 @@
 //
 //  General server-side intercept for Soul→Heart chat messages.
 //  Mirrors ClientChatSystemPatch on Soul's side — Soul sends
-//  [[LG:...]] sentinels as plain chat messages (no VCF dependency)
+//  [[LE::...]] sentinels as plain chat messages (no VCF dependency)
 //  and this patch intercepts and consumes them before they reach
 //  the broadcast system.
 //
 //  Current sentinels handled:
 //  ───────────────────────────
-//  [[LG:sync-fallback]] — Soul failed an HTTP sync fetch and
+//  [[LE::sync-fallback]] — Soul failed an HTTP sync fetch and
 //    SyncFallbackToChunks = true. Heart enqueues chunk delivery
 //    for that specific client.
 //
@@ -21,7 +21,7 @@
 //  Why chat messages and not VCF:
 //  ────────────────────────────────
 //  Soul has no VCF dependency and should not gain one — VCF is
-//  server-side only. Soul sends [[LG:...]] messages using
+//  server-side only. Soul sends [[LE::...]] messages using
 //  ChatMessageClientEvent in the client ECS world, the same
 //  mechanism the game uses for all player chat.
 //
@@ -39,7 +39,7 @@
 //
 //  [PERFORMANCE] Per-frame cost is negligible — the query is
 //                empty except when a client sends a message.
-//                The [[LG: prefix check short-circuits immediately
+//                The [[LE:: prefix check short-circuits immediately
 //                on all normal player chat.
 // ============================================================
 
@@ -59,8 +59,8 @@ namespace LilithsHeart.Patches;
 internal static class ServerChatSystemPatch
 {
     private const string LOG_SOURCE          = "LilithsHeart.ServerChatSystemPatch";
-    private const string FALLBACK_SENTINEL   = "[[LG:sync-fallback]]";
-    private const string LANG_REQUEST_PREFIX = "[[LG:lang-request:";
+    private const string FALLBACK_SENTINEL   = "[[LE::sync-fallback]]";
+    private const string LANG_REQUEST_PREFIX = "[[LE::lang-request:";
 
     // EntityQuery for incoming player chat messages.
     // Lazily initialized on first use.
@@ -98,8 +98,8 @@ internal static class ServerChatSystemPatch
                 var chatEvent = em.GetComponentData<ChatMessageServerEvent>(entity);
                 var message   = chatEvent.MessageText.ToString();
 
-                // Fast-path: ignore anything that doesn't start with [[LG:
-                if (!message.StartsWith("[[LG:", StringComparison.Ordinal)) continue;
+                // Fast-path: ignore anything that doesn't start with [[LE::
+                if (!message.StartsWith("[[LE::", StringComparison.Ordinal)) continue;
 
                 if (message.Equals(FALLBACK_SENTINEL, StringComparison.Ordinal))
                 {
@@ -111,7 +111,7 @@ internal static class ServerChatSystemPatch
                 {
                     HandleLangRequest(em, entity, __instance, message);
                 }
-                // Future [[LG:...]] sentinels from Soul handled here.
+                // Future [[LE::...]] sentinels from Soul handled here.
             }
         }
         finally
@@ -128,7 +128,7 @@ internal static class ServerChatSystemPatch
         ServerBootstrapSystem bootstrap,
         string message)
     {
-        // [[LG:lang-request:Spanish]]
+        // [[LE::lang-request:Spanish]]
         var languageName = message[LANG_REQUEST_PREFIX.Length..^2];
 
         if (string.IsNullOrWhiteSpace(languageName))
@@ -187,7 +187,7 @@ internal static class ServerChatSystemPatch
         if (!em.Exists(userEntity) || !em.Exists(characterEntity))
         {
             HeartLogger.Warning(LOG_SOURCE,
-                "Received [[LG:sync-fallback]] but user/character entity no longer exists.");
+                "Received [[LE::sync-fallback]] but user/character entity no longer exists.");
             em.DestroyEntity(entity);
             return;
         }
@@ -207,7 +207,7 @@ internal static class ServerChatSystemPatch
         if (userIndex < 0)
         {
             HeartLogger.Warning(LOG_SOURCE,
-                "Received [[LG:sync-fallback]] but could not resolve userIndex — ignoring.");
+                "Received [[LE::sync-fallback]] but could not resolve userIndex — ignoring.");
             em.DestroyEntity(entity);
             return;
         }
